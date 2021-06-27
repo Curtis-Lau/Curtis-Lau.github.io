@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Curtis LAU&#39;s BLOG</title>
+  
+  <subtitle>一轮皓月</subtitle>
+  <link href="http://curtis-lau.github.io/atom.xml" rel="self"/>
+  
+  <link href="http://curtis-lau.github.io/"/>
+  <updated>2021-06-27T08:01:33.695Z</updated>
+  <id>http://curtis-lau.github.io/</id>
+  
+  <author>
+    <name>Curtis Lau</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>cl3</title>
+    <link href="http://curtis-lau.github.io/post/2973/"/>
+    <id>http://curtis-lau.github.io/post/2973/</id>
+    <published>2021-06-27T02:27:28.000Z</published>
+    <updated>2021-06-27T08:01:33.695Z</updated>
+    
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>cl2</title>
+    <link href="http://curtis-lau.github.io/post/52060/"/>
+    <id>http://curtis-lau.github.io/post/52060/</id>
+    <published>2021-06-27T02:27:17.000Z</published>
+    <updated>2021-06-27T08:01:33.691Z</updated>
+    
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Hello World</title>
+    <link href="http://curtis-lau.github.io/post/16107/"/>
+    <id>http://curtis-lau.github.io/post/16107/</id>
+    <published>2021-06-26T08:35:58.540Z</published>
+    <updated>2021-06-27T09:15:44.024Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;Welcome to &lt;a href=&quot;https://hexo.io/&quot;&gt;Hexo&lt;/a&gt;! This is your very first post. Check &lt;a href=&quot;https://hexo.io/docs/&quot;&gt;documentation&lt;/a&gt; for more info. If you get any problems when using Hexo, you can find the answer in &lt;a href=&quot;https://hexo.io/docs/troubleshooting.html&quot;&gt;troubleshooting&lt;/a&gt; or you can ask me on &lt;a href=&quot;https://github.com/hexojs/hexo/issues&quot;&gt;GitHub&lt;/a&gt;.&lt;/p&gt;</summary>
+    
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>遗传算法</title>
+    <link href="http://curtis-lau.github.io/post/34642/"/>
+    <id>http://curtis-lau.github.io/post/34642/</id>
+    <published>2020-06-27T02:27:06.000Z</published>
+    <updated>2021-06-26T16:00:00.000Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;遗传算法（Genetic Algorithm, GA）是模拟达尔文生物进化论的自然选择和遗传学机理的生物进化过程的计算模型，是一种通过模拟自然进化过程搜索最优解的方法。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="算法" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="机器学习" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+    
+    <category term="遗传算法，" scheme="http://curtis-lau.github.io/source/tags/%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95%EF%BC%8C/"/>
+    
+    <category term="机器学习" scheme="http://curtis-lau.github.io/source/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+  </entry>
+  
+</feed>
