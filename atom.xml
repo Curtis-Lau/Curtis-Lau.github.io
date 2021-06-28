@@ -6,7 +6,7 @@
   <link href="http://curtis-lau.github.io/atom.xml" rel="self"/>
   
   <link href="http://curtis-lau.github.io/"/>
-  <updated>2021-06-28T07:39:12.670Z</updated>
+  <updated>2021-06-28T07:39:12.667Z</updated>
   <id>http://curtis-lau.github.io/</id>
   
   <author>
@@ -15,19 +15,6 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
-  
-  <entry>
-    <title>慧博研投爬虫</title>
-    <link href="http://curtis-lau.github.io/post/55099ab/"/>
-    <id>http://curtis-lau.github.io/post/55099ab/</id>
-    <published>2021-06-28T07:35:52.000Z</published>
-    <updated>2021-06-28T07:39:12.670Z</updated>
-    
-    
-    
-    
-    
-  </entry>
   
   <entry>
     <title>2020年研究生数学建模B题</title>
@@ -61,12 +48,37 @@
     <title>推荐算法：LinUCB</title>
     <link href="http://curtis-lau.github.io/post/2973/"/>
     <id>http://curtis-lau.github.io/post/2973/</id>
-    <published>2021-06-27T02:27:28.000Z</published>
-    <updated>2021-06-28T07:51:24.661Z</updated>
+    <published>2020-11-27T02:27:28.000Z</published>
+    <updated>2021-04-30T05:56:27.000Z</updated>
     
     
     
     
+    <category term="算法" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="强化学习" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"/>
+    
+    
+    <category term="强化学习" scheme="http://curtis-lau.github.io/source/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"/>
+    
+    <category term="推荐算法" scheme="http://curtis-lau.github.io/source/tags/%E6%8E%A8%E8%8D%90%E7%AE%97%E6%B3%95/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>慧博研投爬虫</title>
+    <link href="http://curtis-lau.github.io/post/55099ab/"/>
+    <id>http://curtis-lau.github.io/post/55099ab/</id>
+    <published>2020-07-28T07:35:52.000Z</published>
+    <updated>2020-08-05T03:15:23.000Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;本文爬取的是慧博研投(www.hibor.com.cn)研报栏目的数据，主要包含研报的发布时间、标题、摘要的信息，然后将数据存于本地MongoDB数据库中。&lt;/p&gt;</summary>
+    
+    
+    
+    
+    <category term="爬虫" scheme="http://curtis-lau.github.io/source/tags/%E7%88%AC%E8%99%AB/"/>
     
   </entry>
   
