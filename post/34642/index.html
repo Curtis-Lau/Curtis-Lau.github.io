@@ -18,25 +18,24 @@
 
 <script id="hexo-configurations">
     var NexT = window.NexT || {};
-    var CONFIG = {"hostname":"curtis-lau.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":15,"offset":10,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"mac"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+    var CONFIG = {"hostname":"curtis-lau.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":15,"offset":10,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="遗传算法（Genetic Algorithm, GA）是模拟达尔文生物进化论的自然选择和遗传学机理的生物进化过程的计算模型，是一种通过模拟自然进化过程搜索最优解的方法。">
+  <meta name="description" content="遗传算法（Genetic Algorithm, GA）是模拟达尔文生物进化论的自然选择和遗传学机理的生物进化过程的计算模型，是一种通过模拟自然进化过程搜索最优解的方法。 本文结合具体例子讲解。">
 <meta property="og:type" content="article">
 <meta property="og:title" content="遗传算法">
 <meta property="og:url" content="http://curtis-lau.github.io/post/34642/index.html">
 <meta property="og:site_name" content="Curtis LAU&#39;s BLOG">
-<meta property="og:description" content="遗传算法（Genetic Algorithm, GA）是模拟达尔文生物进化论的自然选择和遗传学机理的生物进化过程的计算模型，是一种通过模拟自然进化过程搜索最优解的方法。">
+<meta property="og:description" content="遗传算法（Genetic Algorithm, GA）是模拟达尔文生物进化论的自然选择和遗传学机理的生物进化过程的计算模型，是一种通过模拟自然进化过程搜索最优解的方法。 本文结合具体例子讲解。">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://curtis-lau.github.io/cl1/%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B%E5%9B%BE.jpg">
-<meta property="og:image" content="https://betanews.com/wp-content/uploads/2016/04/penguingun-768x768.jpg">
+<meta property="og:image" content="http://curtis-lau.github.io/post/34642/遗传算法流程图.jpg">
 <meta property="article:published_time" content="2020-06-27T02:27:06.000Z">
-<meta property="article:modified_time" content="2021-06-26T16:00:00.000Z">
+<meta property="article:modified_time" content="2020-06-30T06:28:51.000Z">
 <meta property="article:author" content="Curtis Lau">
-<meta property="article:tag" content="遗传算法，">
 <meta property="article:tag" content="机器学习">
+<meta property="article:tag" content="遗传算法">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://curtis-lau.github.io/cl1/%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B%E5%9B%BE.jpg">
+<meta name="twitter:image" content="http://curtis-lau.github.io/post/34642/遗传算法流程图.jpg">
 
 <link rel="canonical" href="http://curtis-lau.github.io/post/34642/">
 
@@ -236,7 +235,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2021-06-27 00:00:00" itemprop="dateModified" datetime="2021-06-27T00:00:00+08:00">2021-06-27</time>
+                <time title="修改时间：2020-06-30 14:28:51" itemprop="dateModified" datetime="2020-06-30T14:28:51+08:00">2020-06-30</time>
               </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -264,18 +263,17 @@
 
       
         <p>遗传算法（Genetic Algorithm, GA）是模拟达尔文生物进化论的自然选择和遗传学机理的生物进化过程的计算模型，是一种通过模拟自然进化过程搜索最优解的方法。</p>
+<p>本文结合具体例子讲解。</p>
 <span id="more"></span>
-
-<h2 id="01-什么是遗传算法"><a href="#01-什么是遗传算法" class="headerlink" title="01 什么是遗传算法"></a>01 什么是遗传算法</h2><h3 id="1-1-遗传算法的定义"><a href="#1-1-遗传算法的定义" class="headerlink" title="1.1 遗传算法的定义"></a>1.1 遗传算法的定义</h3><p>遗传算法（Genetic Algorithm, GA）是模拟达尔文生物进化论的自然选择和遗传学机理的生物进化过程的计算模型，是一种通过模拟自然进化过程搜索最优解的方法。</p>
+<h2 id="什么是遗传算法"><a href="#什么是遗传算法" class="headerlink" title="什么是遗传算法"></a>什么是遗传算法</h2><h3 id="遗传算法的定义"><a href="#遗传算法的定义" class="headerlink" title="遗传算法的定义"></a>遗传算法的定义</h3><p>遗传算法（Genetic Algorithm, GA）是模拟达尔文生物进化论的自然选择和遗传学机理的生物进化过程的计算模型，是一种通过模拟自然进化过程搜索最优解的方法。</p>
 <p>其主要特点是直接对结构对象进行操作，不存在求导和函数连续性的限定；具有内在的隐并行性和更好的全局寻优能力；采用概率化的寻优方法，不需要确定的规则就能自动获取和指导优化的搜索空间，自适应地调整搜索方向。</p>
 <p>遗传算法以一种群体中的所有个体为对象，并利用随机化技术指导对一个被编码的参数空间进行高效搜索。其中，选择、交叉和变异构成了遗传算法的遗传操作；参数编码、初始群体的设定、适应度函数的设计、遗传操作设计、控制参数设定五个要素组成了遗传算法的核心内容。</p>
-<h3 id="1-2-遗传算法的执行过程"><a href="#1-2-遗传算法的执行过程" class="headerlink" title="1.2 遗传算法的执行过程"></a>1.2 遗传算法的执行过程</h3><p>遗传算法是从代表问题可能潜在的解集的一个种群（population）开始的，而一个种群则由经过基因（gene）编码的一定数目的个体(individual)组成。每个个体实际上是染色体(chromosome)带有特征的实体。</p>
+<h3 id="遗传算法的执行过程"><a href="#遗传算法的执行过程" class="headerlink" title="遗传算法的执行过程"></a>遗传算法的执行过程</h3><p>遗传算法是从代表问题可能潜在的解集的一个种群（population）开始的，而一个种群则由经过基因（gene）编码的一定数目的个体(individual)组成。每个个体实际上是染色体(chromosome)带有特征的实体。</p>
 <p>染色体作为遗传物质的主要载体，即多个基因的集合，其内部表现（即基因型）是某种基因组合，它决定了个体的形状的外部表现，如黑头发的特征是由染色体中控制这一特征的某种基因组合决定的。因此，在一开始需要实现从表现型到基因型的映射即编码工作。由于仿照基因编码的工作很复杂，我们往往进行简化，如二进制编码。</p>
 <p>初代种群产生之后，按照适者生存和优胜劣汰的原理，逐代（generation）演化产生出越来越好的近似解，在每一代，根据问题域中个体的适应度（fitness）大小选择（selection）个体，并借助于自然遗传学的遗传算子（genetic operators）进行组合交叉（crossover）和变异（mutation），产生出代表新的解集的种群。</p>
 <p>这个过程将导致种群像自然进化一样的后生代种群比前代更加适应于环境，末代种群中的最优个体经过解码（decoding），可以作为问题近似最优解</p>
-<p><img src="/cl1/%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B%E5%9B%BE.jpg" alt="遗传算法流程图"></p>
-<p><img src="https://betanews.com/wp-content/uploads/2016/04/penguingun-768x768.jpg"><br><a href="https://curtis-lau.github.io/">Curtis官网</a></p>
-<h2 id="02-遗传算法相关术语"><a href="#02-遗传算法相关术语" class="headerlink" title="02 遗传算法相关术语"></a>02 遗传算法相关术语</h2><ul>
+<p><img src="/post/34642/遗传算法流程图.jpg" alt="遗传算法流程图"></p>
+<h2 id="遗传算法相关术语"><a href="#遗传算法相关术语" class="headerlink" title="遗传算法相关术语"></a>遗传算法相关术语</h2><ul>
 <li>基因型(genotype)：性状染色体的内部表现；</li>
 <li>表现型(phenotype)：染色体决定的性状的外部表现，或者说，根据基因型形成的个体的外部表现；</li>
 <li>进化(evolution)：种群逐渐适应生存环境，品质不断得到改良。生物的进化是以种群的形式进行的。</li>
@@ -289,6 +287,101 @@
 <li>个体（individual）：指染色体带有特征的实体；</li>
 <li>种群（population）：个体的集合，该集合内个体数称为种群</li>
 </ul>
+<h2 id="遗传算法具体步骤"><a href="#遗传算法具体步骤" class="headerlink" title="遗传算法具体步骤"></a>遗传算法具体步骤</h2><h3 id="编码"><a href="#编码" class="headerlink" title="编码"></a>编码</h3><p>需要将问题的解编码成字符串的形式才能使用遗传算法。最简单的一种编码方式是二进制编码，即将问题的解编码成二进制位数组的形式。例如，问题的解是整数，那么可以将其编码成二进制位数组的形式。</p>
+<p>基因在一定能够意义上包含了它所代表的问题的解。基因的编码方式有很多，这也取决于要解决的问题本身。常见的编码方式有：</p>
+<ol>
+<li>二进制编码，基因用0或1表示， 如：基因A：00100011010 (代表一个个体的染色体)；</li>
+<li>互换编码（用于解决排序问题，如旅行商问题和调度问题）， 如旅行商问题中，一串基因编码用来表示遍历的城市顺序，如：234517986，表示九个城市中，先经过城市2，再经过城市3，依此类推；</li>
+<li>树形编码（用于遗传规划中的演化编程或者表示）。 </li>
+</ol>
+<p><strong><em>举例：如果要求解函数$F(x)=x \cdot sin(10x) + x \cdot cos(2x)$，其中$x\in[a,b]$，这里就可以使用二进制编码对$x$编码，假设染色体为$g_1g_2…g_{k-1}g_k$，则$x$与染色体的转换方式为：$x= a+(\displaystyle\sum^k_{i=1}g_i \cdot 2^{i-1})\cdot\frac{b-a}{2^k-1}$</em></strong></p>
+<p><strong><em>代码如下：</em></strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">translateDNA</span>(<span class="params">pop</span>):</span></span><br><span class="line">    <span class="keyword">return</span> pop.dot(<span class="number">2</span>**np.arange(DNA_SIZE)[::-<span class="number">1</span>])/<span class="built_in">float</span>(<span class="number">2</span>**DNA_SIZE-<span class="number">1</span>)*X_BOUND[<span class="number">1</span>]</span><br></pre></td></tr></table></figure>
+<h3 id="适应度函数"><a href="#适应度函数" class="headerlink" title="适应度函数"></a>适应度函数</h3><p>适应度函数 ( Fitness Function )：用于评价某个染色体的适应度，用f(x)表示。有时需要区分染色体的适应度函数与问题的目标函数。适应度函数与目标函数是正相关的，可对目标函数作一些变形来得到适应度函数。</p>
+<p><strong><em>接上面例子：该题的适应度函数可以每个个体的$F(x_i)$减去群体最小的$F(x)$,但是为了避免下面选择时出现概率为0的情况，所以加上一个很小的值，即：$f(x_i)=F(x_i)-F(x_i)_{min}+0.001$</em></strong>。</p>
+<p><strong><em>代码如下：</em></strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">get_fitness</span>(<span class="params">pred</span>):</span></span><br><span class="line">    <span class="keyword">return</span> pred + <span class="number">1e-3</span> - np.<span class="built_in">min</span>(pred)</span><br></pre></td></tr></table></figure>
+<h3 id="遗传算子"><a href="#遗传算子" class="headerlink" title="遗传算子"></a>遗传算子</h3><p>遗传算子包含3个最基本的操作：选择，交叉，变异。</p>
+<h4 id="选择"><a href="#选择" class="headerlink" title="选择"></a>选择</h4><p>选择一些染色体来产生下一代。一种常用的选择策略是 “比例选择”，也就是个体被选中的概率与其适应度函数值成正比。假设群体的个体总数是n，那么那么一个体$X_i$被选中的概率为$\frac {f(X_i)}{\displaystyle \sum^n_{i=1}(f(X_i)}$ 。比例选择实现算法就是所谓的”轮盘赌选择”（ Roulette Wheel Selection）。</p>
+<p><strong><em>接上面例子：这里使用轮盘赌选择，具体公式：$p_i=\frac{f(x_i)}{\displaystyle \sum f(x_i)}$</em></strong>。</p>
+<p><strong><em>接上面例子：代码如下</em></strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">select</span>(<span class="params">pop, fitness</span>):</span></span><br><span class="line">    idx = np.random.choice(np.arange(<span class="built_in">len</span>(pop)), size=<span class="built_in">len</span>(pop), replace=<span class="literal">True</span>,</span><br><span class="line">                           p=fitness/fitness.<span class="built_in">sum</span>())</span><br><span class="line">    <span class="keyword">return</span> pop[idx]</span><br></pre></td></tr></table></figure>
+<h4 id="交叉"><a href="#交叉" class="headerlink" title="交叉"></a>交叉</h4><p>所谓交叉运算，是指对两个相互配对的染色体依据交叉概率按某种方式相互交换其部分基因，从而形成两个新的个体。交叉运算在GA中起关键作用，是产生新个体的主要方法。染色体交叉是以一定的概率发生的，这个概率记为$P_c$ 。</p>
+<ul>
+<li><p>双点交叉法：选择两个交叉点，子代基因在两个交叉点间部分来自一个父代基因，其余部分来自于另外一个父代基因.。</p>
+<ul>
+<li><p>交叉前：</p>
+<p> A染色体：00000|011100000000|10000</p>
+<p> B染色体：11100|000001111110|00101</p>
+</li>
+<li><p>交叉后：</p>
+<p> A染色体：00000|000001111110|10000</p>
+<p> B染色体：11100|011100000000|00101</p>
+</li>
+</ul>
+</li>
+<li><p>基于“ 与/或 ”交叉法 （用于二进制编码）</p>
+<ul>
+<li>交叉前：</li>
+</ul>
+<p>​        A染色体：01001011</p>
+<p>​        B染色体：11011101</p>
+<ul>
+<li><p>交叉后：</p>
+<p>A染色体：01001001</p>
+<p>B染色体：11011111</p>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong><em>接上面例子：代码如下</em></strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">crossover</span>(<span class="params">parent, pop</span>):</span>     <span class="comment"># mating process (genes crossover)</span></span><br><span class="line">    i_ = np.random.randint(<span class="number">0</span>, <span class="built_in">len</span>(pop), size=<span class="number">1</span>)      <span class="comment"># 随机挑选另一个individual</span></span><br><span class="line">    cross_points = np.random.randint(<span class="number">0</span>, <span class="number">2</span>, size=DNA_SIZE).astype(np.<span class="built_in">bool</span>)   <span class="comment"># 选择交叉点（True的位置交叉）</span></span><br><span class="line">    parent[cross_points] = pop[i_, cross_points]     <span class="comment"># 把parent中True对应位置换成individual这个位置的数值</span></span><br><span class="line">    <span class="keyword">return</span> parent</span><br></pre></td></tr></table></figure>
+<h4 id="变异"><a href="#变异" class="headerlink" title="变异"></a>变异</h4><p>变异是指依据变异概率将个体编码串中的某些基因值用其它基因值来替换，从而形成一个新的个体。GA中的变异运算是产生新个体的辅助方法，它决定了GA的局部搜索能力，同时保持种群的多样性。交叉运算和变异运算的相互配合，共同完成对搜索空间的全局搜索和局部搜索。</p>
+<p><strong>注：变异概率Pm不能太小，这样降低全局搜索能力；也不能太大，$P_m$&gt; 0.5，这时GA退化为随机搜索。</strong></p>
+<p>在繁殖过程，新产生的染色体中的基因会以一定的概率出错，称为变异。变异发生的概率记为$P_m$ 。</p>
+<ul>
+<li><p>基本位变异算子 （用于二进制编码）：是指对个体编码串随机指定的某一位或某几位基因作变异运算。对于基本遗传算法中用二进制编码符号串所表示的个体，若需要进行变异操作的某一基因座上的原有基因值为0，则变异操作将其变为1；反之，若原有基因值为1，则变异操作将其变为0。</p>
+<ul>
+<li>变异前：000001110000000010000</li>
+<li>变异后：000001110000100010000</li>
+</ul>
+</li>
+<li><p>逆转变异算子（用于互换编码）：在个体中随机挑选两个逆转点，再将两个逆转点间的基因交换。 </p>
+<ul>
+<li>变异前： 1346798205</li>
+<li>变异后： 1246798305</li>
+</ul>
+</li>
+</ul>
+<p><strong><em>接上面例子：代码如下</em></strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">mutate</span>(<span class="params">child</span>):</span></span><br><span class="line">    <span class="keyword">for</span> point <span class="keyword">in</span> <span class="built_in">range</span>(DNA_SIZE):</span><br><span class="line">        <span class="keyword">if</span> np.random.rand() &lt; MUTATION_RATE:       <span class="comment"># 0.3%的概率基因突变</span></span><br><span class="line">            child[point] = <span class="number">1</span> <span class="keyword">if</span> child[point] == <span class="number">0</span> <span class="keyword">else</span> <span class="number">0</span></span><br><span class="line">    <span class="keyword">return</span> child</span><br></pre></td></tr></table></figure>
+<h2 id="运行参数"><a href="#运行参数" class="headerlink" title="运行参数"></a>运行参数</h2><p>GA运行时选择的参数应该视解决的具体问题而定，到目前为止，还没有一个适用于GA所有应用领域的关于算法参数的理论。下面是一般情况下使用GA时推荐的参数：</p>
+<h3 id="交叉率"><a href="#交叉率" class="headerlink" title="交叉率"></a>交叉率</h3><p>交叉率一般来说应该比较大，推荐使用80％-95％。</p>
+<h3 id="变异率"><a href="#变异率" class="headerlink" title="变异率"></a>变异率</h3><p>变异率一般来说应该比较小，一般使用0.5％-1％最好。</p>
+<h3 id="种群的规模"><a href="#种群的规模" class="headerlink" title="种群的规模"></a>种群的规模</h3><p>种群规模指的是群体中个体的个数。实验发现，比较大的种群的规模并不能优化遗传算法的结果。种群的大小推荐使用20-30，一些研究表明，种群规模 的大小取决于编码的方法，具体的说就是编码串（Encoded String）的大小。也就是说，如果说采用32位为基因编码的时候种群的规模大小最好为32的话，那么当采用16位为基因编码时种群的规模相应应变为原 来的两倍。</p>
+<h3 id="遗传运算的终止进化代数"><a href="#遗传运算的终止进化代数" class="headerlink" title="遗传运算的终止进化代数"></a>遗传运算的终止进化代数</h3><p>个人的想法是，设定一个计数器，如果连续N代出现的最优个体的适应度都一样时，（严格的说应该是，连续N代子代种群的最优个体适应度都&lt;=父代最优个性的适应度）可以终止运算。</p>
+<h2 id="遗传算法的优化"><a href="#遗传算法的优化" class="headerlink" title="遗传算法的优化"></a>遗传算法的优化</h2><h3 id="灾变"><a href="#灾变" class="headerlink" title="灾变"></a>灾变</h3><p>遗传算法的局部搜索能力较强，但是很容易陷入局部极值。引用网上的一段原话: 那么如何解决遗传算法容易陷入局部极值的问题呢？让我们来看看大自然提供的方案。</p>
+<p>六千五百万年以前，恐龙和灵长类动物并存，恐龙在地球上占绝对统 治地位，如果恐龙没有灭绝灵长类动物是绝没有可能统治地球的。正是恐龙的灭绝才使灵长类动物有了充分进化的余地，事实上地球至少经历了5次物种大灭绝，每 次物种灭绝都给更加高级的生物提供了充分进化的余地。所以要跳出局部极值就必须杀死当前所有的优秀个体，从而让远离当前极值的点有充分的进化余地。这就是灾变的思想。”</p>
+<p>灾变就是杀掉最优秀的个体，这样才可能产生更优秀的物种。那何时进行灾变，灾变次数又如何设定？</p>
+<p>何时进行灾变，可以采用灾变倒计数的方式。如果n代还没有出现比之前更优秀的个体时，可以发生灾变。灾变次数可以这样来确定，如果若干次灾变后产生的个体的适应度与没灾变前的一样，可停止灾变。</p>
+<h3 id="精英主义-Elitist-Strategy-选择："><a href="#精英主义-Elitist-Strategy-选择：" class="headerlink" title="精英主义(Elitist Strategy)选择："></a>精英主义(Elitist Strategy)选择：</h3><p>当利用交叉和变异产生新的一代时，我们有很大的可能把在某个中间步骤中得到的最优解丢失。</p>
+<p>精英主义的思想是,在每一次产生新的一代时，首先把当前最优解原封不动的复制到新的一代中。然后按照前面所说的那样做就行。精英主义方法可以大幅提高运算速度，因为它可以防止丢失掉找到的最好的解。</p>
+<p>精英主义是基本遗传算法的一种优化。为了防止进化过程中产生的最优解被交叉和变异所破坏，可以将每一代中的最优解原封不动的复制到下一代中。</p>
+<h3 id="矛盾"><a href="#矛盾" class="headerlink" title="矛盾"></a>矛盾</h3><p>由上面看来,灾变与精英主义之间似乎存在着矛盾.前者是将产生的最优个体杀掉,而后者是将最优秀个体基因直接保存到下一代.</p>
+<p>应该辩证地看待它们之间的矛盾,两者其实是可以共存的.我们在每一代进行交叉运算时,均直接把最优秀的个体复制到下一代;但当连续N代,都没有更优 秀的个体出现时,便可以猜想可能陷入局部最优解了,这样可以采用灾变的手段.可以说,精英主义是伴随的每一代的,但灾变却不需要经常发生,否则算法可能下 降为随机搜索了.</p>
+<p>当然,每个算法中不一定要用精英主义和灾变的手段,应该根据具体的问题而定</p>
+<h3 id="插入操作："><a href="#插入操作：" class="headerlink" title="插入操作："></a>插入操作：</h3><p>可在3个基本操作的基础上增加一个插入操作。插入操作将染色体中的某个随机的片段移位到另一个随机的位置。</p>
+<h2 id="遗传算法的特点"><a href="#遗传算法的特点" class="headerlink" title="遗传算法的特点"></a>遗传算法的特点</h2><h3 id="遗传算法的优点"><a href="#遗传算法的优点" class="headerlink" title="遗传算法的优点:"></a>遗传算法的优点:</h3><ul>
+<li>群体搜索，易于并行化处理；</li>
+<li>不是盲目穷举，而是启发式搜索；</li>
+<li>适应度函数不受连续、可微等条件的约束，适用范围很广。</li>
+<li>容易实现。一旦有了一个遗传算法的程序，如果想解决一个新的问题，只需针对新的问题重新进行基因编码就行；如果编码方法也相同，那只需要改变一下适应度函数就可以了。</li>
+</ul>
+<h3 id="遗传算法的缺点"><a href="#遗传算法的缺点" class="headerlink" title="遗传算法的缺点:"></a>遗传算法的缺点:</h3><ul>
+<li>全局搜索能力不强,很容易陷入局部最优解跳不出来；(可结合SA进行改进,因为SA在理率上是100%得到全局最优的,但搜索代价高)</li>
+</ul>
+<p>将遗传算法用于解决各种实际问题后，人们发现遣传算法也会由于各种原因过早向目标函数的局部最优解收敛，从而很难找到全局最优解。其中有些是由于目标函数的特性造成的，例如函数具有欺骗性，不满足构造模块假说等等；另外一些则是由于算法设计不当。为此，不断有人对遗传算法提出各种各样的改进方案。例如：针对原先的定长二进制编码方案；提出了动态编码、实数编码等改进方案；针对按比例的选择机制，提出了竞争选择、按续挑选等改进方案；针对原先的一点交<em>算子，提出了两点交</em>、多点交<em>、均匀交</em>等算子；针对原先遗传算法各控制参数在进化过程中不变的情况，提出了退化遗传算法、自适应遗传算法等。另外，针对不同问题还出现了分布式遗传算法、并行遗传算法等等。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/Curtis-Lau/Genetic-Algorithm">本题全部代码详见GitHub</a></p>
 
     </div>
 
@@ -347,8 +440,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/source/tags/%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95%EF%BC%8C/" rel="tag"><i class="fa fa-tag"></i>遗传算法，</a>
               <a href="/source/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag"><i class="fa fa-tag"></i>机器学习</a>
+              <a href="/source/tags/%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i>遗传算法</a>
           </div>
 
         
@@ -358,8 +451,8 @@
     <div class="post-nav">
       <div class="post-nav-item"></div>
       <div class="post-nav-item">
-    <a href="/post/16107/" rel="next" title="Hello World">
-      Hello World <i class="fa fa-chevron-right"></i>
+    <a href="/post/52060/" rel="next" title="决策树">
+      决策树 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -419,7 +512,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#01-%E4%BB%80%E4%B9%88%E6%98%AF%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">01 什么是遗传算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 遗传算法的定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 遗传算法的执行过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#02-%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95%E7%9B%B8%E5%85%B3%E6%9C%AF%E8%AF%AD"><span class="nav-number">2.</span> <span class="nav-text">02 遗传算法相关术语</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">什么是遗传算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">1.1.</span> <span class="nav-text">遗传算法的定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95%E7%9A%84%E6%89%A7%E8%A1%8C%E8%BF%87%E7%A8%8B"><span class="nav-number">1.2.</span> <span class="nav-text">遗传算法的执行过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95%E7%9B%B8%E5%85%B3%E6%9C%AF%E8%AF%AD"><span class="nav-number">2.</span> <span class="nav-text">遗传算法相关术语</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95%E5%85%B7%E4%BD%93%E6%AD%A5%E9%AA%A4"><span class="nav-number">3.</span> <span class="nav-text">遗传算法具体步骤</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%96%E7%A0%81"><span class="nav-number">3.1.</span> <span class="nav-text">编码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%82%E5%BA%94%E5%BA%A6%E5%87%BD%E6%95%B0"><span class="nav-number">3.2.</span> <span class="nav-text">适应度函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%97%E4%BC%A0%E7%AE%97%E5%AD%90"><span class="nav-number">3.3.</span> <span class="nav-text">遗传算子</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%80%89%E6%8B%A9"><span class="nav-number">3.3.1.</span> <span class="nav-text">选择</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BA%A4%E5%8F%89"><span class="nav-number">3.3.2.</span> <span class="nav-text">交叉</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%98%E5%BC%82"><span class="nav-number">3.3.3.</span> <span class="nav-text">变异</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E5%8F%82%E6%95%B0"><span class="nav-number">4.</span> <span class="nav-text">运行参数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%A4%E5%8F%89%E7%8E%87"><span class="nav-number">4.1.</span> <span class="nav-text">交叉率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%98%E5%BC%82%E7%8E%87"><span class="nav-number">4.2.</span> <span class="nav-text">变异率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A7%8D%E7%BE%A4%E7%9A%84%E8%A7%84%E6%A8%A1"><span class="nav-number">4.3.</span> <span class="nav-text">种群的规模</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%97%E4%BC%A0%E8%BF%90%E7%AE%97%E7%9A%84%E7%BB%88%E6%AD%A2%E8%BF%9B%E5%8C%96%E4%BB%A3%E6%95%B0"><span class="nav-number">4.4.</span> <span class="nav-text">遗传运算的终止进化代数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95%E7%9A%84%E4%BC%98%E5%8C%96"><span class="nav-number">5.</span> <span class="nav-text">遗传算法的优化</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%81%BE%E5%8F%98"><span class="nav-number">5.1.</span> <span class="nav-text">灾变</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%B2%BE%E8%8B%B1%E4%B8%BB%E4%B9%89-Elitist-Strategy-%E9%80%89%E6%8B%A9%EF%BC%9A"><span class="nav-number">5.2.</span> <span class="nav-text">精英主义(Elitist Strategy)选择：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9F%9B%E7%9B%BE"><span class="nav-number">5.3.</span> <span class="nav-text">矛盾</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8F%92%E5%85%A5%E6%93%8D%E4%BD%9C%EF%BC%9A"><span class="nav-number">5.4.</span> <span class="nav-text">插入操作：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-number">6.</span> <span class="nav-text">遗传算法的特点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95%E7%9A%84%E4%BC%98%E7%82%B9"><span class="nav-number">6.1.</span> <span class="nav-text">遗传算法的优点:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95%E7%9A%84%E7%BC%BA%E7%82%B9"><span class="nav-number">6.2.</span> <span class="nav-text">遗传算法的缺点:</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -435,7 +528,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">6</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -448,7 +541,7 @@
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
           
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">3</span>
         <span class="site-state-item-name">标签</span></a>
       </div>
   </nav>
@@ -557,6 +650,63 @@
 
 
   
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+          load: ['[tex]/mhchem'],
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 
