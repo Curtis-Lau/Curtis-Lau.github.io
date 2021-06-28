@@ -21,12 +21,12 @@
     var CONFIG = {"hostname":"curtis-lau.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":15,"offset":10,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="人生起伏以意志勇怯而定">
+  <meta name="description" content="推荐系统里面有两个经典问题：EE 问题和冷启动问题。前者涉及到平衡准确和多样，后者涉及到产品算法运营等一系列东西。Bandit 算法是一种简单的在线学习算法，常常用于尝试解决这两个问题，本文为你介绍基础的 Bandit 算法及一系列升级版，以及对推荐系统这两个经典问题的思考。 Bandit算法是一类用来实现Exploitation-Exploration机制的策略。根据是否考虑上下文特征，Band">
 <meta property="og:type" content="article">
 <meta property="og:title" content="推荐算法：LinUCB">
 <meta property="og:url" content="http://curtis-lau.github.io/post/2973/index.html">
 <meta property="og:site_name" content="Curtis LAU&#39;s BLOG">
-<meta property="og:description" content="人生起伏以意志勇怯而定">
+<meta property="og:description" content="推荐系统里面有两个经典问题：EE 问题和冷启动问题。前者涉及到平衡准确和多样，后者涉及到产品算法运营等一系列东西。Bandit 算法是一种简单的在线学习算法，常常用于尝试解决这两个问题，本文为你介绍基础的 Bandit 算法及一系列升级版，以及对推荐系统这两个经典问题的思考。 Bandit算法是一类用来实现Exploitation-Exploration机制的策略。根据是否考虑上下文特征，Band">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2020-11-27T02:27:28.000Z">
 <meta property="article:modified_time" content="2021-04-30T05:56:27.000Z">
@@ -260,7 +260,97 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <p>推荐系统里面有两个经典问题：EE 问题和冷启动问题。前者涉及到平衡准确和多样，后者涉及到产品算法运营等一系列东西。Bandit 算法是一种简单的在线学习算法，常常用于尝试解决这两个问题，本文为你介绍基础的 Bandit 算法及一系列升级版，以及对推荐系统这两个经典问题的思考。</p>
+<p>Bandit算法是一类用来实现Exploitation-Exploration机制的策略。根据是否考虑上下文特征，Bandit算法分为Context-free Bandit和Contextual Bandit两大类，本文简单介绍Context-free Bandit，重点讲解Contextual Bandit。</p>
+<span id="more"></span>
+<h2 id="什么是-bandit-算法"><a href="#什么是-bandit-算法" class="headerlink" title="什么是 bandit 算法"></a>什么是 bandit 算法</h2><h3 id="为选择而生"><a href="#为选择而生" class="headerlink" title="为选择而生"></a>为选择而生</h3><p>我们会遇到很多选择的场景。上哪个大学，学什么专业，去哪家公司，中午吃什么，等等。这些事情，都让选择困难症的我们头很大。那么，有算法能够很好地对付这些问题吗？</p>
+<p>当然有！那就是 Bandit 算法！</p>
+<p>bandit 算法来源于历史悠久的赌博学，它要解决的问题是这样的：</p>
+<p>一个赌徒，要去摇老虎机，走进赌场一看，一排老虎机，外表一模一样，但是每个老虎机吐钱的概率可不一样，他不知道每个老虎机吐钱的概率分布是什么，那么每次该选择哪个老虎机可以做到最大化收益呢？这就是多臂赌博机问题 (Multi-armed bandit problem, K-armed bandit problem, MAB)。</p>
+<p>怎么解决这个问题呢？最好的办法是去试一试，不是盲目地试，而是有策略地快速试一试，这些策略就是 Bandit 算法。</p>
+<p>这个多臂问题，推荐系统里面很多问题都与他类似：</p>
+<p>假设一个用户对不同类别的内容感兴趣程度不同，那么我们的推荐系统初次见到这个用户时，怎么快速地知道他对每类内容的感兴趣程度？这就是推荐系统的冷启动。</p>
+<p>假设我们有若干广告库存，怎么知道该给每个用户展示哪个广告，从而获得最大的点击收益？是每次都挑效果最好那个么？那么新广告如何才有出头之日？</p>
+<p>我们的算法工程师又想出了新的模型，有没有比 A/B test 更快的方法知道它和旧模型相比谁更靠谱？</p>
+<p>如果只是推荐已知的用户感兴趣的物品，如何才能科学地冒险给他推荐一些新鲜的物品？</p>
+<p>这些问题本质上全都是关乎如何选择。只要是关于选择，都可以简化成一个多臂赌博机问题，毕竟小赌怡情嘛，人生何处不赌博。</p>
+<h3 id="bandit-算法与推荐系统"><a href="#bandit-算法与推荐系统" class="headerlink" title="bandit 算法与推荐系统"></a>bandit 算法与推荐系统</h3><p>在推荐系统领域里，有两个比较经典的问题常被人提起，<strong>一个是 EE 问题，另一个是用户冷启动问题</strong>。</p>
+<p><em>什么是 EE 问题？又叫exploit－explore问题</em></p>
+<p>exploit 就是：对用户比较确定的兴趣，当然要利用开采迎合，好比说已经挣到的钱，当然要花</p>
+<p>explore就是：光对着用户已知的兴趣使用，用户很快会腻，所以要不断探索用户新的兴趣才行，这就好比虽然有一点钱可以花了，但是还得继续搬砖挣钱，不然花完了就得喝西北风。</p>
+<p><em>用户冷启动问题</em>，也就是面对新用户时，如何能够通过若干次实验，猜出用户的大致兴趣。</p>
+<p>我想，屏幕前的你已经想到了，推荐系统冷启动可以用Bandit算法来解决一部分。</p>
+<p>这两个问题本质上都是如何选择用户感兴趣的主题进行推荐，比较符合Bandit算法背后的MAB问题。</p>
+<p>比如，用Bandit算法解决冷启动的大致思路如下：</p>
+<p>用分类或者Topic来表示每个用户兴趣，也就是 MAB 问题中的臂（Arm），我们可以通过几次试验，来刻画出新用户心目中对每个topic的感兴趣概率。</p>
+<p>这里，如果用户对某个 topic 感兴趣（提供了显式反馈或隐式反馈），就表示我们得到了收益，如果推给了它不感兴趣的 topic，推荐系统就表示很遗憾 (regret) 了。</p>
+<p>如此经历 “选择 - 观察 - 更新 - 选择” 的循环，理论上是越来越逼近用户真正感兴趣的 topic 的。</p>
+<h2 id="常用Context-free-Bandit-算法"><a href="#常用Context-free-Bandit-算法" class="headerlink" title="常用Context-free Bandit 算法"></a>常用Context-free Bandit 算法</h2><h3 id="Thompson-sampling-算法"><a href="#Thompson-sampling-算法" class="headerlink" title="Thompson sampling 算法"></a><strong>Thompson sampling 算法</strong></h3><p>thompson sampling算法简单实用，简单介绍一下它的原理，要点如下：假设每个臂是否产生收益，其背后有一个概率分布，产生收益的概率为$p$。我们不断地试验，去估计出一个置信度较高的 “概率$p$的概率分布” 就能近似解决这个问题了。</p>
+<p><strong>怎么能估计 “概率$p$的概率分布” 呢？</strong></p>
+<p> 答案是假设概率$p$的概率分布符合 $beta(wins, lose)$分布，它有两个参数: $wins, lose$。每个臂都维护一个 $beta$分布的参数。每次试验后，选中一个臂，摇一下，有收益则该臂的$wins$增加 1，否则该臂的$lose$增加 1。每次选择臂的方式是：用每个臂现有的$beta$分布产生一个随机数$b$，选择所有臂产生的随机数中最大的那个臂去摇。</p>
+<p>以上就是 Thompson 采样，用 python 实现就一行：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pymc</span><br><span class="line"></span><br><span class="line"><span class="comment">#wins 和 trials 是一个N维向量，N是赌博机的臂的个数，每个元素记录了</span></span><br><span class="line"></span><br><span class="line">choice = np.argmax(pymc.rbeta(<span class="number">1</span> + wins, <span class="number">1</span> + trials - wins))</span><br><span class="line"></span><br><span class="line">wins[choice] += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">trials += <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<h3 id="UCB-算法"><a href="#UCB-算法" class="headerlink" title="UCB 算法"></a><strong>UCB 算法</strong></h3><p>UCB 算法全称是 Upper Confidence Bound(置信区间上界)，它的算法步骤如下:</p>
+<p>初始化：先对每一个臂都试一遍，按照如下公式计算每个臂arm的分数，然后选择分数最大的臂作为选择：</p>
+<script type="math/tex; mode=display">arm_i=\hat{u_i}+\sqrt{\frac{2ln(n)}{n_i}}</script><p>其中$\hat{u_i}$是对$arm_i$期望收益的预估，$n$是总的选择次数，$n_i$是对$arm_i$的尝试次数，可以看到尝试越多，其预估值与置信上限的差值就越小，也就是越有置信度。</p>
+<p>这个公式反映一个特点：均值越大，标准差越小，被选中的概率会越来越大，同时哪些被选次数较少的臂也会得到试验机会。</p>
+<h3 id="Epsilon-Greedy-算法"><a href="#Epsilon-Greedy-算法" class="headerlink" title="Epsilon-Greedy 算法"></a><strong>Epsilon-Greedy 算法</strong></h3><p>这是一个朴素的 bandit 算法，有点类似模拟退火的思想：选一个 (0,1) 之间较小的数作为$epsilon$，每次以概率$epsilon$做一件事：所有臂中随机选一个，每次以概率$1-epsilon$选择截止到当前，平均收益最大的那个臂。</p>
+<p>是不是简单粗暴？$epsilon$的值可以控制对Exploit和Explore的偏好程度。越接近 0，越保守，只想花钱不想挣钱。</p>
+<h3 id="朴素-bandit-算法"><a href="#朴素-bandit-算法" class="headerlink" title="朴素 bandit 算法"></a><strong>朴素 bandit 算法</strong></h3><p>最朴素的 bandit 算法就是：先随机试若干次，计算每个臂的平均收益，一直选均值最大那个臂。这个算法是人类在实际中最常采用的，不可否认，它还是比随机乱猜要好。</p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>以上这五种算法都是常见的Context-free Bandit，这类算法没有充分利用推荐场景的上下文信息，为所有用户的选择展现商品的策略都是相同的，忽略了用户作为一个个活生生的个体本身的兴趣点、偏好、购买力等因素都是不同的，因而，同一个商品在不同的用户、不同的情景下接受程度是不同的。故在实际的推荐系统中，context-free的MAB算法基本都不会被采用。</p>
+<h2 id="Contextual-Bandit：LinUCB"><a href="#Contextual-Bandit：LinUCB" class="headerlink" title="Contextual Bandit：LinUCB"></a>Contextual Bandit：LinUCB</h2><p>与Context-free Bandit算法对应的是Contextual Bandit算法，顾名思义，这类算法在实现E&amp;E时考虑了上下文信息，因而更加适合实际的个性化推荐场景。</p>
+<h3 id="公式推导"><a href="#公式推导" class="headerlink" title="公式推导"></a>公式推导</h3><p>形式化地说，在时间步$t$，<strong>Contextual Bandit算法</strong>观察到当前用户$u_t$，以及每个可选择的商品（arm）$a$的特征向量$x_{t,a}$ 。$x_{t,a}$称之为上下文信息，它概况了用户和商品两方面的信息。算法根据之前观察到的反馈结果选择一个商品$a_t$展现给用户，并接受到用户的反馈收益$r_{t,a_t}$，$r_{t,a_t}$的期望取决于用户和商品两个方面。接着，算法根据新的观察$(x_{t,a},a_t,r_{t,a_t})$ 改进自身选择商品展现的策略，目标是使得整个过程中损失的收益最小，即regret值 $R_a(T)$最小， $R_a(T)$定义如下：</p>
+<script type="math/tex; mode=display">R_a(T)=E[\displaystyle \sum^T_{t=1}r^*_{t,a_t}]-E[\displaystyle \sum^T_{t=1}r_{t,a_t}]</script><p>其中，$T$为实验的总步数，$a^*_t$为在时间步$t$时有最大期望收益的arm，不能提前得知。</p>
+<p>LinUCB是处理Contextual Bandit的一个方法，在LinUCB中，设定每个arm的期望收益为该arm的特征向量(context)的线性函数，如下：</p>
+<script type="math/tex; mode=display">E[r_{t,a}|x_{t,a}]=x^T_{t,a}\theta _a</script><p>$\theta _a$是LinUCB模型的参数，维度为$d$。每个arm维护一个$\theta _a$</p>
+<p>对于单个arm $a$，以其前$m$个context向量为行向量组成的矩阵称为$D_a$，维度为$m\times d$。 前$m$个收益（reward）组成的向量称为$C_a$。采用平方损失函数：</p>
+<script type="math/tex; mode=display">loss=\displaystyle\sum^m_{i=1}(C_{a,i}-\displaystyle\sum^d_{j=0}\theta_{a,j}x_{a,j})^2+\lambda\displaystyle\sum^d_{j=0}\theta^2_{a,j}</script><p>其中$\lambda$为正则项系数。求损失函数的最小值，令损失函数对$\theta_a$求导，结果为：</p>
+<script type="math/tex; mode=display">\nabla_{\theta_a}loss=2D^a_T(C_a-D_a\theta_a)-2\lambda\theta_a</script><p>令$\nabla_{\theta_a}loss=0，\lambda=1$，可得：</p>
+<script type="math/tex; mode=display">\theta_a=(D^T_aD_a+I)^{-1}D^T_aC_a</script><p>上述参数结果是用最小二乘法推导得到。更进一步，从<strong>贝叶斯推断</strong>的角度出发，使用岭回归（ridge regression）方法，可以得到<script type="math/tex">\theta_a</script>的概率分布为高斯分布：</p>
+<p>$\theta_a$~$N((D^T_aD_a+I)^{-1}D^T_aC_a,(D^T_aD_a+I)^{-1})$</p>
+<p>为了符号简洁，令</p>
+<script type="math/tex; mode=display">\hat{\theta_a}=(D^T_aD_a+I)^{-1}D^T_aC_a</script><script type="math/tex; mode=display">A_a=D^T_aD_a+I</script><p>于是$\theta_a$的概率分布为$\theta_a$~$N(\hat{\theta_a},A^{-1}_a)$</p>
+<p>于是在第$t$次时可以得到：$x^T_{t,a}\theta_a$~$N(x^T_{t,a}\hat{\theta_a},x^T_{t,a}A^{-1}_ax_{t,a})$</p>
+<p>也就是：$r_{t,a}$~$N(x^T_{t,a}\hat{\theta_a},x^T_{t,a}A^{-1}_ax_{t,a})$</p>
+<p>根据高斯分布的性质，得到置信上界后就可以使用普通UCB规则了，即每次选择$x^T_{t,a}\hat{\theta_a}+\alpha\sqrt{x^T_{t,a}A^{-1}_ax_{t,a}}$最大的arm，$\alpha$为算法超参数。$\alpha$越大，置信区间越宽，也就是越偏向于探索；反之，$\alpha$越小越偏向于利用。</p>
+<p>需要注意的是，$A_a$与$D^T_aC_a$可以增量异步更新，于是标准流程如下：</p>
+<ul>
+<li>设定$\alpha$：</li>
+<li>For $t=1,2,3,…$<ul>
+<li>对所有的arm获得本次的context向量</li>
+<li>For all $a$<ul>
+<li>if $a$ is new<ul>
+<li>设置$A_a$为单位矩阵</li>
+<li>设置$b_a$为d维零向量</li>
+</ul>
+</li>
+<li>计算$\hat{\theta_a}=A^{-1}_ab_a$</li>
+<li>计算上界$p_{t,a}=x^T_{t,a}\hat{\theta_a}+\alpha\sqrt{x^T_{ta}A^T_ax_{t,a}}$</li>
+</ul>
+</li>
+<li>选择最大上界$p_{t,a}$对应的arm即$a_t$，并得到对应的$r_t$</li>
+<li>更新$A_{a_t}=A_{a_t}+x_{t,a_t}x^T_{t,a_t}$</li>
+<li>更新$b_{a_t}=b_{a_t}+r_tx_{t,a_t}$</li>
+</ul>
+</li>
+</ul>
+<p>从上述过程可以总结出LinUCB算法的两点优势：</p>
+<ul>
+<li>计算复杂度与arm的数量成线性关系</li>
+<li>支持动态变化的候选arm集合</li>
+</ul>
+<p>LinUCB与相对于传统的在线学习（online learning）模型相比，主要有2点区别：</p>
+<ul>
+<li><strong>每个arm学习一个独立的模型（Context只需要包含user-side和user-arm interaction的特征，不需要包含arm-side特征）；而传统在线学习为整个业务场景学习一个统一的模型</strong></li>
+<li><strong>传统的在线学习采用贪心策略，尽最大可能利用已学到的知识，没有explore机制（贪心策略通常情况下都不是最优的）；LinUCB则有较完善的E&amp;E机制，关注长期整体收益</strong></li>
+</ul>
+<h3 id="核心代码"><a href="#核心代码" class="headerlink" title="核心代码"></a>核心代码</h3><p>这里结合金融知识，将投资者的效用定义为风险收益偏好，即$Utility_\alpha=E[r_t]-\eta_\alpha\sigma^2$</p>
+<h4 id="效应的定义"><a href="#效应的定义" class="headerlink" title="效应的定义"></a>效应的定义</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">utility_oneday</span>(<span class="params">returns_df, starttime, endtime, code, eta</span>):</span></span><br><span class="line">    return_cluster = returns_df.loc[starttime:endtime, code]  <span class="comment"># 获取所有基金时间范围内收益</span></span><br><span class="line">    rf = <span class="number">0.015</span></span><br><span class="line">    <span class="comment"># len_date = len(return_cluster)</span></span><br><span class="line">    <span class="comment"># D = (np.power(1 + return_cluster.mean(), 250) - 1 - rf) / (return_cluster.std() * np.sqrt(250))</span></span><br><span class="line">    D = return_cluster.mean()-eta*return_cluster.var()  <span class="comment"># 收益减方差</span></span><br><span class="line">    <span class="keyword">return</span> D</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取时间范围内每日的向前推delta时间窗口（包括工作日与非工作日）的收益率月均和方差</span></span><br><span class="line"><span class="comment"># 目的是为了获取D</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">utility_series</span>(<span class="params">timerange, returns_df, code, n, eta</span>):</span></span><br><span class="line">    eve_utility = pd.DataFrame(index=timerange, columns=code, dtype=<span class="string">&quot;float&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> timerange:</span><br><span class="line">        preday = get_pre_day(i, n)</span><br><span class="line">        <span class="comment"># nav_df_m = get_fund_nav(code, str(preday)[:10].replace(&#x27;-&#x27;, &#x27;&#x27;), str(i)[:10].replace(&#x27;-&#x27;, &#x27;&#x27;))</span></span><br><span class="line">        <span class="comment"># returns_df_m = (nav_df_m - nav_df_m.shift(1)) / nav_df_m.shift(1)</span></span><br><span class="line">        eve_utility.loc[i, :] = utility_oneday(returns_df, preday, i, code, eta)</span><br><span class="line">    <span class="keyword">return</span> Standardize(eve_utility)</span><br></pre></td></tr></table></figure>
+<h4 id="岭回归权重定义"><a href="#岭回归权重定义" class="headerlink" title="岭回归权重定义"></a>岭回归权重定义</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ridge_regression</span>(<span class="params">xArr, yArr, lam=<span class="number">0.02</span></span>):</span></span><br><span class="line">    xMat = np.mat(xArr)</span><br><span class="line">    yMat = np.mat(yArr)</span><br><span class="line">    xTx = xMat.T*xMat</span><br><span class="line">    denom = xTx + np.eye(np.shape(xMat)[<span class="number">1</span>])*lam</span><br><span class="line">    <span class="keyword">if</span> np.linalg.det(denom) == <span class="number">0.0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;This matrix is singular, cannot do inverse !&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    weight = denom.I * (xMat.T*yMat)</span><br><span class="line">    <span class="keyword">return</span> weight</span><br></pre></td></tr></table></figure>
+<h4 id="置信上界定义"><a href="#置信上界定义" class="headerlink" title="置信上界定义"></a>置信上界定义</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">upper_bound_probs</span>(<span class="params">weight, D, x_new, beta=<span class="number">1</span></span>):</span></span><br><span class="line">    a_a = np.mat(np.dot(D.values.T, D.values)+np.eye(D.shape[<span class="number">1</span>]))</span><br><span class="line">    upper_bound_probs = np.dot(np.mat(x_new), weight) + beta*np.sqrt(np.dot(np.dot(x_new.values, a_a.I), x_new.values.T))</span><br><span class="line">    <span class="keyword">return</span> upper_bound_probs</span><br></pre></td></tr></table></figure>
+<p>因为使用的是HS300股票数据，前期需要对股票数据进行清洗，而且在LinUCB运行过程中，需要注意停牌或数据缺失较多的股票的处理，代码较为复杂，详情可见GinHub。</p>
+<p><a target="_blank" rel="noopener" href="https://github.com/Curtis-Lau/LinUCB">本文全部代码详见GitHub</a></p>
+
     </div>
 
     
@@ -393,6 +483,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF-bandit-%E7%AE%97%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">什么是 bandit 算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BA%E9%80%89%E6%8B%A9%E8%80%8C%E7%94%9F"><span class="nav-number">1.1.</span> <span class="nav-text">为选择而生</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#bandit-%E7%AE%97%E6%B3%95%E4%B8%8E%E6%8E%A8%E8%8D%90%E7%B3%BB%E7%BB%9F"><span class="nav-number">1.2.</span> <span class="nav-text">bandit 算法与推荐系统</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8Context-free-Bandit-%E7%AE%97%E6%B3%95"><span class="nav-number">2.</span> <span class="nav-text">常用Context-free Bandit 算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Thompson-sampling-%E7%AE%97%E6%B3%95"><span class="nav-number">2.1.</span> <span class="nav-text">Thompson sampling 算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UCB-%E7%AE%97%E6%B3%95"><span class="nav-number">2.2.</span> <span class="nav-text">UCB 算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Epsilon-Greedy-%E7%AE%97%E6%B3%95"><span class="nav-number">2.3.</span> <span class="nav-text">Epsilon-Greedy 算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%B4%E7%B4%A0-bandit-%E7%AE%97%E6%B3%95"><span class="nav-number">2.4.</span> <span class="nav-text">朴素 bandit 算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-number">2.5.</span> <span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Contextual-Bandit%EF%BC%9ALinUCB"><span class="nav-number">3.</span> <span class="nav-text">Contextual Bandit：LinUCB</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%AC%E5%BC%8F%E6%8E%A8%E5%AF%BC"><span class="nav-number">3.1.</span> <span class="nav-text">公式推导</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%B8%E5%BF%83%E4%BB%A3%E7%A0%81"><span class="nav-number">3.2.</span> <span class="nav-text">核心代码</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%88%E5%BA%94%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">3.2.1.</span> <span class="nav-text">效应的定义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B2%AD%E5%9B%9E%E5%BD%92%E6%9D%83%E9%87%8D%E5%AE%9A%E4%B9%89"><span class="nav-number">3.2.2.</span> <span class="nav-text">岭回归权重定义</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BD%AE%E4%BF%A1%E4%B8%8A%E7%95%8C%E5%AE%9A%E4%B9%89"><span class="nav-number">3.2.3.</span> <span class="nav-text">置信上界定义</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -408,7 +499,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
