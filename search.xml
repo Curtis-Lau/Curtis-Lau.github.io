@@ -79,232 +79,14 @@
 ]]></content>
   </entry>
   <entry>
-    <title>LinUCB_based_on_ga</title>
-    <url>/post/8bec61f5/</url>
-    <content><![CDATA[]]></content>
-  </entry>
-  <entry>
-    <title>LinUCB_based_on_decision_tree</title>
-    <url>/post/40deb9b1/</url>
-    <content><![CDATA[<p>本部分将前面写的LinUCB算法和决策树算法结合起来，以HS300成分股为股票池，首先定义一些因子，放入决策树将股票分组，每一组可以看成是一个portfolio，在时间$t$，将改时间所有的portfolio放入推荐系统，根据投资者的偏好、效用等特征选取投资组合推荐给投资者。</p>
-<span id="more"></span>
-]]></content>
-  </entry>
-  <entry>
     <title>2020年研究生数学建模B题</title>
     <url>/post/aff86645/</url>
     <content><![CDATA[]]></content>
   </entry>
   <entry>
-    <title>推荐算法：LinUCB</title>
-    <url>/post/2973/</url>
-    <content><![CDATA[<p>推荐系统里面有两个经典问题：EE 问题和冷启动问题。前者涉及到平衡准确和多样，后者涉及到产品算法运营等一系列东西。Bandit 算法是一种简单的在线学习算法，常常用于尝试解决这两个问题，本文为你介绍基础的 Bandit 算法及一系列升级版，以及对推荐系统这两个经典问题的思考。</p>
-<p>Bandit算法是一类用来实现Exploitation-Exploration机制的策略。根据是否考虑上下文特征，Bandit算法分为Context-free Bandit和Contextual Bandit两大类，本文简单介绍Context-free Bandit，重点讲解Contextual Bandit。</p>
-<span id="more"></span>
-<h2 id="什么是-bandit-算法"><a href="#什么是-bandit-算法" class="headerlink" title="什么是 bandit 算法"></a>什么是 bandit 算法</h2><h3 id="为选择而生"><a href="#为选择而生" class="headerlink" title="为选择而生"></a>为选择而生</h3><p>我们会遇到很多选择的场景。上哪个大学，学什么专业，去哪家公司，中午吃什么，等等。这些事情，都让选择困难症的我们头很大。那么，有算法能够很好地对付这些问题吗？</p>
-<p>当然有！那就是 Bandit 算法！</p>
-<p>bandit 算法来源于历史悠久的赌博学，它要解决的问题是这样的：</p>
-<p>一个赌徒，要去摇老虎机，走进赌场一看，一排老虎机，外表一模一样，但是每个老虎机吐钱的概率可不一样，他不知道每个老虎机吐钱的概率分布是什么，那么每次该选择哪个老虎机可以做到最大化收益呢？这就是多臂赌博机问题 (Multi-armed bandit problem, K-armed bandit problem, MAB)。</p>
-<p>怎么解决这个问题呢？最好的办法是去试一试，不是盲目地试，而是有策略地快速试一试，这些策略就是 Bandit 算法。</p>
-<p>这个多臂问题，推荐系统里面很多问题都与他类似：</p>
-<p>假设一个用户对不同类别的内容感兴趣程度不同，那么我们的推荐系统初次见到这个用户时，怎么快速地知道他对每类内容的感兴趣程度？这就是推荐系统的冷启动。</p>
-<p>假设我们有若干广告库存，怎么知道该给每个用户展示哪个广告，从而获得最大的点击收益？是每次都挑效果最好那个么？那么新广告如何才有出头之日？</p>
-<p>我们的算法工程师又想出了新的模型，有没有比 A/B test 更快的方法知道它和旧模型相比谁更靠谱？</p>
-<p>如果只是推荐已知的用户感兴趣的物品，如何才能科学地冒险给他推荐一些新鲜的物品？</p>
-<p>这些问题本质上全都是关乎如何选择。只要是关于选择，都可以简化成一个多臂赌博机问题，毕竟小赌怡情嘛，人生何处不赌博。</p>
-<h3 id="bandit-算法与推荐系统"><a href="#bandit-算法与推荐系统" class="headerlink" title="bandit 算法与推荐系统"></a>bandit 算法与推荐系统</h3><p>在推荐系统领域里，有两个比较经典的问题常被人提起，<strong>一个是 EE 问题，另一个是用户冷启动问题</strong>。</p>
-<p><em>什么是 EE 问题？又叫exploit－explore问题</em></p>
-<p>exploit 就是：对用户比较确定的兴趣，当然要利用开采迎合，好比说已经挣到的钱，当然要花</p>
-<p>explore就是：光对着用户已知的兴趣使用，用户很快会腻，所以要不断探索用户新的兴趣才行，这就好比虽然有一点钱可以花了，但是还得继续搬砖挣钱，不然花完了就得喝西北风。</p>
-<p><em>用户冷启动问题</em>，也就是面对新用户时，如何能够通过若干次实验，猜出用户的大致兴趣。</p>
-<p>我想，屏幕前的你已经想到了，推荐系统冷启动可以用Bandit算法来解决一部分。</p>
-<p>这两个问题本质上都是如何选择用户感兴趣的主题进行推荐，比较符合Bandit算法背后的MAB问题。</p>
-<p>比如，用Bandit算法解决冷启动的大致思路如下：</p>
-<p>用分类或者Topic来表示每个用户兴趣，也就是 MAB 问题中的臂（Arm），我们可以通过几次试验，来刻画出新用户心目中对每个topic的感兴趣概率。</p>
-<p>这里，如果用户对某个 topic 感兴趣（提供了显式反馈或隐式反馈），就表示我们得到了收益，如果推给了它不感兴趣的 topic，推荐系统就表示很遗憾 (regret) 了。</p>
-<p>如此经历 “选择 - 观察 - 更新 - 选择” 的循环，理论上是越来越逼近用户真正感兴趣的 topic 的。</p>
-<h2 id="常用Context-free-Bandit-算法"><a href="#常用Context-free-Bandit-算法" class="headerlink" title="常用Context-free Bandit 算法"></a>常用Context-free Bandit 算法</h2><h3 id="Thompson-sampling-算法"><a href="#Thompson-sampling-算法" class="headerlink" title="Thompson sampling 算法"></a><strong>Thompson sampling 算法</strong></h3><p>thompson sampling算法简单实用，简单介绍一下它的原理，要点如下：假设每个臂是否产生收益，其背后有一个概率分布，产生收益的概率为$p$。我们不断地试验，去估计出一个置信度较高的 “概率$p$的概率分布” 就能近似解决这个问题了。</p>
-<p><strong>怎么能估计 “概率$p$的概率分布” 呢？</strong></p>
-<p> 答案是假设概率$p$的概率分布符合 $beta(wins, lose)$分布，它有两个参数: $wins, lose$。每个臂都维护一个 $beta$分布的参数。每次试验后，选中一个臂，摇一下，有收益则该臂的$wins$增加 1，否则该臂的$lose$增加 1。每次选择臂的方式是：用每个臂现有的$beta$分布产生一个随机数$b$，选择所有臂产生的随机数中最大的那个臂去摇。</p>
-<p>以上就是 Thompson 采样，用 python 实现就一行：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pymc</span><br><span class="line"></span><br><span class="line"><span class="comment">#wins 和 trials 是一个N维向量，N是赌博机的臂的个数，每个元素记录了</span></span><br><span class="line"></span><br><span class="line">choice = np.argmax(pymc.rbeta(<span class="number">1</span> + wins, <span class="number">1</span> + trials - wins))</span><br><span class="line"></span><br><span class="line">wins[choice] += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">trials += <span class="number">1</span></span><br></pre></td></tr></table></figure>
-<h3 id="UCB-算法"><a href="#UCB-算法" class="headerlink" title="UCB 算法"></a><strong>UCB 算法</strong></h3><p>UCB 算法全称是 Upper Confidence Bound(置信区间上界)，它的算法步骤如下:</p>
-<p>初始化：先对每一个臂都试一遍，按照如下公式计算每个臂arm的分数，然后选择分数最大的臂作为选择：</p>
-<script type="math/tex; mode=display">arm_i=\hat{u_i}+\sqrt{\frac{2ln(n)}{n_i}}</script><p>其中$\hat{u_i}$是对$arm_i$期望收益的预估，$n$是总的选择次数，$n_i$是对$arm_i$的尝试次数，可以看到尝试越多，其预估值与置信上限的差值就越小，也就是越有置信度。</p>
-<p>这个公式反映一个特点：均值越大，标准差越小，被选中的概率会越来越大，同时哪些被选次数较少的臂也会得到试验机会。</p>
-<h3 id="Epsilon-Greedy-算法"><a href="#Epsilon-Greedy-算法" class="headerlink" title="Epsilon-Greedy 算法"></a><strong>Epsilon-Greedy 算法</strong></h3><p>这是一个朴素的 bandit 算法，有点类似模拟退火的思想：选一个 (0,1) 之间较小的数作为$epsilon$，每次以概率$epsilon$做一件事：所有臂中随机选一个，每次以概率$1-epsilon$选择截止到当前，平均收益最大的那个臂。</p>
-<p>是不是简单粗暴？$epsilon$的值可以控制对Exploit和Explore的偏好程度。越接近 0，越保守，只想花钱不想挣钱。</p>
-<h3 id="朴素-bandit-算法"><a href="#朴素-bandit-算法" class="headerlink" title="朴素 bandit 算法"></a><strong>朴素 bandit 算法</strong></h3><p>最朴素的 bandit 算法就是：先随机试若干次，计算每个臂的平均收益，一直选均值最大那个臂。这个算法是人类在实际中最常采用的，不可否认，它还是比随机乱猜要好。</p>
-<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>以上这五种算法都是常见的Context-free Bandit，这类算法没有充分利用推荐场景的上下文信息，为所有用户的选择展现商品的策略都是相同的，忽略了用户作为一个个活生生的个体本身的兴趣点、偏好、购买力等因素都是不同的，因而，同一个商品在不同的用户、不同的情景下接受程度是不同的。故在实际的推荐系统中，context-free的MAB算法基本都不会被采用。</p>
-<h2 id="Contextual-Bandit：LinUCB"><a href="#Contextual-Bandit：LinUCB" class="headerlink" title="Contextual Bandit：LinUCB"></a>Contextual Bandit：LinUCB</h2><p>与Context-free Bandit算法对应的是Contextual Bandit算法，顾名思义，这类算法在实现E&amp;E时考虑了上下文信息，因而更加适合实际的个性化推荐场景。</p>
-<h3 id="公式推导"><a href="#公式推导" class="headerlink" title="公式推导"></a>公式推导</h3><p>形式化地说，在时间步$t$，<strong>Contextual Bandit算法</strong>观察到当前用户$u_t$，以及每个可选择的商品（arm）$a$的特征向量$x_{t,a}$ 。$x_{t,a}$称之为上下文信息，它概况了用户和商品两方面的信息。算法根据之前观察到的反馈结果选择一个商品$a_t$展现给用户，并接受到用户的反馈收益$r_{t,a_t}$，$r_{t,a_t}$的期望取决于用户和商品两个方面。接着，算法根据新的观察$(x_{t,a},a_t,r_{t,a_t})$ 改进自身选择商品展现的策略，目标是使得整个过程中损失的收益最小，即regret值 $R_a(T)$最小， $R_a(T)$定义如下：</p>
-<script type="math/tex; mode=display">R_a(T)=E[\displaystyle \sum^T_{t=1}r^*_{t,a_t}]-E[\displaystyle \sum^T_{t=1}r_{t,a_t}]</script><p>其中，$T$为实验的总步数，$a^*_t$为在时间步$t$时有最大期望收益的arm，不能提前得知。</p>
-<p>LinUCB是处理Contextual Bandit的一个方法，在LinUCB中，设定每个arm的期望收益为该arm的特征向量(context)的线性函数，如下：</p>
-<script type="math/tex; mode=display">E[r_{t,a}|x_{t,a}]=x^T_{t,a}\theta _a</script><p>$\theta _a$是LinUCB模型的参数，维度为$d$。每个arm维护一个$\theta _a$</p>
-<p>对于单个arm $a$，以其前$m$个context向量为行向量组成的矩阵称为$D_a$，维度为$m\times d$。 前$m$个收益（reward）组成的向量称为$C_a$。采用平方损失函数：</p>
-<script type="math/tex; mode=display">loss=\displaystyle\sum^m_{i=1}(C_{a,i}-\displaystyle\sum^d_{j=0}\theta_{a,j}x_{a,j})^2+\lambda\displaystyle\sum^d_{j=0}\theta^2_{a,j}</script><p>其中$\lambda$为正则项系数。求损失函数的最小值，令损失函数对$\theta_a$求导，结果为：</p>
-<script type="math/tex; mode=display">\nabla_{\theta_a}loss=2D^a_T(C_a-D_a\theta_a)-2\lambda\theta_a</script><p>令$\nabla_{\theta_a}loss=0，\lambda=1$，可得：</p>
-<script type="math/tex; mode=display">\theta_a=(D^T_aD_a+I)^{-1}D^T_aC_a</script><p>上述参数结果是用最小二乘法推导得到。更进一步，从<strong>贝叶斯推断</strong>的角度出发，使用岭回归（ridge regression）方法，可以得到<script type="math/tex">\theta_a</script>的概率分布为高斯分布：</p>
-<p>$\theta_a$~$N((D^T_aD_a+I)^{-1}D^T_aC_a,(D^T_aD_a+I)^{-1})$</p>
-<p>为了符号简洁，令</p>
-<script type="math/tex; mode=display">\hat{\theta_a}=(D^T_aD_a+I)^{-1}D^T_aC_a</script><script type="math/tex; mode=display">A_a=D^T_aD_a+I</script><p>于是$\theta_a$的概率分布为$\theta_a$~$N(\hat{\theta_a},A^{-1}_a)$</p>
-<p>于是在第$t$次时可以得到：$x^T_{t,a}\theta_a$~$N(x^T_{t,a}\hat{\theta_a},x^T_{t,a}A^{-1}_ax_{t,a})$</p>
-<p>也就是：$r_{t,a}$~$N(x^T_{t,a}\hat{\theta_a},x^T_{t,a}A^{-1}_ax_{t,a})$</p>
-<p>根据高斯分布的性质，得到置信上界后就可以使用普通UCB规则了，即每次选择$x^T_{t,a}\hat{\theta_a}+\alpha\sqrt{x^T_{t,a}A^{-1}_ax_{t,a}}$最大的arm，$\alpha$为算法超参数。$\alpha$越大，置信区间越宽，也就是越偏向于探索；反之，$\alpha$越小越偏向于利用。</p>
-<p>需要注意的是，$A_a$与$D^T_aC_a$可以增量异步更新，于是标准流程如下：</p>
-<ul>
-<li>设定$\alpha$：</li>
-<li>For $t=1,2,3,…$<ul>
-<li>对所有的arm获得本次的context向量</li>
-<li>For all $a$<ul>
-<li>if $a$ is new<ul>
-<li>设置$A_a$为单位矩阵</li>
-<li>设置$b_a$为d维零向量</li>
-</ul>
-</li>
-<li>计算$\hat{\theta_a}=A^{-1}_ab_a$</li>
-<li>计算上界$p_{t,a}=x^T_{t,a}\hat{\theta_a}+\alpha\sqrt{x^T_{ta}A^T_ax_{t,a}}$</li>
-</ul>
-</li>
-<li>选择最大上界$p_{t,a}$对应的arm即$a_t$，并得到对应的$r_t$</li>
-<li>更新$A_{a_t}=A_{a_t}+x_{t,a_t}x^T_{t,a_t}$</li>
-<li>更新$b_{a_t}=b_{a_t}+r_tx_{t,a_t}$</li>
-</ul>
-</li>
-</ul>
-<p>从上述过程可以总结出LinUCB算法的两点优势：</p>
-<ul>
-<li>计算复杂度与arm的数量成线性关系</li>
-<li>支持动态变化的候选arm集合</li>
-</ul>
-<p>LinUCB与相对于传统的在线学习（online learning）模型相比，主要有2点区别：</p>
-<ul>
-<li><strong>每个arm学习一个独立的模型（Context只需要包含user-side和user-arm interaction的特征，不需要包含arm-side特征）；而传统在线学习为整个业务场景学习一个统一的模型</strong></li>
-<li><strong>传统的在线学习采用贪心策略，尽最大可能利用已学到的知识，没有explore机制（贪心策略通常情况下都不是最优的）；LinUCB则有较完善的E&amp;E机制，关注长期整体收益</strong></li>
-</ul>
-<h3 id="核心代码"><a href="#核心代码" class="headerlink" title="核心代码"></a>核心代码</h3><p>这里结合金融知识，将投资者的效用定义为风险收益偏好，即$Utility_\alpha=E[r_t]-\eta_\alpha\sigma^2$</p>
-<h4 id="效应的定义"><a href="#效应的定义" class="headerlink" title="效应的定义"></a>效应的定义</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">utility_oneday</span>(<span class="params">returns_df, starttime, endtime, code, eta</span>):</span></span><br><span class="line">    return_cluster = returns_df.loc[starttime:endtime, code]  <span class="comment"># 获取所有基金时间范围内收益</span></span><br><span class="line">    rf = <span class="number">0.015</span></span><br><span class="line">    <span class="comment"># len_date = len(return_cluster)</span></span><br><span class="line">    <span class="comment"># D = (np.power(1 + return_cluster.mean(), 250) - 1 - rf) / (return_cluster.std() * np.sqrt(250))</span></span><br><span class="line">    D = return_cluster.mean()-eta*return_cluster.var()  <span class="comment"># 收益减方差</span></span><br><span class="line">    <span class="keyword">return</span> D</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取时间范围内每日的向前推delta时间窗口（包括工作日与非工作日）的收益率月均和方差</span></span><br><span class="line"><span class="comment"># 目的是为了获取D</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">utility_series</span>(<span class="params">timerange, returns_df, code, n, eta</span>):</span></span><br><span class="line">    eve_utility = pd.DataFrame(index=timerange, columns=code, dtype=<span class="string">&quot;float&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> timerange:</span><br><span class="line">        preday = get_pre_day(i, n)</span><br><span class="line">        <span class="comment"># nav_df_m = get_fund_nav(code, str(preday)[:10].replace(&#x27;-&#x27;, &#x27;&#x27;), str(i)[:10].replace(&#x27;-&#x27;, &#x27;&#x27;))</span></span><br><span class="line">        <span class="comment"># returns_df_m = (nav_df_m - nav_df_m.shift(1)) / nav_df_m.shift(1)</span></span><br><span class="line">        eve_utility.loc[i, :] = utility_oneday(returns_df, preday, i, code, eta)</span><br><span class="line">    <span class="keyword">return</span> Standardize(eve_utility)</span><br></pre></td></tr></table></figure>
-<h4 id="岭回归权重定义"><a href="#岭回归权重定义" class="headerlink" title="岭回归权重定义"></a>岭回归权重定义</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ridge_regression</span>(<span class="params">xArr, yArr, lam=<span class="number">0.02</span></span>):</span></span><br><span class="line">    xMat = np.mat(xArr)</span><br><span class="line">    yMat = np.mat(yArr)</span><br><span class="line">    xTx = xMat.T*xMat</span><br><span class="line">    denom = xTx + np.eye(np.shape(xMat)[<span class="number">1</span>])*lam</span><br><span class="line">    <span class="keyword">if</span> np.linalg.det(denom) == <span class="number">0.0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;This matrix is singular, cannot do inverse !&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    weight = denom.I * (xMat.T*yMat)</span><br><span class="line">    <span class="keyword">return</span> weight</span><br></pre></td></tr></table></figure>
-<h4 id="置信上界定义"><a href="#置信上界定义" class="headerlink" title="置信上界定义"></a>置信上界定义</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">upper_bound_probs</span>(<span class="params">weight, D, x_new, beta=<span class="number">1</span></span>):</span></span><br><span class="line">    a_a = np.mat(np.dot(D.values.T, D.values)+np.eye(D.shape[<span class="number">1</span>]))</span><br><span class="line">    upper_bound_probs = np.dot(np.mat(x_new), weight) + beta*np.sqrt(np.dot(np.dot(x_new.values, a_a.I), x_new.values.T))</span><br><span class="line">    <span class="keyword">return</span> upper_bound_probs</span><br></pre></td></tr></table></figure>
-<p>因为使用的是HS300股票数据，前期需要对股票数据进行清洗，而且在LinUCB运行过程中，需要注意停牌或数据缺失较多的股票的处理，代码较为复杂，详情可见GinHub。</p>
-<p><a href="https://github.com/Curtis-Lau/LinUCB">本文全部代码详见GitHub</a></p>
-]]></content>
-      <categories>
-        <category>算法</category>
-        <category>强化学习</category>
-      </categories>
-      <tags>
-        <tag>强化学习</tag>
-        <tag>推荐算法</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>慧博研投爬虫</title>
-    <url>/post/55099ab/</url>
-    <content><![CDATA[<p>本文爬取的是慧博研投(www.hibor.com.cn)研报栏目的数据，主要包含研报的发布时间、标题、摘要的信息，然后将数据存于本地MongoDB数据库中。</p>
-<span id="more"></span>
-<h2 id="第一部分：导入需要的库"><a href="#第一部分：导入需要的库" class="headerlink" title="第一部分：导入需要的库"></a>第一部分：导入需要的库</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> pymongo</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> schedule</span><br></pre></td></tr></table></figure>
-<h2 id="第二部分：设置MongoDB"><a href="#第二部分：设置MongoDB" class="headerlink" title="第二部分：设置MongoDB"></a>第二部分：设置MongoDB</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">client = pymongo.MongoClient(host=<span class="string">&#x27;localhost&#x27;</span>,port=<span class="number">27017</span>)</span><br><span class="line">db = client[<span class="string">&#x27;hibor_report&#x27;</span>]</span><br><span class="line">collection_report = db[<span class="string">&quot;report_data&quot;</span>]</span><br><span class="line">report = &#123;&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="第三部分：编写函数"><a href="#第三部分：编写函数" class="headerlink" title="第三部分：编写函数"></a>第三部分：编写函数</h2><h3 id="获取研报时间、标题以及具体网址"><a href="#获取研报时间、标题以及具体网址" class="headerlink" title="获取研报时间、标题以及具体网址"></a>获取研报时间、标题以及具体网址</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">spider_detail_urls</span>(<span class="params">url</span>):</span></span><br><span class="line">    title_list = []</span><br><span class="line">    detail_url_list = []</span><br><span class="line">    <span class="built_in">id</span> = []</span><br><span class="line">    headers = &#123;<span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 UBrowser/6.2.4098.3 Safari/537.36&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Host&#x27;</span>: <span class="string">&#x27;www.hibor.com.cn&#x27;</span>&#125;</span><br><span class="line">    response = requests.get(url, headers=headers)</span><br><span class="line">    text = response.content.decode()</span><br><span class="line">    bs = BeautifulSoup(text,<span class="string">&quot;html5lib&quot;</span>)</span><br><span class="line">    div = bs.find(<span class="string">&quot;div&quot;</span>,class_=<span class="string">&quot;leftn2&quot;</span>)</span><br><span class="line">    table = div.find(<span class="string">&quot;table&quot;</span>,class_=<span class="string">&quot;tab_ltnew&quot;</span>)</span><br><span class="line">    trs = table.find_all(<span class="string">&quot;tr&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> tr <span class="keyword">in</span> trs[::<span class="number">4</span>]:</span><br><span class="line">        span = tr.find(<span class="string">&quot;span&quot;</span>,class_=<span class="string">&quot;tab_lta&quot;</span>)</span><br><span class="line">        title =  <span class="built_in">list</span>(span.stripped_strings)[<span class="number">0</span>]</span><br><span class="line">        title_list.append(title)</span><br><span class="line">        _url = span.find(<span class="string">&quot;a&quot;</span>).get(<span class="string">&quot;href&quot;</span>)</span><br><span class="line">        detail_url = <span class="string">&quot;http://www.hibor.com.cn&quot;</span>+_url</span><br><span class="line">        detail_url_list.append(detail_url)</span><br><span class="line">        _<span class="built_in">id</span> = _url.split(<span class="string">&quot;_&quot;</span>)[-<span class="number">1</span>].split(<span class="string">&quot;.&quot;</span>)[<span class="number">0</span>]</span><br><span class="line">        <span class="built_in">id</span>.append(_<span class="built_in">id</span>)</span><br><span class="line">    report[<span class="string">&quot;id&quot;</span>] = <span class="built_in">id</span></span><br><span class="line">    report[<span class="string">&quot;连接&quot;</span>] = detail_url_list</span><br><span class="line">    report[<span class="string">&quot;标题&quot;</span>] = title_list</span><br><span class="line">    <span class="keyword">return</span> detail_url_list</span><br></pre></td></tr></table></figure>
-<h3 id="根据具体网址获取研报摘要"><a href="#根据具体网址获取研报摘要" class="headerlink" title="根据具体网址获取研报摘要"></a>根据具体网址获取研报摘要</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">spider_abstract</span>(<span class="params">detail_url_list</span>):</span></span><br><span class="line">    abstract = []</span><br><span class="line">    headers = &#123;<span class="string">&#x27;Accept-Language&#x27;</span>: <span class="string">&#x27;zh-CN,zh;q=0.9&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Connection&#x27;</span>: <span class="string">&#x27;keep-alive&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Cookie&#x27;</span>: <span class="string">&#x27;c=; safedog-flow-item=E452688EA9408CDB488598E819CA5CAE; UM_distinctid=17221e00e0a26-02018c653952da-d373666-144000-17221e00e0b56; did=67A671BFE; ASPSESSIONIDCABDDAQR=CNAHPHPCOHJBHKGHKGAGLOND; Hm_lvt_d554f0f6d738d9e505c72769d450253d=1589706231,1590147502,1590713899,1592128454; ASPSESSIONIDAQSSSRDS=KKGBDNADKNMBKOAAJFLPBJED; CNZZDATA1752123=cnzz_eid%3D1486449273-1589705206-https%253A%252F%252Fwww.baidu.com%252F%26ntime%3D1592138092; robih=OWvVuXvWjVoWKY9WdWsU; MBpermission=0; MBname=Curtis%5FLau; Hm_lpvt_d554f0f6d738d9e505c72769d450253d=1592140743&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Host&#x27;</span>: <span class="string">&#x27;www.hibor.com.cn&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Referer&#x27;</span>: <span class="string">&#x27;http://www.hibor.com.cn/docdetail_2937262.html&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;X-Requested-With&#x27;</span>: <span class="string">&#x27;XMLHttpRequest&#x27;</span>&#125;</span><br><span class="line">    <span class="keyword">for</span> url <span class="keyword">in</span> detail_url_list:</span><br><span class="line">        response = requests.get(url=url, headers=headers)</span><br><span class="line">        text = response.content.decode(<span class="string">&quot;gbk&quot;</span>)</span><br><span class="line">        bs = BeautifulSoup(text, <span class="string">&quot;html5lib&quot;</span>)</span><br><span class="line">        div = bs.find(<span class="string">&quot;div&quot;</span>, class_=<span class="string">&quot;neir&quot;</span>)</span><br><span class="line">        span = div.find(<span class="string">&quot;span&quot;</span>)</span><br><span class="line">        txt = <span class="built_in">list</span>(span.stripped_strings)</span><br><span class="line">        sentence = <span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> txt:</span><br><span class="line">            <span class="keyword">if</span> <span class="string">&quot;http://www.hibor.com.cn&quot;</span> <span class="keyword">not</span> <span class="keyword">in</span> i:</span><br><span class="line">                sentence += i</span><br><span class="line">        abstract.append(sentence)</span><br><span class="line">    report[<span class="string">&quot;摘要&quot;</span>] = abstract</span><br><span class="line">    report_data = pd.DataFrame(report)</span><br><span class="line">    <span class="keyword">return</span> report_data</span><br></pre></td></tr></table></figure>
-<h3 id="将数据导入MongoDB"><a href="#将数据导入MongoDB" class="headerlink" title="将数据导入MongoDB"></a>将数据导入MongoDB</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_mongodb</span>(<span class="params">report_data</span>):</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(pd.DataFrame(collection_report.find()))==<span class="number">0</span>:</span><br><span class="line">        new_l = report_data.sort_values(by=<span class="string">&#x27;id&#x27;</span>, ascending=<span class="literal">True</span>)</span><br><span class="line">        collection_report.insert_many(json.loads(new_l.T.to_json()).values())</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        last_id = pd.DataFrame(collection_report.find()).sort_values(by=<span class="string">&quot;id&quot;</span>, ascending=<span class="literal">False</span>)[<span class="string">&quot;id&quot;</span>].<span class="built_in">max</span>()</span><br><span class="line">        in_list = report_data[report_data[<span class="string">&#x27;id&#x27;</span>] &gt; last_id]</span><br><span class="line">        new_l = in_list.sort_values(by=<span class="string">&#x27;id&#x27;</span>, ascending=<span class="literal">True</span>)</span><br><span class="line">        collection_report.insert_many(json.loads(new_l.T.to_json()).values())</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;&#123;&#125; items has been update Successed on &#123;&#125;&#x27;</span>.<span class="built_in">format</span>(<span class="built_in">len</span>(new_l), time.strftime(<span class="string">&#x27;%Y-%m-%d %H:%M:%S&#x27;</span>)))</span><br></pre></td></tr></table></figure>
-<h3 id="设置运行时间间隔"><a href="#设置运行时间间隔" class="headerlink" title="设置运行时间间隔"></a>设置运行时间间隔</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run_time</span>():</span></span><br><span class="line">    page = <span class="built_in">list</span>(<span class="built_in">range</span>(<span class="number">10</span>, <span class="number">0</span>, -<span class="number">1</span>))</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> page:</span><br><span class="line">        url = <span class="string">&quot;http://www.hibor.com.cn/microns_1_&#123;&#125;.html&quot;</span>.<span class="built_in">format</span>(i)</span><br><span class="line">        detail_urls = spider_detail_urls(url)</span><br><span class="line">        report_data = spider_abstract(detail_urls)</span><br><span class="line">        update_mongodb(report_data)</span><br><span class="line"></span><br><span class="line">schedule.every(<span class="number">4</span>).to(<span class="number">6</span>).days.do(run_time)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        schedule.run_pending()</span><br></pre></td></tr></table></figure>
-<p><a href="https://github.com/Curtis-Lau/crawl-hibor">本文全部代码详见GitHub</a></p>
-]]></content>
-      <tags>
-        <tag>爬虫</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>决策树</title>
-    <url>/post/52060/</url>
-    <content><![CDATA[<p>决策树是一种机器学习的方法。决策树的生成算法有ID3, C4.5和C5.0等。决策树是一种树形结构，其中每个内部节点表示一个属性上的判断，每个分支代表一个判断结果的输出，最后每个叶节点代表一种分类结果。</p>
-<p><strong>本文结合实际应用给出手敲的C4.5代码</strong></p>
-<span id="more"></span>
-<h2 id="ID3简介"><a href="#ID3简介" class="headerlink" title="ID3简介"></a>ID3简介</h2><p><img src="/post/52060/决策树.jpg" alt="决策树"></p>
-<p>上面这个图就是一棵典型的决策树。我们在做决策树的时候，会经历两个阶段：<strong>构造</strong>和<strong>剪枝</strong>。</p>
-<h3 id="构造"><a href="#构造" class="headerlink" title="构造"></a>构造</h3><p><strong>构造就是生成一棵完整的决策树</strong>。简单来说，<strong>构造的过程就是选择什么属性作为节点的过程</strong>，那么在构造过程中，会存在三种节点：</p>
-<ol>
-<li>根节点：就是树的最顶端，最开始的那个节点。在上图中，“白不白”就是一个根节点；</li>
-<li>内部节点：就是树中间的那些节点，比如说“富不富”、“美不美”；</li>
-<li>叶节点：就是树最底部的节点，也就是决策结果。</li>
-</ol>
-<p>节点之间存在父子关系。比如根节点会有子节点，子节点会有子子节点，但是到了叶节点就停止了，叶节点不存在子节点。那么在构造过程中，你要解决三个重要的问题：</p>
-<ol>
-<li>选择哪个属性作为根节点；</li>
-<li>选择哪些属性作为子节点；</li>
-<li>什么时候停止并得到目标状态，即叶节点。</li>
-</ol>
-<h3 id="剪枝"><a href="#剪枝" class="headerlink" title="剪枝"></a>剪枝</h3><p>剪枝就是给决策树瘦身，这一步想实现的目标就是，不需要太多的判断，同样可以得到不错的结果。之所以这么做，是为了防止“过拟合”（Overfitting）现象的发生。</p>
-<p><strong>过拟合</strong>：指的是模型的训练结果“太好了”，以至于在实际应用的过程中，会存在“死板”的情况，导致分类错误。</p>
-<p><strong>欠拟合</strong>：指的是模型的训练结果不理想。</p>
-<p><strong>造成过拟合的原因</strong>：</p>
-<p>一是因为训练集中样本量较小。如果决策树选择的属性过多，构造出来的决策树一定能够“完美”地把训练集中的样本分类，但是这样就会把训练集中一些数据的特点当成所有数据的特点，但这个特点不一定是全部数据的特点，这就使得这个决策树在真实的数据分类中出现错误，也就是模型的“泛化能力”差。</p>
-<p><strong>泛化能力</strong>：指的分类器是通过训练集抽象出来的分类能力，你也可以理解是举一反三的能力。如果我们太依赖于训练集的数据，那么得到的决策树容错率就会比较低，泛化能力差。因为训练集只是全部数据的抽样，并不能体现全部数据的特点。</p>
-<p><strong>剪枝的方法</strong>：</p>
-<ul>
-<li><strong>预剪枝</strong>：在决策树构造时就进行剪枝。方法是，在构造的过程中对节点进行评估，如果对某个节点进行划分，在验证集中不能带来准确性的提升，那么对这个节点进行划分就没有意义，这时就会把当前节点作为叶节点，不对其进行划分。</li>
-<li><strong>后剪枝</strong>：在生成决策树之后再进行剪枝。通常会从决策树的叶节点开始，逐层向上对每个节点进行评估。如果剪掉这个节点子树，与保留该节点子树在分类准确性上差别不大，或者剪掉该节点子树，能在验证集中带来准确性的提升，那么就可以把该节点子树进行剪枝。方法是：用这个节点子树的叶子节点来替代该节点，类标记为这个节点子树中最频繁的那个类。</li>
-</ul>
-<p>在决策过程中有三个重要的问题：将哪个属性作为根节点？选择哪些属性作为后继节点？什么时候停止并得到目标值？</p>
-<p>显然将哪个属性（天气、温度、湿度、刮风）作为根节点是个关键问题，在这里我们先介绍两个指标<strong>：纯度</strong>和<strong>信息熵</strong>。</p>
-<h3 id="纯度"><a href="#纯度" class="headerlink" title="纯度"></a>纯度</h3><p><strong>你可以把决策树的构造过程理解成为寻找纯净划分的过程</strong>。数学上，我们可以用纯度来表示，纯度换一种方式来解释就是<strong>让目标变量的分歧最小</strong>。</p>
-<h3 id="信息熵"><a href="#信息熵" class="headerlink" title="信息熵"></a>信息熵</h3><p>信息熵的概念本身是信息论中的一个重要概念，因为我们的重点是决策树，所以就不多涉及信息论的知识，我们只需要知道信息熵是什么。</p>
-<p><strong>信息熵简单的来说就是表示随机变量不确定度的度量。</strong></p>
-<p><strong>熵越大，数据的不确定性就越大。</strong></p>
-<p><strong>熵越小，数据的不确定性就越小，也就是越确定。</strong></p>
-<p>信息熵计算公式：</p>
-<script type="math/tex; mode=display">Entropy(i)=-\displaystyle \sum^n_{i=1}p_i\cdot log(p_i)</script><p>其中 $p_i$ 是指，数据中一共有n类信息，$p_i$就是指第i类数据所占的比例。</p>
-<hr>
-<p>举个例子：</p>
-<p>假设我们的数据中一共有三类。每一类所占比例为$\frac{1}{3}$，那么信息熵就是</p>
-<script type="math/tex; mode=display">E=-\frac{1}{3}log(\frac{1}{3})-\frac{1}{3}log(\frac{1}{3})-\frac{1}{3}log(\frac{1}{3})=1.0986</script><p>假设我们数据一共有三类，每类所占比例是0、0、1，那么信息熵就是</p>
-<script type="math/tex; mode=display">E=-0log(0)-0log(0)-1log(1)=0</script><p>（注：实际上$log(0)$是不能计算的，定义上不允许，真实场景会做其他处理解决这个问题）</p>
-<p>很显然第二组数据比第一组数据信息熵小，也就是不确定性要少，换句话讲就是更为确定。</p>
-<hr>
-<p>根据这两个例子，应该就能理解<strong>信息熵是随机变量不确定度的度量</strong>了。</p>
-<p>如果我们的数据偏向于某一个类别，随机变量的不确定性就降低了，会变的更为确定。</p>
-<h3 id="信息增益"><a href="#信息增益" class="headerlink" title="信息增益"></a>信息增益</h3><p>信息增益指的就是划分可以带来纯度的提高，信息熵的下降。它的计算公式，是<strong>父亲节点的信息熵减去所有子节点的信息熵</strong>。在计算的过程中，我们会计算每个子节点的归一化信息熵，即按照每个子节点在父节点中出现的概率，来计算这些子节点的信息熵。所以信息增益的公式可以表示为：</p>
-<script type="math/tex; mode=display">Gain(D,a)=Entropy(D)-\displaystyle \sum^k_{i=1}\frac{|D_i|}{|D|}Entropy(D_i)</script><p>公式中 $D$ 是父亲节点，$D_i$是子节点，$Gain(D,a)$中的$a$ 作为 $D $节点的属性选择。</p>
-<p>于是我们通过 ID3 算法得到了一棵决策树。ID3 的算法规则相对简单，可解释性强。同样也存在缺陷，比如我们会发现 <strong>ID3 算法倾向于选择取值比较多的属性</strong>。这样，如果我们把“编号”作为一个属性（一般情况下不会这么做，这里只是举个例子），那么“编号”将会被选为最优属性 。但实际上“编号”是无关属性的，它对“打篮球”的分类并没有太大作用。</p>
-<p><strong>所以 ID3 有一个缺陷就是，有些属性可能对分类任务没有太大作用，但是他们仍然可能会被选为最优属性。</strong>这种缺陷不是每次都会发生，只是存在一定的概率。在大部分情况下，ID3 都能生成不错的决策树分类。针对可能发生的缺陷，后人提出了新的算法进行改进。</p>
-<h2 id="在-ID3-算法上进行改进的-C4-5-算法"><a href="#在-ID3-算法上进行改进的-C4-5-算法" class="headerlink" title="在 ID3 算法上进行改进的 C4.5 算法"></a>在 ID3 算法上进行改进的 C4.5 算法</h2><h3 id="1-采用信息增益率"><a href="#1-采用信息增益率" class="headerlink" title="1. 采用信息增益率"></a>1. 采用信息增益率</h3><p>因为 ID3 在计算的时候，倾向于选择取值多的属性。为了避免这个问题，C4.5 采用信息增益率的方式来选择属性。<strong>信息增益率 = 信息增益 / 属性熵</strong></p>
-<p>当属性有很多值的时候，相当于被划分成了许多份，虽然信息增益变大了，但是对于 C4.5 来说，属性熵也会变大，所以整体的信息增益率并不大。</p>
-<h3 id="2-采用悲观剪枝"><a href="#2-采用悲观剪枝" class="headerlink" title="2. 采用悲观剪枝"></a>2. 采用悲观剪枝</h3><p>ID3 构造决策树的时候，容易产生过拟合的情况。在 C4.5中，会在决策树构造之后采用悲观剪枝（PEP），这样可以提升决策树的泛化能力。</p>
-<p>悲观剪枝是后剪枝技术中的一种，通过递归估算每个内部节点的分类错误率，比较剪枝前后这个节点的分类错误率来决定是否对其进行剪枝。这种剪枝方法不再需要一个单独的测试数据集。</p>
-<h3 id="3-离散化处理连续属性"><a href="#3-离散化处理连续属性" class="headerlink" title="3. 离散化处理连续属性"></a>3. 离散化处理连续属性</h3><p>C4.5 可以处理连续属性的情况，对连续的属性进行离散化的处理。比如打篮球存在的“湿度”属性，不按照“高、中”划分，而是按照湿度值进行计算，那么湿度取什么值都有可能。该怎么选择这个阈值呢，<strong>C4.5 选择具有最高信息增益的划分所对应的阈值</strong>。</p>
-<h3 id="小结："><a href="#小结：" class="headerlink" title="小结："></a>小结：</h3><p>首先 ID3 算法的优点是方法简单，缺点是对噪声敏感。训练数据如果有少量错误，可能会产生决策树分类错误。C4.5 在 IID3 的基础上，用信息增益率代替了信息增益，解决了噪声敏感的问题，并且可以对构造树进行剪枝、处理连续数值以及数值缺失等情况，但是由于 C4.5 需要对数据集进行多次扫描，算法效率相对较低。</p>
-<p><img src="https://img2018.cnblogs.com/blog/1411882/201904/1411882-20190407131812291-240835919.png" alt></p>
-<h2 id="接下来本文运用C4-5算法对HS300股票池股票进行分类"><a href="#接下来本文运用C4-5算法对HS300股票池股票进行分类" class="headerlink" title="接下来本文运用C4.5算法对HS300股票池股票进行分类"></a><strong>接下来本文运用C4.5算法对HS300股票池股票进行分类</strong></h2><hr>
-<p>c4.5 决策树 到createTree_c为止 为决策树代码</p>
-<p>最终希望达到：</p>
-<p>1、组合基本为赢家组合 </p>
-<p>2、组内标签大部分相同，少量是别的标签（把最终的熵提出来观察一下）</p>
-<p>3、组合间有小部分重复股票——s的设定</p>
-<p>4、最终组间画图，用净值或是收益曲线，让组间行情看起来是分开的</p>
-<p>本代码的优化：</p>
-<p>1、连续变量离散化：函数名带_c的都做了改变</p>
-<p>2、设定了s，主要是根据splitDataSet_c函数，让他分得时候错位分</p>
-<p>3、最大层高设为了4（退出条件，可改）</p>
-<p>4、后面增加了cut_leaf减去输家组合，和getclustercode函数提取item样本，显示每组的股票</p>
-<hr>
-<p>本文考虑到实际应用，在划分数据集的时考虑的是软划分，即对数据左右划分时用参数使得划分的左右两侧可能存在同样的数据，就是这里的splitDataSet_c函数。</p>
-<h3 id="计算熵"><a href="#计算熵" class="headerlink" title="计算熵"></a>计算熵</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">calcShannonEnt</span>(<span class="params">dataSet</span>):</span></span><br><span class="line">    numEntries = <span class="built_in">len</span>(dataSet)   <span class="comment">#计算数据集中实例的总数</span></span><br><span class="line">    labelCounts = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> featVec <span class="keyword">in</span> dataSet: <span class="comment">#the the number of unique elements and their occurance</span></span><br><span class="line">        currentLabel = featVec[-<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">if</span> currentLabel <span class="keyword">not</span> <span class="keyword">in</span> labelCounts.keys(): labelCounts[currentLabel] = <span class="number">0</span> </span><br><span class="line">        labelCounts[currentLabel] += <span class="number">1</span>   <span class="comment">#观察每个类别数量</span></span><br><span class="line">    shannonEnt = <span class="number">0.0</span></span><br><span class="line">    <span class="keyword">for</span> key <span class="keyword">in</span> labelCounts:   <span class="comment">#使用类别标签发生频率计算类别出现概率</span></span><br><span class="line">        prob = <span class="built_in">float</span>(labelCounts[key])/numEntries</span><br><span class="line">        shannonEnt -= prob*np.math.log(prob,<span class="number">2</span>)</span><br><span class="line">    <span class="keyword">return</span> shannonEnt   <span class="comment">#熵</span></span><br></pre></td></tr></table></figure>
-<h3 id="划分数据集"><a href="#划分数据集" class="headerlink" title="划分数据集"></a>划分数据集</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#选择最优属性时使用（划分数据集）</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">splitDataSet_a</span>(<span class="params">dataSet, axis, value, LorR=<span class="string">&#x27;L&#x27;</span></span>):</span></span><br><span class="line">    retDataSet = []</span><br><span class="line">    <span class="keyword">if</span> LorR == <span class="string">&#x27;L&#x27;</span>:</span><br><span class="line">        <span class="keyword">for</span> featVec <span class="keyword">in</span> dataSet:</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">float</span>(featVec[axis]) &lt; value:</span><br><span class="line">                retDataSet.append(featVec)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">for</span> featVec <span class="keyword">in</span> dataSet:</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">float</span>(featVec[axis]) &gt; value:</span><br><span class="line">                retDataSet.append(featVec)</span><br><span class="line">    <span class="keyword">return</span> retDataSet</span><br><span class="line"></span><br><span class="line"><span class="comment">#分裂左右子数时，设定一定的错位值s</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">splitDataSet_c</span>(<span class="params">dataSet, axis, value, s, LorR=<span class="string">&#x27;L&#x27;</span></span>):</span></span><br><span class="line">    retDataSet = []</span><br><span class="line">    <span class="keyword">if</span> LorR == <span class="string">&#x27;L&#x27;</span>:</span><br><span class="line">        <span class="keyword">for</span> featVec <span class="keyword">in</span> dataSet:</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">float</span>(featVec[axis]) &lt; value*(<span class="number">1</span>-s):</span><br><span class="line">                retDataSet.append(featVec)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">for</span> featVec <span class="keyword">in</span> dataSet:</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">float</span>(featVec[axis]) &gt; value*(<span class="number">1</span>+s):</span><br><span class="line">                retDataSet.append(featVec)</span><br><span class="line">    <span class="keyword">return</span> retDataSet</span><br></pre></td></tr></table></figure>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 选择最好的数据集划分方式</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">chooseBestFeatureToSplit_c</span>(<span class="params">dataSet, labelProperty</span>):</span></span><br><span class="line">    numFeatures = <span class="built_in">len</span>(labelProperty)  <span class="comment"># 特征数</span></span><br><span class="line">    baseEntropy = calcShannonEnt(dataSet)  <span class="comment"># 计算根节点的信息熵</span></span><br><span class="line">    infoGainRatio_dict = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(numFeatures):  <span class="comment"># 对每个特征循环</span></span><br><span class="line">        featList = [example[i] <span class="keyword">for</span> example <span class="keyword">in</span> dataSet]</span><br><span class="line">        uniqueVals = <span class="built_in">set</span>(featList)  <span class="comment"># 该特征包含的所有值</span></span><br><span class="line">        newEntropy = <span class="number">0.0</span></span><br><span class="line">        <span class="keyword">if</span> labelProperty[i] == <span class="number">0</span>:  <span class="comment"># 对离散的特征</span></span><br><span class="line">            <span class="keyword">for</span> value <span class="keyword">in</span> uniqueVals:  <span class="comment"># 对每个特征值，划分数据集, 计算各子集的信息熵</span></span><br><span class="line">                subDataSet = splitDataSet_a(dataSet, i, value)</span><br><span class="line">                prob = <span class="built_in">len</span>(subDataSet) / <span class="built_in">float</span>(<span class="built_in">len</span>(dataSet))</span><br><span class="line">                newEntropy += prob * calcShannonEnt(subDataSet)</span><br><span class="line">        <span class="keyword">else</span>:  <span class="comment"># 对连续的特征</span></span><br><span class="line">            sortedUniqueVals = <span class="built_in">list</span>(uniqueVals)  <span class="comment"># 对特征值排序</span></span><br><span class="line">            sortedUniqueVals.sort()</span><br><span class="line">            <span class="comment">#只取中间段进行划分点选取</span></span><br><span class="line">            sortedUniqueVals = sortedUniqueVals[<span class="built_in">int</span>(<span class="built_in">len</span>(sortedUniqueVals)*<span class="number">0.4</span>):<span class="built_in">int</span>(<span class="built_in">len</span>(sortedUniqueVals)*<span class="number">0.6</span>)]</span><br><span class="line">            maxinfoGainRatio = -np.inf</span><br><span class="line">            bestPartValue = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(sortedUniqueVals) - <span class="number">1</span>):  <span class="comment"># 计算划分点</span></span><br><span class="line">                partValue = (<span class="built_in">float</span>(sortedUniqueVals[j]) + <span class="built_in">float</span>(sortedUniqueVals[j+<span class="number">1</span>])) / <span class="number">2</span></span><br><span class="line">                <span class="comment"># 对每个划分点，计算信息熵</span></span><br><span class="line">                dataSetLeft = splitDataSet_a(dataSet, i, partValue,<span class="string">&#x27;L&#x27;</span>)</span><br><span class="line">                dataSetRight = splitDataSet_a(dataSet, i, partValue,<span class="string">&#x27;R&#x27;</span>)</span><br><span class="line">                probLeft = <span class="built_in">len</span>(dataSetLeft) / <span class="built_in">float</span>(<span class="built_in">len</span>(dataSet))</span><br><span class="line">                probRight = <span class="built_in">len</span>(dataSetRight) / <span class="built_in">float</span>(<span class="built_in">len</span>(dataSet))</span><br><span class="line">                Entropy = probLeft*calcShannonEnt(dataSetLeft) + probRight*calcShannonEnt(dataSetRight)</span><br><span class="line">                feature_ent = -probLeft*np.math.log(probLeft,<span class="number">2</span>)-probRight*np.math.log(probRight,<span class="number">2</span>)</span><br><span class="line">                infoGainRatio = (baseEntropy - Entropy)/feature_ent</span><br><span class="line">                <span class="keyword">if</span> infoGainRatio &gt; maxinfoGainRatio:</span><br><span class="line">                    maxinfoGainRatio = infoGainRatio</span><br><span class="line">                    bestPartValue = partValue</span><br><span class="line">                infoGainRatio_dict[i] = (bestPartValue,infoGainRatio)</span><br><span class="line"></span><br><span class="line">    sortedbestFeature = <span class="built_in">sorted</span>(infoGainRatio_dict.items(),key=<span class="keyword">lambda</span> x:x[-<span class="number">1</span>][-<span class="number">1</span>],reverse=<span class="literal">True</span>)</span><br><span class="line">    bestFeature = sortedbestFeature[<span class="number">0</span>][<span class="number">0</span>]</span><br><span class="line">    bestValue = sortedbestFeature[<span class="number">0</span>][<span class="number">1</span>][<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">return</span> bestFeature, bestValue</span><br></pre></td></tr></table></figure>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#判断数据集的各个属性集是否完全一致</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">judgeEqualLabels</span>(<span class="params">dataSet</span>):</span> </span><br><span class="line">    feature_leng = <span class="built_in">len</span>(dataSet[<span class="number">0</span>]) - <span class="number">1</span>   </span><br><span class="line">    data_leng = <span class="built_in">len</span>(dataSet)</span><br><span class="line">    is_equal = <span class="literal">True</span>    </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(feature_leng):</span><br><span class="line">        first_feature = dataSet[<span class="number">0</span>][i]   </span><br><span class="line">        <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, data_leng):</span><br><span class="line">            <span class="keyword">if</span> first_feature != dataSet[_][i]:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">False</span>    </span><br><span class="line">    <span class="keyword">return</span> is_equal</span><br></pre></td></tr></table></figure>
-<h3 id="投票表决"><a href="#投票表决" class="headerlink" title="投票表决"></a>投票表决</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#投票表决</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">majorityCnt</span>(<span class="params">classList</span>):</span></span><br><span class="line">    classCount=&#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> vote <span class="keyword">in</span> classList:</span><br><span class="line">        <span class="keyword">if</span> vote <span class="keyword">not</span> <span class="keyword">in</span> classCount.keys(): classCount[vote] = <span class="number">0</span>   <span class="comment">#未出现过，生成一个键值对</span></span><br><span class="line">        classCount[vote] += <span class="number">1</span></span><br><span class="line">    sortedClassCount = <span class="built_in">sorted</span>(classCount.items(), key=operator.itemgetter(<span class="number">1</span>), reverse=<span class="literal">True</span>) <span class="comment">#classCount.iteritems()python3中已经没有这个属性，直接改为items</span></span><br><span class="line">    <span class="comment">#将字典拆为多个元祖[(‘url’, ‘value1’), (‘title’, ‘value2’)]组成的列表</span></span><br><span class="line">    <span class="keyword">return</span> sortedClassCount[<span class="number">0</span>][<span class="number">0</span>]   <span class="comment">#返回出现次数最多的分类名称</span></span><br></pre></td></tr></table></figure>
-<p>这里包含部分代码，因前期数据处理工作复杂，这里不方便展示，全部代码及数据详见GitHub：</p>
-<p><a href="https://github.com/Curtis-Lau/Decision-Tree">本文全部代码详见GitHub</a></p>
-]]></content>
-      <categories>
-        <category>算法</category>
-        <category>机器学习</category>
-      </categories>
-      <tags>
-        <tag>机器学习</tag>
-        <tag>决策树</tag>
-      </tags>
+    <title>LinUCB_based_on_ga</title>
+    <url>/post/8bec61f5/</url>
+    <content><![CDATA[]]></content>
   </entry>
   <entry>
     <title>遗传算法</title>
@@ -437,6 +219,241 @@
       <tags>
         <tag>机器学习</tag>
         <tag>遗传算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LinUCB Based on Decision Tree</title>
+    <url>/post/40deb9b1/</url>
+    <content><![CDATA[<p>本部分将前面写的LinUCB算法和决策树算法结合起来，以HS300成分股为股票池，首先定义一些因子，放入决策树将股票分组，每一组可以看成是一个portfolio，在时间$t$，将改时间所有的portfolio放入推荐系统，根据投资者的偏好、效用等特征选取投资组合推荐给投资者。</p>
+<span id="more"></span>
+<p>在诸如新闻推荐的各种机器学习应用中，已经很好地研究了多臂强盗方法。基于Bandit学习的线性置信上限算法是一种典型的强化学习方法，可用于在资产重新分配时重新平衡收益和风险，以使给定时间间隔内的累积利润最大化。</p>
+<p>大多数投资者可能对不同的资产有不一致的偏好，例如，他们可能在时间较长的资产上寻求安全的投资，而在一些资本比例较小的资产上碰运气。因此，需要设计奖励函数来平衡探索和开发。该研究包括开发一个两阶段模型，首先使用监督自适应决策树的方法来建立一个候选投资组合池。因此，基于LinUCB的Bandit学习被用来为具有不同风险偏好的投资者推荐最合适的投资组合。</p>
+<p>期望效用函数对于模型的参数估计至关重要。该模型已在HS300成份股上进行了检验。该模型在不同测试期的累计收益率可以远远超过基准指数。</p>
+<h2 id="决策树的设定"><a href="#决策树的设定" class="headerlink" title="决策树的设定"></a>决策树的设定</h2><h3 id="分类的标准"><a href="#分类的标准" class="headerlink" title="分类的标准"></a>分类的标准</h3><p>分裂标准应该是平均效用值，而不是纯度度量，如熵。最高平均效用意味着任何候选投资组合的最佳可实现效用。效用应该是回报和风险的综合衡量标准。LinUCB算法往往比风险厌恶效用的最初定义更乐观。为了保持平衡的衡量，既不太保守也不太乐观，我们采用风险中性策略，只考虑回报。</p>
+<h3 id="停止分裂的标准"><a href="#停止分裂的标准" class="headerlink" title="停止分裂的标准"></a>停止分裂的标准</h3><p>该标准用于防止过度训练。除了纯度要求，即基于节点的资产标签值的信息增益率应小于阈值$G^*$，投资组合应实现某种适当的效用。由于没有任何基准来建议最佳的可实现效用，我们在此提出，对于任何投资组合，候选人都应该有最小数量的最小资产和历史平均效用的下限。</p>
+<p>对于叶节点，如果被分类到该节点的资产的数量等于或小于其平均效用的最小公约数，则该节点被视为终端叶节点。历史平均效用$u_{lb}$可以根据经验确定。例如，在给定的时间段内，$u_{lb}$是低于平均效用的75%。</p>
+<h3 id="重叠分类的设定"><a href="#重叠分类的设定" class="headerlink" title="重叠分类的设定"></a>重叠分类的设定</h3><p>由于投资者在投资类似资产时可能会有一些投资标的的额重复，当资产分类前的投资组合效用已经达到令人满意的水平时，我们应该考虑修改二元分割。经济含义是，这组资产质量良好。由于该算法建议通过进一步分割可以实现更高的效用，因此我们执行分割，但会保留一些重叠。重叠的程度应该与实现的效用水平成比例。假设在给定的时间段内，效用$q(u)$的分位数衡量的是小于$u$的效用百分比，重叠水平可以通过$ξ(u)=1-q(u)$来控制。因此，在一般情况下分类，是$γ&gt;v$和$γ&lt;v$，而在这里，是$γ≥ξv$和$γ&lt;(1+ξ)v$。</p>
+<h3 id="股票的清洗"><a href="#股票的清洗" class="headerlink" title="股票的清洗"></a>股票的清洗</h3><p>对于所有的候选样本，即HS300股票池中的股票，首先根据他们过去在风险中性回报方面的表现被标上标签（例如，离散化平均收益率：过去收益率在整个股票池中股票的10%以内的股票被标上1；如果股票的回报率在10%-20%范围内，股票被标上2，以此类推）。</p>
+<p>训练后，股票被分组到决策树叶子节点。假设一组股票（portfolio）平均标签值在5以上，且信息增益率较低，这种节点的投资组合将会被修剪。</p>
+<p>保留的叶子节点意味着一个赢家股票组，该组股票的平均标签值较低，信息增益率较低。通过特定路径的最优决策序列可以通过从叶节点开始并向后滚动到决策树的根来找到。</p>
+<p>正如之前提到的，我们需要不同投资组合之间有一些重叠，这不仅解决了不同投资者之间选择股票的重叠，而且有助于控制交易成本。除了在每个决策树的非叶节点的每次分类中使用软阈值之外。对于Bandit算法，较多的候选组合不会对资产推荐造成不好的影响。</p>
+<h2 id="Bandit-learning：LinUCB的设定"><a href="#Bandit-learning：LinUCB的设定" class="headerlink" title="Bandit learning：LinUCB的设定"></a>Bandit learning：LinUCB的设定</h2>]]></content>
+      <tags>
+        <tag>机器学习</tag>
+        <tag>强化学习</tag>
+        <tag>推荐算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>慧博研投爬虫</title>
+    <url>/post/55099ab/</url>
+    <content><![CDATA[<p>本文爬取的是慧博研投(www.hibor.com.cn)研报栏目的数据，主要包含研报的发布时间、标题、摘要的信息，然后将数据存于本地MongoDB数据库中。</p>
+<span id="more"></span>
+<h2 id="第一部分：导入需要的库"><a href="#第一部分：导入需要的库" class="headerlink" title="第一部分：导入需要的库"></a>第一部分：导入需要的库</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> pymongo</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> schedule</span><br></pre></td></tr></table></figure>
+<h2 id="第二部分：设置MongoDB"><a href="#第二部分：设置MongoDB" class="headerlink" title="第二部分：设置MongoDB"></a>第二部分：设置MongoDB</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">client = pymongo.MongoClient(host=<span class="string">&#x27;localhost&#x27;</span>,port=<span class="number">27017</span>)</span><br><span class="line">db = client[<span class="string">&#x27;hibor_report&#x27;</span>]</span><br><span class="line">collection_report = db[<span class="string">&quot;report_data&quot;</span>]</span><br><span class="line">report = &#123;&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="第三部分：编写函数"><a href="#第三部分：编写函数" class="headerlink" title="第三部分：编写函数"></a>第三部分：编写函数</h2><h3 id="获取研报时间、标题以及具体网址"><a href="#获取研报时间、标题以及具体网址" class="headerlink" title="获取研报时间、标题以及具体网址"></a>获取研报时间、标题以及具体网址</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">spider_detail_urls</span>(<span class="params">url</span>):</span></span><br><span class="line">    title_list = []</span><br><span class="line">    detail_url_list = []</span><br><span class="line">    <span class="built_in">id</span> = []</span><br><span class="line">    headers = &#123;<span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 UBrowser/6.2.4098.3 Safari/537.36&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Host&#x27;</span>: <span class="string">&#x27;www.hibor.com.cn&#x27;</span>&#125;</span><br><span class="line">    response = requests.get(url, headers=headers)</span><br><span class="line">    text = response.content.decode()</span><br><span class="line">    bs = BeautifulSoup(text,<span class="string">&quot;html5lib&quot;</span>)</span><br><span class="line">    div = bs.find(<span class="string">&quot;div&quot;</span>,class_=<span class="string">&quot;leftn2&quot;</span>)</span><br><span class="line">    table = div.find(<span class="string">&quot;table&quot;</span>,class_=<span class="string">&quot;tab_ltnew&quot;</span>)</span><br><span class="line">    trs = table.find_all(<span class="string">&quot;tr&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> tr <span class="keyword">in</span> trs[::<span class="number">4</span>]:</span><br><span class="line">        span = tr.find(<span class="string">&quot;span&quot;</span>,class_=<span class="string">&quot;tab_lta&quot;</span>)</span><br><span class="line">        title =  <span class="built_in">list</span>(span.stripped_strings)[<span class="number">0</span>]</span><br><span class="line">        title_list.append(title)</span><br><span class="line">        _url = span.find(<span class="string">&quot;a&quot;</span>).get(<span class="string">&quot;href&quot;</span>)</span><br><span class="line">        detail_url = <span class="string">&quot;http://www.hibor.com.cn&quot;</span>+_url</span><br><span class="line">        detail_url_list.append(detail_url)</span><br><span class="line">        _<span class="built_in">id</span> = _url.split(<span class="string">&quot;_&quot;</span>)[-<span class="number">1</span>].split(<span class="string">&quot;.&quot;</span>)[<span class="number">0</span>]</span><br><span class="line">        <span class="built_in">id</span>.append(_<span class="built_in">id</span>)</span><br><span class="line">    report[<span class="string">&quot;id&quot;</span>] = <span class="built_in">id</span></span><br><span class="line">    report[<span class="string">&quot;连接&quot;</span>] = detail_url_list</span><br><span class="line">    report[<span class="string">&quot;标题&quot;</span>] = title_list</span><br><span class="line">    <span class="keyword">return</span> detail_url_list</span><br></pre></td></tr></table></figure>
+<h3 id="根据具体网址获取研报摘要"><a href="#根据具体网址获取研报摘要" class="headerlink" title="根据具体网址获取研报摘要"></a>根据具体网址获取研报摘要</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">spider_abstract</span>(<span class="params">detail_url_list</span>):</span></span><br><span class="line">    abstract = []</span><br><span class="line">    headers = &#123;<span class="string">&#x27;Accept-Language&#x27;</span>: <span class="string">&#x27;zh-CN,zh;q=0.9&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Connection&#x27;</span>: <span class="string">&#x27;keep-alive&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Cookie&#x27;</span>: <span class="string">&#x27;c=; safedog-flow-item=E452688EA9408CDB488598E819CA5CAE; UM_distinctid=17221e00e0a26-02018c653952da-d373666-144000-17221e00e0b56; did=67A671BFE; ASPSESSIONIDCABDDAQR=CNAHPHPCOHJBHKGHKGAGLOND; Hm_lvt_d554f0f6d738d9e505c72769d450253d=1589706231,1590147502,1590713899,1592128454; ASPSESSIONIDAQSSSRDS=KKGBDNADKNMBKOAAJFLPBJED; CNZZDATA1752123=cnzz_eid%3D1486449273-1589705206-https%253A%252F%252Fwww.baidu.com%252F%26ntime%3D1592138092; robih=OWvVuXvWjVoWKY9WdWsU; MBpermission=0; MBname=Curtis%5FLau; Hm_lpvt_d554f0f6d738d9e505c72769d450253d=1592140743&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Host&#x27;</span>: <span class="string">&#x27;www.hibor.com.cn&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Referer&#x27;</span>: <span class="string">&#x27;http://www.hibor.com.cn/docdetail_2937262.html&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;X-Requested-With&#x27;</span>: <span class="string">&#x27;XMLHttpRequest&#x27;</span>&#125;</span><br><span class="line">    <span class="keyword">for</span> url <span class="keyword">in</span> detail_url_list:</span><br><span class="line">        response = requests.get(url=url, headers=headers)</span><br><span class="line">        text = response.content.decode(<span class="string">&quot;gbk&quot;</span>)</span><br><span class="line">        bs = BeautifulSoup(text, <span class="string">&quot;html5lib&quot;</span>)</span><br><span class="line">        div = bs.find(<span class="string">&quot;div&quot;</span>, class_=<span class="string">&quot;neir&quot;</span>)</span><br><span class="line">        span = div.find(<span class="string">&quot;span&quot;</span>)</span><br><span class="line">        txt = <span class="built_in">list</span>(span.stripped_strings)</span><br><span class="line">        sentence = <span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> txt:</span><br><span class="line">            <span class="keyword">if</span> <span class="string">&quot;http://www.hibor.com.cn&quot;</span> <span class="keyword">not</span> <span class="keyword">in</span> i:</span><br><span class="line">                sentence += i</span><br><span class="line">        abstract.append(sentence)</span><br><span class="line">    report[<span class="string">&quot;摘要&quot;</span>] = abstract</span><br><span class="line">    report_data = pd.DataFrame(report)</span><br><span class="line">    <span class="keyword">return</span> report_data</span><br></pre></td></tr></table></figure>
+<h3 id="将数据导入MongoDB"><a href="#将数据导入MongoDB" class="headerlink" title="将数据导入MongoDB"></a>将数据导入MongoDB</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_mongodb</span>(<span class="params">report_data</span>):</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(pd.DataFrame(collection_report.find()))==<span class="number">0</span>:</span><br><span class="line">        new_l = report_data.sort_values(by=<span class="string">&#x27;id&#x27;</span>, ascending=<span class="literal">True</span>)</span><br><span class="line">        collection_report.insert_many(json.loads(new_l.T.to_json()).values())</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        last_id = pd.DataFrame(collection_report.find()).sort_values(by=<span class="string">&quot;id&quot;</span>, ascending=<span class="literal">False</span>)[<span class="string">&quot;id&quot;</span>].<span class="built_in">max</span>()</span><br><span class="line">        in_list = report_data[report_data[<span class="string">&#x27;id&#x27;</span>] &gt; last_id]</span><br><span class="line">        new_l = in_list.sort_values(by=<span class="string">&#x27;id&#x27;</span>, ascending=<span class="literal">True</span>)</span><br><span class="line">        collection_report.insert_many(json.loads(new_l.T.to_json()).values())</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;&#123;&#125; items has been update Successed on &#123;&#125;&#x27;</span>.<span class="built_in">format</span>(<span class="built_in">len</span>(new_l), time.strftime(<span class="string">&#x27;%Y-%m-%d %H:%M:%S&#x27;</span>)))</span><br></pre></td></tr></table></figure>
+<h3 id="设置运行时间间隔"><a href="#设置运行时间间隔" class="headerlink" title="设置运行时间间隔"></a>设置运行时间间隔</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run_time</span>():</span></span><br><span class="line">    page = <span class="built_in">list</span>(<span class="built_in">range</span>(<span class="number">10</span>, <span class="number">0</span>, -<span class="number">1</span>))</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> page:</span><br><span class="line">        url = <span class="string">&quot;http://www.hibor.com.cn/microns_1_&#123;&#125;.html&quot;</span>.<span class="built_in">format</span>(i)</span><br><span class="line">        detail_urls = spider_detail_urls(url)</span><br><span class="line">        report_data = spider_abstract(detail_urls)</span><br><span class="line">        update_mongodb(report_data)</span><br><span class="line"></span><br><span class="line">schedule.every(<span class="number">4</span>).to(<span class="number">6</span>).days.do(run_time)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        schedule.run_pending()</span><br></pre></td></tr></table></figure>
+<p><a href="https://github.com/Curtis-Lau/crawl-hibor">本文全部代码详见GitHub</a></p>
+]]></content>
+      <tags>
+        <tag>爬虫</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>推荐算法：LinUCB</title>
+    <url>/post/2973/</url>
+    <content><![CDATA[<p>推荐系统里面有两个经典问题：EE 问题和冷启动问题。前者涉及到平衡准确和多样，后者涉及到产品算法运营等一系列东西。Bandit 算法是一种简单的在线学习算法，常常用于尝试解决这两个问题，本文为你介绍基础的 Bandit 算法及一系列升级版，以及对推荐系统这两个经典问题的思考。</p>
+<p>Bandit算法是一类用来实现Exploitation-Exploration机制的策略。根据是否考虑上下文特征，Bandit算法分为Context-free Bandit和Contextual Bandit两大类，本文简单介绍Context-free Bandit，重点讲解Contextual Bandit。</p>
+<span id="more"></span>
+<h2 id="什么是-bandit-算法"><a href="#什么是-bandit-算法" class="headerlink" title="什么是 bandit 算法"></a>什么是 bandit 算法</h2><h3 id="为选择而生"><a href="#为选择而生" class="headerlink" title="为选择而生"></a>为选择而生</h3><p>我们会遇到很多选择的场景。上哪个大学，学什么专业，去哪家公司，中午吃什么，等等。这些事情，都让选择困难症的我们头很大。那么，有算法能够很好地对付这些问题吗？</p>
+<p>当然有！那就是 Bandit 算法！</p>
+<p>bandit 算法来源于历史悠久的赌博学，它要解决的问题是这样的：</p>
+<p>一个赌徒，要去摇老虎机，走进赌场一看，一排老虎机，外表一模一样，但是每个老虎机吐钱的概率可不一样，他不知道每个老虎机吐钱的概率分布是什么，那么每次该选择哪个老虎机可以做到最大化收益呢？这就是多臂赌博机问题 (Multi-armed bandit problem, K-armed bandit problem, MAB)。</p>
+<p>怎么解决这个问题呢？最好的办法是去试一试，不是盲目地试，而是有策略地快速试一试，这些策略就是 Bandit 算法。</p>
+<p>这个多臂问题，推荐系统里面很多问题都与他类似：</p>
+<p>假设一个用户对不同类别的内容感兴趣程度不同，那么我们的推荐系统初次见到这个用户时，怎么快速地知道他对每类内容的感兴趣程度？这就是推荐系统的冷启动。</p>
+<p>假设我们有若干广告库存，怎么知道该给每个用户展示哪个广告，从而获得最大的点击收益？是每次都挑效果最好那个么？那么新广告如何才有出头之日？</p>
+<p>我们的算法工程师又想出了新的模型，有没有比 A/B test 更快的方法知道它和旧模型相比谁更靠谱？</p>
+<p>如果只是推荐已知的用户感兴趣的物品，如何才能科学地冒险给他推荐一些新鲜的物品？</p>
+<p>这些问题本质上全都是关乎如何选择。只要是关于选择，都可以简化成一个多臂赌博机问题，毕竟小赌怡情嘛，人生何处不赌博。</p>
+<h3 id="bandit-算法与推荐系统"><a href="#bandit-算法与推荐系统" class="headerlink" title="bandit 算法与推荐系统"></a>bandit 算法与推荐系统</h3><p>在推荐系统领域里，有两个比较经典的问题常被人提起，<strong>一个是 EE 问题，另一个是用户冷启动问题</strong>。</p>
+<p><em>什么是 EE 问题？又叫exploit－explore问题</em></p>
+<p>exploit 就是：对用户比较确定的兴趣，当然要利用开采迎合，好比说已经挣到的钱，当然要花</p>
+<p>explore就是：光对着用户已知的兴趣使用，用户很快会腻，所以要不断探索用户新的兴趣才行，这就好比虽然有一点钱可以花了，但是还得继续搬砖挣钱，不然花完了就得喝西北风。</p>
+<p><em>用户冷启动问题</em>，也就是面对新用户时，如何能够通过若干次实验，猜出用户的大致兴趣。</p>
+<p>我想，屏幕前的你已经想到了，推荐系统冷启动可以用Bandit算法来解决一部分。</p>
+<p>这两个问题本质上都是如何选择用户感兴趣的主题进行推荐，比较符合Bandit算法背后的MAB问题。</p>
+<p>比如，用Bandit算法解决冷启动的大致思路如下：</p>
+<p>用分类或者Topic来表示每个用户兴趣，也就是 MAB 问题中的臂（Arm），我们可以通过几次试验，来刻画出新用户心目中对每个topic的感兴趣概率。</p>
+<p>这里，如果用户对某个 topic 感兴趣（提供了显式反馈或隐式反馈），就表示我们得到了收益，如果推给了它不感兴趣的 topic，推荐系统就表示很遗憾 (regret) 了。</p>
+<p>如此经历 “选择 - 观察 - 更新 - 选择” 的循环，理论上是越来越逼近用户真正感兴趣的 topic 的。</p>
+<h2 id="常用Context-free-Bandit-算法"><a href="#常用Context-free-Bandit-算法" class="headerlink" title="常用Context-free Bandit 算法"></a>常用Context-free Bandit 算法</h2><h3 id="Thompson-sampling-算法"><a href="#Thompson-sampling-算法" class="headerlink" title="Thompson sampling 算法"></a><strong>Thompson sampling 算法</strong></h3><p>thompson sampling算法简单实用，简单介绍一下它的原理，要点如下：假设每个臂是否产生收益，其背后有一个概率分布，产生收益的概率为$p$。我们不断地试验，去估计出一个置信度较高的 “概率$p$的概率分布” 就能近似解决这个问题了。</p>
+<p><strong>怎么能估计 “概率$p$的概率分布” 呢？</strong></p>
+<p> 答案是假设概率$p$的概率分布符合 $beta(wins, lose)$分布，它有两个参数: $wins, lose$。每个臂都维护一个 $beta$分布的参数。每次试验后，选中一个臂，摇一下，有收益则该臂的$wins$增加 1，否则该臂的$lose$增加 1。每次选择臂的方式是：用每个臂现有的$beta$分布产生一个随机数$b$，选择所有臂产生的随机数中最大的那个臂去摇。</p>
+<p>以上就是 Thompson 采样，用 python 实现就一行：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pymc</span><br><span class="line"></span><br><span class="line"><span class="comment">#wins 和 trials 是一个N维向量，N是赌博机的臂的个数，每个元素记录了</span></span><br><span class="line"></span><br><span class="line">choice = np.argmax(pymc.rbeta(<span class="number">1</span> + wins, <span class="number">1</span> + trials - wins))</span><br><span class="line"></span><br><span class="line">wins[choice] += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">trials += <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<h3 id="UCB-算法"><a href="#UCB-算法" class="headerlink" title="UCB 算法"></a><strong>UCB 算法</strong></h3><p>UCB 算法全称是 Upper Confidence Bound(置信区间上界)，它的算法步骤如下:</p>
+<p>初始化：先对每一个臂都试一遍，按照如下公式计算每个臂arm的分数，然后选择分数最大的臂作为选择：</p>
+<script type="math/tex; mode=display">arm_i=\hat{u_i}+\sqrt{\frac{2ln(n)}{n_i}}</script><p>其中$\hat{u_i}$是对$arm_i$期望收益的预估，$n$是总的选择次数，$n_i$是对$arm_i$的尝试次数，可以看到尝试越多，其预估值与置信上限的差值就越小，也就是越有置信度。</p>
+<p>这个公式反映一个特点：均值越大，标准差越小，被选中的概率会越来越大，同时哪些被选次数较少的臂也会得到试验机会。</p>
+<h3 id="Epsilon-Greedy-算法"><a href="#Epsilon-Greedy-算法" class="headerlink" title="Epsilon-Greedy 算法"></a><strong>Epsilon-Greedy 算法</strong></h3><p>这是一个朴素的 bandit 算法，有点类似模拟退火的思想：选一个 (0,1) 之间较小的数作为$epsilon$，每次以概率$epsilon$做一件事：所有臂中随机选一个，每次以概率$1-epsilon$选择截止到当前，平均收益最大的那个臂。</p>
+<p>是不是简单粗暴？$epsilon$的值可以控制对Exploit和Explore的偏好程度。越接近 0，越保守，只想花钱不想挣钱。</p>
+<h3 id="朴素-bandit-算法"><a href="#朴素-bandit-算法" class="headerlink" title="朴素 bandit 算法"></a><strong>朴素 bandit 算法</strong></h3><p>最朴素的 bandit 算法就是：先随机试若干次，计算每个臂的平均收益，一直选均值最大那个臂。这个算法是人类在实际中最常采用的，不可否认，它还是比随机乱猜要好。</p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>以上这五种算法都是常见的Context-free Bandit，这类算法没有充分利用推荐场景的上下文信息，为所有用户的选择展现商品的策略都是相同的，忽略了用户作为一个个活生生的个体本身的兴趣点、偏好、购买力等因素都是不同的，因而，同一个商品在不同的用户、不同的情景下接受程度是不同的。故在实际的推荐系统中，context-free的MAB算法基本都不会被采用。</p>
+<h2 id="Contextual-Bandit：LinUCB"><a href="#Contextual-Bandit：LinUCB" class="headerlink" title="Contextual Bandit：LinUCB"></a>Contextual Bandit：LinUCB</h2><p>与Context-free Bandit算法对应的是Contextual Bandit算法，顾名思义，这类算法在实现E&amp;E时考虑了上下文信息，因而更加适合实际的个性化推荐场景。</p>
+<h3 id="公式推导"><a href="#公式推导" class="headerlink" title="公式推导"></a>公式推导</h3><p>形式化地说，在时间步$t$，<strong>Contextual Bandit算法</strong>观察到当前用户$u_t$，以及每个可选择的商品（arm）$a$的特征向量$x_{t,a}$ 。$x_{t,a}$称之为上下文信息，它概况了用户和商品两方面的信息。算法根据之前观察到的反馈结果选择一个商品$a_t$展现给用户，并接受到用户的反馈收益$r_{t,a_t}$，$r_{t,a_t}$的期望取决于用户和商品两个方面。接着，算法根据新的观察$(x_{t,a},a_t,r_{t,a_t})$ 改进自身选择商品展现的策略，目标是使得整个过程中损失的收益最小，即regret值 $R_a(T)$最小， $R_a(T)$定义如下：</p>
+<script type="math/tex; mode=display">R_a(T)=E[\displaystyle \sum^T_{t=1}r^*_{t,a_t}]-E[\displaystyle \sum^T_{t=1}r_{t,a_t}]</script><p>其中，$T$为实验的总步数，$a^*_t$为在时间步$t$时有最大期望收益的arm，不能提前得知。</p>
+<p>LinUCB是处理Contextual Bandit的一个方法，在LinUCB中，设定每个arm的期望收益为该arm的特征向量(context)的线性函数，如下：</p>
+<script type="math/tex; mode=display">E[r_{t,a}|x_{t,a}]=x^T_{t,a}\theta _a</script><p>$\theta _a$是LinUCB模型的参数，维度为$d$。每个arm维护一个$\theta _a$</p>
+<p>对于单个arm $a$，以其前$m$个context向量为行向量组成的矩阵称为$D_a$，维度为$m\times d$。 前$m$个收益（reward）组成的向量称为$C_a$。采用平方损失函数：</p>
+<script type="math/tex; mode=display">loss=\displaystyle\sum^m_{i=1}(C_{a,i}-\displaystyle\sum^d_{j=0}\theta_{a,j}x_{a,j})^2+\lambda\displaystyle\sum^d_{j=0}\theta^2_{a,j}</script><p>其中$\lambda$为正则项系数。求损失函数的最小值，令损失函数对$\theta_a$求导，结果为：</p>
+<script type="math/tex; mode=display">\nabla_{\theta_a}loss=2D^a_T(C_a-D_a\theta_a)-2\lambda\theta_a</script><p>令$\nabla_{\theta_a}loss=0，\lambda=1$，可得：</p>
+<script type="math/tex; mode=display">\theta_a=(D^T_aD_a+I)^{-1}D^T_aC_a</script><p>上述参数结果是用最小二乘法推导得到。更进一步，从<strong>贝叶斯推断</strong>的角度出发，使用岭回归（ridge regression）方法，可以得到<script type="math/tex">\theta_a</script>的概率分布为高斯分布：</p>
+<p>$\theta_a$~$N((D^T_aD_a+I)^{-1}D^T_aC_a,(D^T_aD_a+I)^{-1})$</p>
+<p>为了符号简洁，令</p>
+<script type="math/tex; mode=display">\hat{\theta_a}=(D^T_aD_a+I)^{-1}D^T_aC_a</script><script type="math/tex; mode=display">A_a=D^T_aD_a+I</script><p>于是$\theta_a$的概率分布为$\theta_a$~$N(\hat{\theta_a},A^{-1}_a)$</p>
+<p>于是在第$t$次时可以得到：$x^T_{t,a}\theta_a$~$N(x^T_{t,a}\hat{\theta_a},x^T_{t,a}A^{-1}_ax_{t,a})$</p>
+<p>也就是：$r_{t,a}$~$N(x^T_{t,a}\hat{\theta_a},x^T_{t,a}A^{-1}_ax_{t,a})$</p>
+<p>根据高斯分布的性质，得到置信上界后就可以使用普通UCB规则了，即每次选择$x^T_{t,a}\hat{\theta_a}+\alpha\sqrt{x^T_{t,a}A^{-1}_ax_{t,a}}$最大的arm，$\alpha$为算法超参数。$\alpha$越大，置信区间越宽，也就是越偏向于探索；反之，$\alpha$越小越偏向于利用。</p>
+<p>需要注意的是，$A_a$与$D^T_aC_a$可以增量异步更新，于是标准流程如下：</p>
+<ul>
+<li>设定$\alpha$：</li>
+<li>For $t=1,2,3,…$<ul>
+<li>对所有的arm获得本次的context向量</li>
+<li>For all $a$<ul>
+<li>if $a$ is new<ul>
+<li>设置$A_a$为单位矩阵</li>
+<li>设置$b_a$为d维零向量</li>
+</ul>
+</li>
+<li>计算$\hat{\theta_a}=A^{-1}_ab_a$</li>
+<li>计算上界$p_{t,a}=x^T_{t,a}\hat{\theta_a}+\alpha\sqrt{x^T_{ta}A^T_ax_{t,a}}$</li>
+</ul>
+</li>
+<li>选择最大上界$p_{t,a}$对应的arm即$a_t$，并得到对应的$r_t$</li>
+<li>更新$A_{a_t}=A_{a_t}+x_{t,a_t}x^T_{t,a_t}$</li>
+<li>更新$b_{a_t}=b_{a_t}+r_tx_{t,a_t}$</li>
+</ul>
+</li>
+</ul>
+<p>从上述过程可以总结出LinUCB算法的两点优势：</p>
+<ul>
+<li>计算复杂度与arm的数量成线性关系</li>
+<li>支持动态变化的候选arm集合</li>
+</ul>
+<p>LinUCB与相对于传统的在线学习（online learning）模型相比，主要有2点区别：</p>
+<ul>
+<li><strong>每个arm学习一个独立的模型（Context只需要包含user-side和user-arm interaction的特征，不需要包含arm-side特征）；而传统在线学习为整个业务场景学习一个统一的模型</strong></li>
+<li><strong>传统的在线学习采用贪心策略，尽最大可能利用已学到的知识，没有explore机制（贪心策略通常情况下都不是最优的）；LinUCB则有较完善的E&amp;E机制，关注长期整体收益</strong></li>
+</ul>
+<h3 id="核心代码"><a href="#核心代码" class="headerlink" title="核心代码"></a>核心代码</h3><p>这里结合金融知识，将投资者的效用定义为风险收益偏好，即$Utility_\alpha=E[r_t]-\eta_\alpha\sigma^2$</p>
+<h4 id="效应的定义"><a href="#效应的定义" class="headerlink" title="效应的定义"></a>效应的定义</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">utility_oneday</span>(<span class="params">returns_df, starttime, endtime, code, eta</span>):</span></span><br><span class="line">    return_cluster = returns_df.loc[starttime:endtime, code]  <span class="comment"># 获取所有基金时间范围内收益</span></span><br><span class="line">    rf = <span class="number">0.015</span></span><br><span class="line">    <span class="comment"># len_date = len(return_cluster)</span></span><br><span class="line">    <span class="comment"># D = (np.power(1 + return_cluster.mean(), 250) - 1 - rf) / (return_cluster.std() * np.sqrt(250))</span></span><br><span class="line">    D = return_cluster.mean()-eta*return_cluster.var()  <span class="comment"># 收益减方差</span></span><br><span class="line">    <span class="keyword">return</span> D</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取时间范围内每日的向前推delta时间窗口（包括工作日与非工作日）的收益率月均和方差</span></span><br><span class="line"><span class="comment"># 目的是为了获取D</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">utility_series</span>(<span class="params">timerange, returns_df, code, n, eta</span>):</span></span><br><span class="line">    eve_utility = pd.DataFrame(index=timerange, columns=code, dtype=<span class="string">&quot;float&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> timerange:</span><br><span class="line">        preday = get_pre_day(i, n)</span><br><span class="line">        <span class="comment"># nav_df_m = get_fund_nav(code, str(preday)[:10].replace(&#x27;-&#x27;, &#x27;&#x27;), str(i)[:10].replace(&#x27;-&#x27;, &#x27;&#x27;))</span></span><br><span class="line">        <span class="comment"># returns_df_m = (nav_df_m - nav_df_m.shift(1)) / nav_df_m.shift(1)</span></span><br><span class="line">        eve_utility.loc[i, :] = utility_oneday(returns_df, preday, i, code, eta)</span><br><span class="line">    <span class="keyword">return</span> Standardize(eve_utility)</span><br></pre></td></tr></table></figure>
+<h4 id="岭回归权重定义"><a href="#岭回归权重定义" class="headerlink" title="岭回归权重定义"></a>岭回归权重定义</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ridge_regression</span>(<span class="params">xArr, yArr, lam=<span class="number">0.02</span></span>):</span></span><br><span class="line">    xMat = np.mat(xArr)</span><br><span class="line">    yMat = np.mat(yArr)</span><br><span class="line">    xTx = xMat.T*xMat</span><br><span class="line">    denom = xTx + np.eye(np.shape(xMat)[<span class="number">1</span>])*lam</span><br><span class="line">    <span class="keyword">if</span> np.linalg.det(denom) == <span class="number">0.0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;This matrix is singular, cannot do inverse !&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    weight = denom.I * (xMat.T*yMat)</span><br><span class="line">    <span class="keyword">return</span> weight</span><br></pre></td></tr></table></figure>
+<h4 id="置信上界定义"><a href="#置信上界定义" class="headerlink" title="置信上界定义"></a>置信上界定义</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">upper_bound_probs</span>(<span class="params">weight, D, x_new, beta=<span class="number">1</span></span>):</span></span><br><span class="line">    a_a = np.mat(np.dot(D.values.T, D.values)+np.eye(D.shape[<span class="number">1</span>]))</span><br><span class="line">    upper_bound_probs = np.dot(np.mat(x_new), weight) + beta*np.sqrt(np.dot(np.dot(x_new.values, a_a.I), x_new.values.T))</span><br><span class="line">    <span class="keyword">return</span> upper_bound_probs</span><br></pre></td></tr></table></figure>
+<p>因为使用的是HS300股票数据，前期需要对股票数据进行清洗，而且在LinUCB运行过程中，需要注意停牌或数据缺失较多的股票的处理，代码较为复杂，详情可见GinHub。</p>
+<p><a href="https://github.com/Curtis-Lau/LinUCB">本文全部代码详见GitHub</a></p>
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>强化学习</category>
+        <category>推荐算法</category>
+      </categories>
+      <tags>
+        <tag>强化学习</tag>
+        <tag>推荐算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>决策树</title>
+    <url>/post/52060/</url>
+    <content><![CDATA[<p>决策树是一种机器学习的方法。决策树的生成算法有ID3, C4.5和C5.0等。决策树是一种树形结构，其中每个内部节点表示一个属性上的判断，每个分支代表一个判断结果的输出，最后每个叶节点代表一种分类结果。</p>
+<p><strong>本文结合实际应用给出手敲的C4.5代码</strong></p>
+<span id="more"></span>
+<h2 id="ID3简介"><a href="#ID3简介" class="headerlink" title="ID3简介"></a>ID3简介</h2><p><img src="/post/52060/决策树.jpg" alt="决策树"></p>
+<p>上面这个图就是一棵典型的决策树。我们在做决策树的时候，会经历两个阶段：<strong>构造</strong>和<strong>剪枝</strong>。</p>
+<h3 id="构造"><a href="#构造" class="headerlink" title="构造"></a>构造</h3><p><strong>构造就是生成一棵完整的决策树</strong>。简单来说，<strong>构造的过程就是选择什么属性作为节点的过程</strong>，那么在构造过程中，会存在三种节点：</p>
+<ol>
+<li>根节点：就是树的最顶端，最开始的那个节点。在上图中，“白不白”就是一个根节点；</li>
+<li>内部节点：就是树中间的那些节点，比如说“富不富”、“美不美”；</li>
+<li>叶节点：就是树最底部的节点，也就是决策结果。</li>
+</ol>
+<p>节点之间存在父子关系。比如根节点会有子节点，子节点会有子子节点，但是到了叶节点就停止了，叶节点不存在子节点。那么在构造过程中，你要解决三个重要的问题：</p>
+<ol>
+<li>选择哪个属性作为根节点；</li>
+<li>选择哪些属性作为子节点；</li>
+<li>什么时候停止并得到目标状态，即叶节点。</li>
+</ol>
+<h3 id="剪枝"><a href="#剪枝" class="headerlink" title="剪枝"></a>剪枝</h3><p>剪枝就是给决策树瘦身，这一步想实现的目标就是，不需要太多的判断，同样可以得到不错的结果。之所以这么做，是为了防止“过拟合”（Overfitting）现象的发生。</p>
+<p><strong>过拟合</strong>：指的是模型的训练结果“太好了”，以至于在实际应用的过程中，会存在“死板”的情况，导致分类错误。</p>
+<p><strong>欠拟合</strong>：指的是模型的训练结果不理想。</p>
+<p><strong>造成过拟合的原因</strong>：</p>
+<p>一是因为训练集中样本量较小。如果决策树选择的属性过多，构造出来的决策树一定能够“完美”地把训练集中的样本分类，但是这样就会把训练集中一些数据的特点当成所有数据的特点，但这个特点不一定是全部数据的特点，这就使得这个决策树在真实的数据分类中出现错误，也就是模型的“泛化能力”差。</p>
+<p><strong>泛化能力</strong>：指的分类器是通过训练集抽象出来的分类能力，你也可以理解是举一反三的能力。如果我们太依赖于训练集的数据，那么得到的决策树容错率就会比较低，泛化能力差。因为训练集只是全部数据的抽样，并不能体现全部数据的特点。</p>
+<p><strong>剪枝的方法</strong>：</p>
+<ul>
+<li><strong>预剪枝</strong>：在决策树构造时就进行剪枝。方法是，在构造的过程中对节点进行评估，如果对某个节点进行划分，在验证集中不能带来准确性的提升，那么对这个节点进行划分就没有意义，这时就会把当前节点作为叶节点，不对其进行划分。</li>
+<li><strong>后剪枝</strong>：在生成决策树之后再进行剪枝。通常会从决策树的叶节点开始，逐层向上对每个节点进行评估。如果剪掉这个节点子树，与保留该节点子树在分类准确性上差别不大，或者剪掉该节点子树，能在验证集中带来准确性的提升，那么就可以把该节点子树进行剪枝。方法是：用这个节点子树的叶子节点来替代该节点，类标记为这个节点子树中最频繁的那个类。</li>
+</ul>
+<p>在决策过程中有三个重要的问题：将哪个属性作为根节点？选择哪些属性作为后继节点？什么时候停止并得到目标值？</p>
+<p>显然将哪个属性（天气、温度、湿度、刮风）作为根节点是个关键问题，在这里我们先介绍两个指标<strong>：纯度</strong>和<strong>信息熵</strong>。</p>
+<h3 id="纯度"><a href="#纯度" class="headerlink" title="纯度"></a>纯度</h3><p><strong>你可以把决策树的构造过程理解成为寻找纯净划分的过程</strong>。数学上，我们可以用纯度来表示，纯度换一种方式来解释就是<strong>让目标变量的分歧最小</strong>。</p>
+<h3 id="信息熵"><a href="#信息熵" class="headerlink" title="信息熵"></a>信息熵</h3><p>信息熵的概念本身是信息论中的一个重要概念，因为我们的重点是决策树，所以就不多涉及信息论的知识，我们只需要知道信息熵是什么。</p>
+<p><strong>信息熵简单的来说就是表示随机变量不确定度的度量。</strong></p>
+<p><strong>熵越大，数据的不确定性就越大。</strong></p>
+<p><strong>熵越小，数据的不确定性就越小，也就是越确定。</strong></p>
+<p>信息熵计算公式：</p>
+<script type="math/tex; mode=display">Entropy(i)=-\displaystyle \sum^n_{i=1}p_i\cdot log(p_i)</script><p>其中 $p_i$ 是指，数据中一共有n类信息，$p_i$就是指第i类数据所占的比例。</p>
+<hr>
+<p>举个例子：</p>
+<p>假设我们的数据中一共有三类。每一类所占比例为$\frac{1}{3}$，那么信息熵就是</p>
+<script type="math/tex; mode=display">E=-\frac{1}{3}log(\frac{1}{3})-\frac{1}{3}log(\frac{1}{3})-\frac{1}{3}log(\frac{1}{3})=1.0986</script><p>假设我们数据一共有三类，每类所占比例是0、0、1，那么信息熵就是</p>
+<script type="math/tex; mode=display">E=-0log(0)-0log(0)-1log(1)=0</script><p>（注：实际上$log(0)$是不能计算的，定义上不允许，真实场景会做其他处理解决这个问题）</p>
+<p>很显然第二组数据比第一组数据信息熵小，也就是不确定性要少，换句话讲就是更为确定。</p>
+<hr>
+<p>根据这两个例子，应该就能理解<strong>信息熵是随机变量不确定度的度量</strong>了。</p>
+<p>如果我们的数据偏向于某一个类别，随机变量的不确定性就降低了，会变的更为确定。</p>
+<h3 id="信息增益"><a href="#信息增益" class="headerlink" title="信息增益"></a>信息增益</h3><p>信息增益指的就是划分可以带来纯度的提高，信息熵的下降。它的计算公式，是<strong>父亲节点的信息熵减去所有子节点的信息熵</strong>。在计算的过程中，我们会计算每个子节点的归一化信息熵，即按照每个子节点在父节点中出现的概率，来计算这些子节点的信息熵。所以信息增益的公式可以表示为：</p>
+<script type="math/tex; mode=display">Gain(D,a)=Entropy(D)-\displaystyle \sum^k_{i=1}\frac{|D_i|}{|D|}Entropy(D_i)</script><p>公式中 $D$ 是父亲节点，$D_i$是子节点，$Gain(D,a)$中的$a$ 作为 $D $节点的属性选择。</p>
+<p>于是我们通过 ID3 算法得到了一棵决策树。ID3 的算法规则相对简单，可解释性强。同样也存在缺陷，比如我们会发现 <strong>ID3 算法倾向于选择取值比较多的属性</strong>。这样，如果我们把“编号”作为一个属性（一般情况下不会这么做，这里只是举个例子），那么“编号”将会被选为最优属性 。但实际上“编号”是无关属性的，它对“打篮球”的分类并没有太大作用。</p>
+<p><strong>所以 ID3 有一个缺陷就是，有些属性可能对分类任务没有太大作用，但是他们仍然可能会被选为最优属性。</strong>这种缺陷不是每次都会发生，只是存在一定的概率。在大部分情况下，ID3 都能生成不错的决策树分类。针对可能发生的缺陷，后人提出了新的算法进行改进。</p>
+<h2 id="在-ID3-算法上进行改进的-C4-5-算法"><a href="#在-ID3-算法上进行改进的-C4-5-算法" class="headerlink" title="在 ID3 算法上进行改进的 C4.5 算法"></a>在 ID3 算法上进行改进的 C4.5 算法</h2><h3 id="1-采用信息增益率"><a href="#1-采用信息增益率" class="headerlink" title="1. 采用信息增益率"></a>1. 采用信息增益率</h3><p>因为 ID3 在计算的时候，倾向于选择取值多的属性。为了避免这个问题，C4.5 采用信息增益率的方式来选择属性。<strong>信息增益率 = 信息增益 / 属性熵</strong></p>
+<p>当属性有很多值的时候，相当于被划分成了许多份，虽然信息增益变大了，但是对于 C4.5 来说，属性熵也会变大，所以整体的信息增益率并不大。</p>
+<h3 id="2-采用悲观剪枝"><a href="#2-采用悲观剪枝" class="headerlink" title="2. 采用悲观剪枝"></a>2. 采用悲观剪枝</h3><p>ID3 构造决策树的时候，容易产生过拟合的情况。在 C4.5中，会在决策树构造之后采用悲观剪枝（PEP），这样可以提升决策树的泛化能力。</p>
+<p>悲观剪枝是后剪枝技术中的一种，通过递归估算每个内部节点的分类错误率，比较剪枝前后这个节点的分类错误率来决定是否对其进行剪枝。这种剪枝方法不再需要一个单独的测试数据集。</p>
+<h3 id="3-离散化处理连续属性"><a href="#3-离散化处理连续属性" class="headerlink" title="3. 离散化处理连续属性"></a>3. 离散化处理连续属性</h3><p>C4.5 可以处理连续属性的情况，对连续的属性进行离散化的处理。比如打篮球存在的“湿度”属性，不按照“高、中”划分，而是按照湿度值进行计算，那么湿度取什么值都有可能。该怎么选择这个阈值呢，<strong>C4.5 选择具有最高信息增益的划分所对应的阈值</strong>。</p>
+<h3 id="小结："><a href="#小结：" class="headerlink" title="小结："></a>小结：</h3><p>首先 ID3 算法的优点是方法简单，缺点是对噪声敏感。训练数据如果有少量错误，可能会产生决策树分类错误。C4.5 在 IID3 的基础上，用信息增益率代替了信息增益，解决了噪声敏感的问题，并且可以对构造树进行剪枝、处理连续数值以及数值缺失等情况，但是由于 C4.5 需要对数据集进行多次扫描，算法效率相对较低。</p>
+<p><img src="https://img2018.cnblogs.com/blog/1411882/201904/1411882-20190407131812291-240835919.png" alt></p>
+<h2 id="接下来本文运用C4-5算法对HS300股票池股票进行分类"><a href="#接下来本文运用C4-5算法对HS300股票池股票进行分类" class="headerlink" title="接下来本文运用C4.5算法对HS300股票池股票进行分类"></a><strong>接下来本文运用C4.5算法对HS300股票池股票进行分类</strong></h2><hr>
+<p>c4.5 决策树 到createTree_c为止 为决策树代码</p>
+<p>最终希望达到：</p>
+<p>1、组合基本为赢家组合 </p>
+<p>2、组内标签大部分相同，少量是别的标签（把最终的熵提出来观察一下）</p>
+<p>3、组合间有小部分重复股票——s的设定</p>
+<p>4、最终组间画图，用净值或是收益曲线，让组间行情看起来是分开的</p>
+<p>本代码的优化：</p>
+<p>1、连续变量离散化：函数名带_c的都做了改变</p>
+<p>2、设定了s，主要是根据splitDataSet_c函数，让他分得时候错位分</p>
+<p>3、最大层高设为了4（退出条件，可改）</p>
+<p>4、后面增加了cut_leaf减去输家组合，和getclustercode函数提取item样本，显示每组的股票</p>
+<hr>
+<p>本文考虑到实际应用，在划分数据集的时考虑的是软划分，即对数据左右划分时用参数使得划分的左右两侧可能存在同样的数据，就是这里的splitDataSet_c函数。</p>
+<h3 id="计算熵"><a href="#计算熵" class="headerlink" title="计算熵"></a>计算熵</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">calcShannonEnt</span>(<span class="params">dataSet</span>):</span></span><br><span class="line">    numEntries = <span class="built_in">len</span>(dataSet)   <span class="comment">#计算数据集中实例的总数</span></span><br><span class="line">    labelCounts = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> featVec <span class="keyword">in</span> dataSet: <span class="comment">#the the number of unique elements and their occurance</span></span><br><span class="line">        currentLabel = featVec[-<span class="number">1</span>]</span><br><span class="line">        <span class="keyword">if</span> currentLabel <span class="keyword">not</span> <span class="keyword">in</span> labelCounts.keys(): labelCounts[currentLabel] = <span class="number">0</span> </span><br><span class="line">        labelCounts[currentLabel] += <span class="number">1</span>   <span class="comment">#观察每个类别数量</span></span><br><span class="line">    shannonEnt = <span class="number">0.0</span></span><br><span class="line">    <span class="keyword">for</span> key <span class="keyword">in</span> labelCounts:   <span class="comment">#使用类别标签发生频率计算类别出现概率</span></span><br><span class="line">        prob = <span class="built_in">float</span>(labelCounts[key])/numEntries</span><br><span class="line">        shannonEnt -= prob*np.math.log(prob,<span class="number">2</span>)</span><br><span class="line">    <span class="keyword">return</span> shannonEnt   <span class="comment">#熵</span></span><br></pre></td></tr></table></figure>
+<h3 id="划分数据集"><a href="#划分数据集" class="headerlink" title="划分数据集"></a>划分数据集</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#选择最优属性时使用（划分数据集）</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">splitDataSet_a</span>(<span class="params">dataSet, axis, value, LorR=<span class="string">&#x27;L&#x27;</span></span>):</span></span><br><span class="line">    retDataSet = []</span><br><span class="line">    <span class="keyword">if</span> LorR == <span class="string">&#x27;L&#x27;</span>:</span><br><span class="line">        <span class="keyword">for</span> featVec <span class="keyword">in</span> dataSet:</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">float</span>(featVec[axis]) &lt; value:</span><br><span class="line">                retDataSet.append(featVec)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">for</span> featVec <span class="keyword">in</span> dataSet:</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">float</span>(featVec[axis]) &gt; value:</span><br><span class="line">                retDataSet.append(featVec)</span><br><span class="line">    <span class="keyword">return</span> retDataSet</span><br><span class="line"></span><br><span class="line"><span class="comment">#分裂左右子数时，设定一定的错位值s</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">splitDataSet_c</span>(<span class="params">dataSet, axis, value, s, LorR=<span class="string">&#x27;L&#x27;</span></span>):</span></span><br><span class="line">    retDataSet = []</span><br><span class="line">    <span class="keyword">if</span> LorR == <span class="string">&#x27;L&#x27;</span>:</span><br><span class="line">        <span class="keyword">for</span> featVec <span class="keyword">in</span> dataSet:</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">float</span>(featVec[axis]) &lt; value*(<span class="number">1</span>-s):</span><br><span class="line">                retDataSet.append(featVec)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="keyword">for</span> featVec <span class="keyword">in</span> dataSet:</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">float</span>(featVec[axis]) &gt; value*(<span class="number">1</span>+s):</span><br><span class="line">                retDataSet.append(featVec)</span><br><span class="line">    <span class="keyword">return</span> retDataSet</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 选择最好的数据集划分方式</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">chooseBestFeatureToSplit_c</span>(<span class="params">dataSet, labelProperty</span>):</span></span><br><span class="line">    numFeatures = <span class="built_in">len</span>(labelProperty)  <span class="comment"># 特征数</span></span><br><span class="line">    baseEntropy = calcShannonEnt(dataSet)  <span class="comment"># 计算根节点的信息熵</span></span><br><span class="line">    infoGainRatio_dict = &#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(numFeatures):  <span class="comment"># 对每个特征循环</span></span><br><span class="line">        featList = [example[i] <span class="keyword">for</span> example <span class="keyword">in</span> dataSet]</span><br><span class="line">        uniqueVals = <span class="built_in">set</span>(featList)  <span class="comment"># 该特征包含的所有值</span></span><br><span class="line">        newEntropy = <span class="number">0.0</span></span><br><span class="line">        <span class="keyword">if</span> labelProperty[i] == <span class="number">0</span>:  <span class="comment"># 对离散的特征</span></span><br><span class="line">            <span class="keyword">for</span> value <span class="keyword">in</span> uniqueVals:  <span class="comment"># 对每个特征值，划分数据集, 计算各子集的信息熵</span></span><br><span class="line">                subDataSet = splitDataSet_a(dataSet, i, value)</span><br><span class="line">                prob = <span class="built_in">len</span>(subDataSet) / <span class="built_in">float</span>(<span class="built_in">len</span>(dataSet))</span><br><span class="line">                newEntropy += prob * calcShannonEnt(subDataSet)</span><br><span class="line">        <span class="keyword">else</span>:  <span class="comment"># 对连续的特征</span></span><br><span class="line">            sortedUniqueVals = <span class="built_in">list</span>(uniqueVals)  <span class="comment"># 对特征值排序</span></span><br><span class="line">            sortedUniqueVals.sort()</span><br><span class="line">            <span class="comment">#只取中间段进行划分点选取</span></span><br><span class="line">            sortedUniqueVals = sortedUniqueVals[<span class="built_in">int</span>(<span class="built_in">len</span>(sortedUniqueVals)*<span class="number">0.4</span>):<span class="built_in">int</span>(<span class="built_in">len</span>(sortedUniqueVals)*<span class="number">0.6</span>)]</span><br><span class="line">            maxinfoGainRatio = -np.inf</span><br><span class="line">            bestPartValue = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(sortedUniqueVals) - <span class="number">1</span>):  <span class="comment"># 计算划分点</span></span><br><span class="line">                partValue = (<span class="built_in">float</span>(sortedUniqueVals[j]) + <span class="built_in">float</span>(sortedUniqueVals[j+<span class="number">1</span>])) / <span class="number">2</span></span><br><span class="line">                <span class="comment"># 对每个划分点，计算信息熵</span></span><br><span class="line">                dataSetLeft = splitDataSet_a(dataSet, i, partValue,<span class="string">&#x27;L&#x27;</span>)</span><br><span class="line">                dataSetRight = splitDataSet_a(dataSet, i, partValue,<span class="string">&#x27;R&#x27;</span>)</span><br><span class="line">                probLeft = <span class="built_in">len</span>(dataSetLeft) / <span class="built_in">float</span>(<span class="built_in">len</span>(dataSet))</span><br><span class="line">                probRight = <span class="built_in">len</span>(dataSetRight) / <span class="built_in">float</span>(<span class="built_in">len</span>(dataSet))</span><br><span class="line">                Entropy = probLeft*calcShannonEnt(dataSetLeft) + probRight*calcShannonEnt(dataSetRight)</span><br><span class="line">                feature_ent = -probLeft*np.math.log(probLeft,<span class="number">2</span>)-probRight*np.math.log(probRight,<span class="number">2</span>)</span><br><span class="line">                infoGainRatio = (baseEntropy - Entropy)/feature_ent</span><br><span class="line">                <span class="keyword">if</span> infoGainRatio &gt; maxinfoGainRatio:</span><br><span class="line">                    maxinfoGainRatio = infoGainRatio</span><br><span class="line">                    bestPartValue = partValue</span><br><span class="line">                infoGainRatio_dict[i] = (bestPartValue,infoGainRatio)</span><br><span class="line"></span><br><span class="line">    sortedbestFeature = <span class="built_in">sorted</span>(infoGainRatio_dict.items(),key=<span class="keyword">lambda</span> x:x[-<span class="number">1</span>][-<span class="number">1</span>],reverse=<span class="literal">True</span>)</span><br><span class="line">    bestFeature = sortedbestFeature[<span class="number">0</span>][<span class="number">0</span>]</span><br><span class="line">    bestValue = sortedbestFeature[<span class="number">0</span>][<span class="number">1</span>][<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">return</span> bestFeature, bestValue</span><br></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#判断数据集的各个属性集是否完全一致</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">judgeEqualLabels</span>(<span class="params">dataSet</span>):</span> </span><br><span class="line">    feature_leng = <span class="built_in">len</span>(dataSet[<span class="number">0</span>]) - <span class="number">1</span>   </span><br><span class="line">    data_leng = <span class="built_in">len</span>(dataSet)</span><br><span class="line">    is_equal = <span class="literal">True</span>    </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(feature_leng):</span><br><span class="line">        first_feature = dataSet[<span class="number">0</span>][i]   </span><br><span class="line">        <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, data_leng):</span><br><span class="line">            <span class="keyword">if</span> first_feature != dataSet[_][i]:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">False</span>    </span><br><span class="line">    <span class="keyword">return</span> is_equal</span><br></pre></td></tr></table></figure>
+<h3 id="投票表决"><a href="#投票表决" class="headerlink" title="投票表决"></a>投票表决</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#投票表决</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">majorityCnt</span>(<span class="params">classList</span>):</span></span><br><span class="line">    classCount=&#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> vote <span class="keyword">in</span> classList:</span><br><span class="line">        <span class="keyword">if</span> vote <span class="keyword">not</span> <span class="keyword">in</span> classCount.keys(): classCount[vote] = <span class="number">0</span>   <span class="comment">#未出现过，生成一个键值对</span></span><br><span class="line">        classCount[vote] += <span class="number">1</span></span><br><span class="line">    sortedClassCount = <span class="built_in">sorted</span>(classCount.items(), key=operator.itemgetter(<span class="number">1</span>), reverse=<span class="literal">True</span>) <span class="comment">#classCount.iteritems()python3中已经没有这个属性，直接改为items</span></span><br><span class="line">    <span class="comment">#将字典拆为多个元祖[(‘url’, ‘value1’), (‘title’, ‘value2’)]组成的列表</span></span><br><span class="line">    <span class="keyword">return</span> sortedClassCount[<span class="number">0</span>][<span class="number">0</span>]   <span class="comment">#返回出现次数最多的分类名称</span></span><br></pre></td></tr></table></figure>
+<p>这里包含部分代码，因前期数据处理工作复杂，这里不方便展示，全部代码及数据详见GitHub：</p>
+<p><a href="https://github.com/Curtis-Lau/Decision-Tree">本文全部代码详见GitHub</a></p>
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>机器学习</category>
+      </categories>
+      <tags>
+        <tag>机器学习</tag>
+        <tag>决策树</tag>
       </tags>
   </entry>
 </search>

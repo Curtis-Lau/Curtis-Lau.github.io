@@ -23,15 +23,17 @@
 
   <meta name="description" content="本部分将前面写的LinUCB算法和决策树算法结合起来，以HS300成分股为股票池，首先定义一些因子，放入决策树将股票分组，每一组可以看成是一个portfolio，在时间$t$，将改时间所有的portfolio放入推荐系统，根据投资者的偏好、效用等特征选取投资组合推荐给投资者。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="LinUCB_based_on_decision_tree">
+<meta property="og:title" content="LinUCB Based on Decision Tree">
 <meta property="og:url" content="http://curtis-lau.github.io/post/40deb9b1/index.html">
 <meta property="og:site_name" content="Curtis LAU&#39;s BLOG">
 <meta property="og:description" content="本部分将前面写的LinUCB算法和决策树算法结合起来，以HS300成分股为股票池，首先定义一些因子，放入决策树将股票分组，每一组可以看成是一个portfolio，在时间$t$，将改时间所有的portfolio放入推荐系统，根据投资者的偏好、效用等特征选取投资组合推荐给投资者。">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2021-06-28T15:04:31.000Z">
-<meta property="article:modified_time" content="2021-06-28T15:11:11.732Z">
+<meta property="article:published_time" content="2020-08-28T15:04:31.000Z">
+<meta property="article:modified_time" content="2020-12-10T07:33:19.000Z">
 <meta property="article:author" content="Curtis Lau">
-<meta property="article:tag" content="python, machine learning">
+<meta property="article:tag" content="机器学习">
+<meta property="article:tag" content="强化学习">
+<meta property="article:tag" content="推荐算法">
 <meta name="twitter:card" content="summary">
 
 <link rel="canonical" href="http://curtis-lau.github.io/post/40deb9b1/">
@@ -47,7 +49,7 @@
   };
 </script>
 
-  <title>LinUCB_based_on_decision_tree | Curtis LAU's BLOG</title>
+  <title>LinUCB Based on Decision Tree | Curtis LAU's BLOG</title>
   
 
 
@@ -213,7 +215,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          LinUCB_based_on_decision_tree
+          LinUCB Based on Decision Tree
         </h1>
 
         <div class="post-meta">
@@ -224,10 +226,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2021-06-28 23:04:31 / 修改时间：23:11:11" itemprop="dateCreated datePublished" datetime="2021-06-28T23:04:31+08:00">2021-06-28</time>
+              <time title="创建时间：2020-08-28 23:04:31" itemprop="dateCreated datePublished" datetime="2020-08-28T23:04:31+08:00">2020-08-28</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2020-12-10 15:33:19" itemprop="dateModified" datetime="2020-12-10T15:33:19+08:00">2020-12-10</time>
+              </span>
 
           
 
@@ -242,7 +250,18 @@
       
         <p>本部分将前面写的LinUCB算法和决策树算法结合起来，以HS300成分股为股票池，首先定义一些因子，放入决策树将股票分组，每一组可以看成是一个portfolio，在时间$t$，将改时间所有的portfolio放入推荐系统，根据投资者的偏好、效用等特征选取投资组合推荐给投资者。</p>
 <span id="more"></span>
-
+<p>在诸如新闻推荐的各种机器学习应用中，已经很好地研究了多臂强盗方法。基于Bandit学习的线性置信上限算法是一种典型的强化学习方法，可用于在资产重新分配时重新平衡收益和风险，以使给定时间间隔内的累积利润最大化。</p>
+<p>大多数投资者可能对不同的资产有不一致的偏好，例如，他们可能在时间较长的资产上寻求安全的投资，而在一些资本比例较小的资产上碰运气。因此，需要设计奖励函数来平衡探索和开发。该研究包括开发一个两阶段模型，首先使用监督自适应决策树的方法来建立一个候选投资组合池。因此，基于LinUCB的Bandit学习被用来为具有不同风险偏好的投资者推荐最合适的投资组合。</p>
+<p>期望效用函数对于模型的参数估计至关重要。该模型已在HS300成份股上进行了检验。该模型在不同测试期的累计收益率可以远远超过基准指数。</p>
+<h2 id="决策树的设定"><a href="#决策树的设定" class="headerlink" title="决策树的设定"></a>决策树的设定</h2><h3 id="分类的标准"><a href="#分类的标准" class="headerlink" title="分类的标准"></a>分类的标准</h3><p>分裂标准应该是平均效用值，而不是纯度度量，如熵。最高平均效用意味着任何候选投资组合的最佳可实现效用。效用应该是回报和风险的综合衡量标准。LinUCB算法往往比风险厌恶效用的最初定义更乐观。为了保持平衡的衡量，既不太保守也不太乐观，我们采用风险中性策略，只考虑回报。</p>
+<h3 id="停止分裂的标准"><a href="#停止分裂的标准" class="headerlink" title="停止分裂的标准"></a>停止分裂的标准</h3><p>该标准用于防止过度训练。除了纯度要求，即基于节点的资产标签值的信息增益率应小于阈值$G^*$，投资组合应实现某种适当的效用。由于没有任何基准来建议最佳的可实现效用，我们在此提出，对于任何投资组合，候选人都应该有最小数量的最小资产和历史平均效用的下限。</p>
+<p>对于叶节点，如果被分类到该节点的资产的数量等于或小于其平均效用的最小公约数，则该节点被视为终端叶节点。历史平均效用$u_{lb}$可以根据经验确定。例如，在给定的时间段内，$u_{lb}$是低于平均效用的75%。</p>
+<h3 id="重叠分类的设定"><a href="#重叠分类的设定" class="headerlink" title="重叠分类的设定"></a>重叠分类的设定</h3><p>由于投资者在投资类似资产时可能会有一些投资标的的额重复，当资产分类前的投资组合效用已经达到令人满意的水平时，我们应该考虑修改二元分割。经济含义是，这组资产质量良好。由于该算法建议通过进一步分割可以实现更高的效用，因此我们执行分割，但会保留一些重叠。重叠的程度应该与实现的效用水平成比例。假设在给定的时间段内，效用$q(u)$的分位数衡量的是小于$u$的效用百分比，重叠水平可以通过$ξ(u)=1-q(u)$来控制。因此，在一般情况下分类，是$γ&gt;v$和$γ&lt;v$，而在这里，是$γ≥ξv$和$γ&lt;(1+ξ)v$。</p>
+<h3 id="股票的清洗"><a href="#股票的清洗" class="headerlink" title="股票的清洗"></a>股票的清洗</h3><p>对于所有的候选样本，即HS300股票池中的股票，首先根据他们过去在风险中性回报方面的表现被标上标签（例如，离散化平均收益率：过去收益率在整个股票池中股票的10%以内的股票被标上1；如果股票的回报率在10%-20%范围内，股票被标上2，以此类推）。</p>
+<p>训练后，股票被分组到决策树叶子节点。假设一组股票（portfolio）平均标签值在5以上，且信息增益率较低，这种节点的投资组合将会被修剪。</p>
+<p>保留的叶子节点意味着一个赢家股票组，该组股票的平均标签值较低，信息增益率较低。通过特定路径的最优决策序列可以通过从叶节点开始并向后滚动到决策树的根来找到。</p>
+<p>正如之前提到的，我们需要不同投资组合之间有一些重叠，这不仅解决了不同投资者之间选择股票的重叠，而且有助于控制交易成本。除了在每个决策树的非叶节点的每次分类中使用软阈值之外。对于Bandit算法，较多的候选组合不会对资产推荐造成不好的影响。</p>
+<h2 id="Bandit-learning：LinUCB的设定"><a href="#Bandit-learning：LinUCB的设定" class="headerlink" title="Bandit learning：LinUCB的设定"></a>Bandit learning：LinUCB的设定</h2>
     </div>
 
     
@@ -299,6 +318,11 @@
 
 
       <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/source/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" rel="tag"><i class="fa fa-tag"></i>机器学习</a>
+              <a href="/source/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" rel="tag"><i class="fa fa-tag"></i>强化学习</a>
+              <a href="/source/tags/%E6%8E%A8%E8%8D%90%E7%AE%97%E6%B3%95/" rel="tag"><i class="fa fa-tag"></i>推荐算法</a>
+          </div>
 
         
 
@@ -306,12 +330,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/post/aff86645/" rel="prev" title="2020年研究生数学建模B题">
-      <i class="fa fa-chevron-left"></i> 2020年研究生数学建模B题
+    <a href="/post/55099ab/" rel="prev" title="慧博研投爬虫">
+      <i class="fa fa-chevron-left"></i> 慧博研投爬虫
     </a></div>
       <div class="post-nav-item">
-    <a href="/post/8bec61f5/" rel="next" title="LinUCB_based_on_ga">
-      LinUCB_based_on_ga <i class="fa fa-chevron-right"></i>
+    <a href="/post/34642/" rel="next" title="遗传算法">
+      遗传算法 <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -371,6 +395,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%B3%E7%AD%96%E6%A0%91%E7%9A%84%E8%AE%BE%E5%AE%9A"><span class="nav-number">1.</span> <span class="nav-text">决策树的设定</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E7%B1%BB%E7%9A%84%E6%A0%87%E5%87%86"><span class="nav-number">1.1.</span> <span class="nav-text">分类的标准</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%81%9C%E6%AD%A2%E5%88%86%E8%A3%82%E7%9A%84%E6%A0%87%E5%87%86"><span class="nav-number">1.2.</span> <span class="nav-text">停止分裂的标准</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%87%8D%E5%8F%A0%E5%88%86%E7%B1%BB%E7%9A%84%E8%AE%BE%E5%AE%9A"><span class="nav-number">1.3.</span> <span class="nav-text">重叠分类的设定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%82%A1%E7%A5%A8%E7%9A%84%E6%B8%85%E6%B4%97"><span class="nav-number">1.4.</span> <span class="nav-text">股票的清洗</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Bandit-learning%EF%BC%9ALinUCB%E7%9A%84%E8%AE%BE%E5%AE%9A"><span class="nav-number">2.</span> <span class="nav-text">Bandit learning：LinUCB的设定</span></a></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -393,7 +418,7 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-count">4</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
@@ -510,6 +535,61 @@
   
 
   
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+          load: ['[tex]/mhchem'],
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+          packages: {'[+]': ['mhchem']},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
 
   
 

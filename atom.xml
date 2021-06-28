@@ -6,7 +6,7 @@
   <link href="http://curtis-lau.github.io/atom.xml" rel="self"/>
   
   <link href="http://curtis-lau.github.io/"/>
-  <updated>2021-06-28T15:04:51.439Z</updated>
+  <updated>2021-06-28T07:39:12.667Z</updated>
   <id>http://curtis-lau.github.io/</id>
   
   <author>
@@ -15,34 +15,6 @@
   </author>
   
   <generator uri="https://hexo.io/">Hexo</generator>
-  
-  <entry>
-    <title>LinUCB_based_on_ga</title>
-    <link href="http://curtis-lau.github.io/post/8bec61f5/"/>
-    <id>http://curtis-lau.github.io/post/8bec61f5/</id>
-    <published>2021-06-28T15:04:51.000Z</published>
-    <updated>2021-06-28T15:04:51.439Z</updated>
-    
-    
-    
-    
-    
-  </entry>
-  
-  <entry>
-    <title>LinUCB_based_on_decision_tree</title>
-    <link href="http://curtis-lau.github.io/post/40deb9b1/"/>
-    <id>http://curtis-lau.github.io/post/40deb9b1/</id>
-    <published>2021-06-28T15:04:31.000Z</published>
-    <updated>2021-06-28T15:11:11.732Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;本部分将前面写的LinUCB算法和决策树算法结合起来，以HS300成分股为股票池，首先定义一些因子，放入决策树将股票分组，每一组可以看成是一个portfolio，在时间$t$，将改时间所有的portfolio放入推荐系统，根据投资者的偏好、效用等特征选取投资组合推荐给投资者。&lt;/p&gt;</summary>
-    
-    
-    
-    
-  </entry>
   
   <entry>
     <title>2020年研究生数学建模B题</title>
@@ -73,22 +45,56 @@
   </entry>
   
   <entry>
-    <title>推荐算法：LinUCB</title>
-    <link href="http://curtis-lau.github.io/post/2973/"/>
-    <id>http://curtis-lau.github.io/post/2973/</id>
-    <published>2020-11-27T02:27:28.000Z</published>
-    <updated>2021-04-30T05:56:27.000Z</updated>
+    <title>LinUCB_based_on_ga</title>
+    <link href="http://curtis-lau.github.io/post/8bec61f5/"/>
+    <id>http://curtis-lau.github.io/post/8bec61f5/</id>
+    <published>2021-04-28T13:04:51.000Z</published>
+    <updated>2021-06-27T07:14:58.000Z</updated>
     
     
-    <summary type="html">&lt;p&gt;推荐系统里面有两个经典问题：EE 问题和冷启动问题。前者涉及到平衡准确和多样，后者涉及到产品算法运营等一系列东西。Bandit 算法是一种简单的在线学习算法，常常用于尝试解决这两个问题，本文为你介绍基础的 Bandit 算法及一系列升级版，以及对推荐系统这两个经典问题的思考。&lt;/p&gt;
-&lt;p&gt;Bandit算法是一类用来实现Exploitation-Exploration机制的策略。根据是否考虑上下文特征，Bandit算法分为Context-free Bandit和Contextual Bandit两大类，本文简单介绍Context-free Bandit，重点讲解Contextual Bandit。&lt;/p&gt;</summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>遗传算法</title>
+    <link href="http://curtis-lau.github.io/post/34642/"/>
+    <id>http://curtis-lau.github.io/post/34642/</id>
+    <published>2021-02-27T02:27:06.000Z</published>
+    <updated>2021-04-30T06:28:51.000Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;遗传算法（Genetic Algorithm, GA）是模拟达尔文生物进化论的自然选择和遗传学机理的生物进化过程的计算模型，是一种通过模拟自然进化过程搜索最优解的方法。&lt;/p&gt;
+&lt;p&gt;本文结合具体例子讲解。&lt;/p&gt;</summary>
     
     
     
     <category term="算法" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/"/>
     
-    <category term="强化学习" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"/>
+    <category term="机器学习" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
     
+    
+    <category term="机器学习" scheme="http://curtis-lau.github.io/source/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+    <category term="遗传算法" scheme="http://curtis-lau.github.io/source/tags/%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>LinUCB Based on Decision Tree</title>
+    <link href="http://curtis-lau.github.io/post/40deb9b1/"/>
+    <id>http://curtis-lau.github.io/post/40deb9b1/</id>
+    <published>2020-08-28T15:04:31.000Z</published>
+    <updated>2020-12-10T07:33:19.000Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;本部分将前面写的LinUCB算法和决策树算法结合起来，以HS300成分股为股票池，首先定义一些因子，放入决策树将股票分组，每一组可以看成是一个portfolio，在时间$t$，将改时间所有的portfolio放入推荐系统，根据投资者的偏好、效用等特征选取投资组合推荐给投资者。&lt;/p&gt;</summary>
+    
+    
+    
+    
+    <category term="机器学习" scheme="http://curtis-lau.github.io/source/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
     
     <category term="强化学习" scheme="http://curtis-lau.github.io/source/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"/>
     
@@ -114,6 +120,32 @@
   </entry>
   
   <entry>
+    <title>推荐算法：LinUCB</title>
+    <link href="http://curtis-lau.github.io/post/2973/"/>
+    <id>http://curtis-lau.github.io/post/2973/</id>
+    <published>2020-07-27T02:27:28.000Z</published>
+    <updated>2020-08-10T05:56:27.000Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;推荐系统里面有两个经典问题：EE 问题和冷启动问题。前者涉及到平衡准确和多样，后者涉及到产品算法运营等一系列东西。Bandit 算法是一种简单的在线学习算法，常常用于尝试解决这两个问题，本文为你介绍基础的 Bandit 算法及一系列升级版，以及对推荐系统这两个经典问题的思考。&lt;/p&gt;
+&lt;p&gt;Bandit算法是一类用来实现Exploitation-Exploration机制的策略。根据是否考虑上下文特征，Bandit算法分为Context-free Bandit和Contextual Bandit两大类，本文简单介绍Context-free Bandit，重点讲解Contextual Bandit。&lt;/p&gt;</summary>
+    
+    
+    
+    <category term="算法" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="强化学习" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"/>
+    
+    <category term="推荐算法" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E6%8E%A8%E8%8D%90%E7%AE%97%E6%B3%95/"/>
+    
+    
+    <category term="强化学习" scheme="http://curtis-lau.github.io/source/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"/>
+    
+    <category term="推荐算法" scheme="http://curtis-lau.github.io/source/tags/%E6%8E%A8%E8%8D%90%E7%AE%97%E6%B3%95/"/>
+    
+  </entry>
+  
+  <entry>
     <title>决策树</title>
     <link href="http://curtis-lau.github.io/post/52060/"/>
     <id>http://curtis-lau.github.io/post/52060/</id>
@@ -134,30 +166,6 @@
     <category term="机器学习" scheme="http://curtis-lau.github.io/source/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
     
     <category term="决策树" scheme="http://curtis-lau.github.io/source/tags/%E5%86%B3%E7%AD%96%E6%A0%91/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>遗传算法</title>
-    <link href="http://curtis-lau.github.io/post/34642/"/>
-    <id>http://curtis-lau.github.io/post/34642/</id>
-    <published>2020-06-27T02:27:06.000Z</published>
-    <updated>2020-06-30T06:28:51.000Z</updated>
-    
-    
-    <summary type="html">&lt;p&gt;遗传算法（Genetic Algorithm, GA）是模拟达尔文生物进化论的自然选择和遗传学机理的生物进化过程的计算模型，是一种通过模拟自然进化过程搜索最优解的方法。&lt;/p&gt;
-&lt;p&gt;本文结合具体例子讲解。&lt;/p&gt;</summary>
-    
-    
-    
-    <category term="算法" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/"/>
-    
-    <category term="机器学习" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
-    
-    
-    <category term="机器学习" scheme="http://curtis-lau.github.io/source/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
-    
-    <category term="遗传算法" scheme="http://curtis-lau.github.io/source/tags/%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95/"/>
     
   </entry>
   
