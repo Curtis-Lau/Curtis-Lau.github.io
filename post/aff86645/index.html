@@ -21,18 +21,23 @@
     var CONFIG = {"hostname":"curtis-lau.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":15,"offset":10,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="人生起伏以意志勇怯而定">
+  <meta name="description" content="研究背景辛烷值（RON）并不为大家所熟知，但几乎都知道汽油有90#，93#，97#这几种分类，而汽油的分类依据就是RON，RON越高汽油的纯度则会越高，燃烧的效果就越好。 现有一石化企业催化裂化汽油精制脱硫装置己运行4年，并且记录了大量的数据，其汽油产品的平均RON损失为1.37个单位，而类似单位的最低RON损失仅为0.6个单位。因此，还有较大的优化空间。 从该企业的数据中收集325个样本，根据这">
 <meta property="og:type" content="article">
 <meta property="og:title" content="2020年研究生数学建模B题第1问">
 <meta property="og:url" content="http://curtis-lau.github.io/post/aff86645/index.html">
 <meta property="og:site_name" content="Curtis LAU&#39;s BLOG">
-<meta property="og:description" content="人生起伏以意志勇怯而定">
+<meta property="og:description" content="研究背景辛烷值（RON）并不为大家所熟知，但几乎都知道汽油有90#，93#，97#这几种分类，而汽油的分类依据就是RON，RON越高汽油的纯度则会越高，燃烧的效果就越好。 现有一石化企业催化裂化汽油精制脱硫装置己运行4年，并且记录了大量的数据，其汽油产品的平均RON损失为1.37个单位，而类似单位的最低RON损失仅为0.6个单位。因此，还有较大的优化空间。 从该企业的数据中收集325个样本，根据这">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://curtis-lau.github.io/post/aff86645/图1.png">
+<meta property="og:image" content="http://curtis-lau.github.io/post/aff86645/箱型图.jpg">
+<meta property="og:image" content="http://curtis-lau.github.io/post/aff86645/样本确定方法.jpg">
+<meta property="og:image" content="http://curtis-lau.github.io/post/aff86645/部分箱型图.png">
 <meta property="article:published_time" content="2020-09-28T07:35:27.000Z">
 <meta property="article:modified_time" content="2020-09-29T03:01:25.000Z">
 <meta property="article:author" content="Curtis Lau">
 <meta property="article:tag" content="数学建模">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://curtis-lau.github.io/post/aff86645/图1.png">
 
 <link rel="canonical" href="http://curtis-lau.github.io/post/aff86645/">
 
@@ -259,7 +264,29 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a>研究背景</h2><p>辛烷值（RON）并不为大家所熟知，但几乎都知道汽油有90#，93#，97#这几种分类，而汽油的分类依据就是RON，RON越高汽油的纯度则会越高，燃烧的效果就越好。</p>
+<p>现有一石化企业催化裂化汽油精制脱硫装置己运行4年，并且记录了大量的数据，其汽油产品的平均RON损失为1.37个单位，而类似单位的最低RON损失仅为0.6个单位。因此，还有较大的优化空间。</p>
+<p>从该企业的数据中收集325个样本，根据这些样本数据建立预测汽油RON损失的数学模型，得出样本的优化操作条件，在硫含量不大于5ug/g的条件下，至少降低30%的汽油RON损失。</p>
+<h2 id="问题一"><a href="#问题一" class="headerlink" title="问题一"></a>问题一</h2><p>对于问题一，首先对近4年325个样本的工业数据进行分析，清楚其数据特点。为了更有效地进行数据预处理，在原本“样本确定方法”的基础上又加入箱型图法，从而构成新的数据整理方法。接下来对285号和313号数据样本再进行预处理，将处理结果对应其样本号，按操作位点名称相应加到附件一中，以供后续问题使用。</p>
+<span id="more"></span>
+<h3 id="数据采集"><a href="#数据采集" class="headerlink" title="数据采集"></a>数据采集</h3><p>本文采用的是中石化高桥石化从2017年4月至2020年5月近4年的数据，采集了催化裂化汽油精制脱硫装置的354个操作位点，以及7个原料性质、2个待生吸附剂性质、2个再生吸附剂性质、2个产品性质等变量。具体见表1：</p>
+<p><img src="/post/aff86645/图1.png" alt></p>
+<h3 id="数据预处理"><a href="#数据预处理" class="headerlink" title="数据预处理"></a>数据预处理</h3><p>本文的数据比较常见的情况有：只含有部分时间点的时间残缺值、样本数据有空值、需要剔除的异常值。基于这些问题，主要的操作是对于难以弥补、纠正的数据直接删除，空值用其前后两个小时数据的平均值替代，可以弥补的将原数据剔除后其前后两个小时数据的平均值替代。本文选的数据整理方法如图2：</p>
+<p><img src="/post/aff86645/箱型图.jpg" alt="图2：箱型图"></p>
+<p><img src="/post/aff86645/样本确定方法.jpg" alt="图3：样本确定方法"></p>
+<h4 id="箱型图"><a href="#箱型图" class="headerlink" title="箱型图"></a>箱型图</h4><p>其中箱型图又称盒式图，是美国杰出学家John Tukey于1977年发明。原始数据的分布特征不仅可以通过箱线图不仅可以通过箱型图反映出来，而且多组数据的分布特征间的比较也能够通过它反映出来。通过绘制箱型图，不但能够看出数据的离散程度还能直接看出数据点的异常值，如图3：绘制箱型图的具体步骤如下：</p>
+<ol>
+<li>将数据由小到大排序，找出中位数，上四分位数和下四分位数以及数据的上边缘和下边缘；</li>
+<li>然后连接上四分位数和下四分位数构成箱体；</li>
+<li>将上下边缘与箱体相连，中位数位于箱体中间位置。</li>
+</ol>
+<p>在这里我们记上四分位数为Q3，下四分位数Q1，上边缘为Q3+1.51QR，下边缘为Qi-1.5IQR，其中上边缘和下边缘又称为异常值截断点，处于上边缘或下边缘之外的点就为数据的异常点。</p>
+<h4 id="拉依达准则"><a href="#拉依达准则" class="headerlink" title="拉依达准则"></a>拉依达准则</h4><p>在处理数据时，有时为了提高数据的准确性，需要对某些异常值进行剔除，在这种情况下，可以考虑拉依达准则，也称$3\sigma$准则。<br>假设一组测量变量只包含随机误差，设这些变量分别为$x_1,x_2,…,x_n$，对它们求均值记为$x$，计算出剩余误差$v_i=x_i-x,i=1,2…,n$，利用贝塞尔公式算出标准误差$\sigma$，若某个测量值$x_i$的剩余误差$v_i$，满足$|v_i|=|x_i-x|&gt;3\sigma$，就认为此剩余误差属于粗大误差，应该剔除。贝塞尔公式如下：</p>
+<script type="math/tex; mode=display">\sigma=[\frac{1}{n-1}\displaystyle\sum^n_{i=1}V^2_i]^{1/2}=[[\displaystyle\sum^n_{i=1}x^2_i-{(\displaystyle\sum^n_{i=1}x_i)^2}/n]/(n-1)]^{1/2}</script><h3 id="数据整理结果"><a href="#数据整理结果" class="headerlink" title="数据整理结果"></a>数据整理结果</h3><p>利用以上数据整理方法，用Python软件来预处理285号样本数据和313号样本数据，结果显示，285号样本数据不存在残缺值、空值和异常值，而313号样本数据共有42个变量存在异常值。其中部分箱型图如图4：</p>
+<p><img src="/post/aff86645/部分箱型图.png" alt="图4：部分箱型图"></p>
+<p>这42个存在异常值的操作位点名称见表2：<br>对于这些异常值，我们用其前后两个小时数据的平均值进行替代处理。最后将这些处理过的数据，对应其样本号，按操作位点名称相应加到附件一中，以供后续问题使用。</p>
+<p>———————问题1处理结束——————-</p>
+
     </div>
 
     
@@ -391,6 +418,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">研究背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E4%B8%80"><span class="nav-number">2.</span> <span class="nav-text">问题一</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E9%87%87%E9%9B%86"><span class="nav-number">2.1.</span> <span class="nav-text">数据采集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E9%A2%84%E5%A4%84%E7%90%86"><span class="nav-number">2.2.</span> <span class="nav-text">数据预处理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%B1%E5%9E%8B%E5%9B%BE"><span class="nav-number">2.2.1.</span> <span class="nav-text">箱型图</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8B%89%E4%BE%9D%E8%BE%BE%E5%87%86%E5%88%99"><span class="nav-number">2.2.2.</span> <span class="nav-text">拉依达准则</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E6%95%B4%E7%90%86%E7%BB%93%E6%9E%9C"><span class="nav-number">2.3.</span> <span class="nav-text">数据整理结果</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 

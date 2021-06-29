@@ -21,18 +21,27 @@
     var CONFIG = {"hostname":"curtis-lau.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":15,"offset":10,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="人生起伏以意志勇怯而定">
+  <meta name="description" content="研究背景辛烷值（RON）并不为大家所熟知，但几乎都知道汽油有90#，93#，97#这几种分类，而汽油的分类依据就是RON，RON越高汽油的纯度则会越高，燃烧的效果就越好。 现有一石化企业催化裂化汽油精制脱硫装置己运行4年，并且记录了大量的数据，其汽油产品的平均RON损失为1.37个单位，而类似单位的最低RON损失仅为0.6个单位。因此，还有较大的优化空间。 从该企业的数据中收集325个样本，根据这">
 <meta property="og:type" content="article">
 <meta property="og:title" content="2020年研究生数学建模B题第4问">
 <meta property="og:url" content="http://curtis-lau.github.io/post/6e109dad/index.html">
 <meta property="og:site_name" content="Curtis LAU&#39;s BLOG">
-<meta property="og:description" content="人生起伏以意志勇怯而定">
+<meta property="og:description" content="研究背景辛烷值（RON）并不为大家所熟知，但几乎都知道汽油有90#，93#，97#这几种分类，而汽油的分类依据就是RON，RON越高汽油的纯度则会越高，燃烧的效果就越好。 现有一石化企业催化裂化汽油精制脱硫装置己运行4年，并且记录了大量的数据，其汽油产品的平均RON损失为1.37个单位，而类似单位的最低RON损失仅为0.6个单位。因此，还有较大的优化空间。 从该企业的数据中收集325个样本，根据这">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://curtis-lau.github.io/post/6e109dad/1.PNG">
+<meta property="og:image" content="http://curtis-lau.github.io/post/6e109dad/3.png">
+<meta property="og:image" content="http://curtis-lau.github.io/post/6e109dad/4.png">
+<meta property="og:image" content="http://curtis-lau.github.io/post/6e109dad/8.PNG">
+<meta property="og:image" content="http://curtis-lau.github.io/post/6e109dad/9.jpg">
+<meta property="og:image" content="http://curtis-lau.github.io/post/6e109dad/10.jpg">
+<meta property="og:image" content="http://curtis-lau.github.io/post/6e109dad/11.JPG">
+<meta property="og:image" content="http://curtis-lau.github.io/post/6e109dad/12.JPG">
 <meta property="article:published_time" content="2020-09-30T07:00:14.000Z">
 <meta property="article:modified_time" content="2020-10-04T01:54:11.000Z">
 <meta property="article:author" content="Curtis Lau">
 <meta property="article:tag" content="数学建模">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://curtis-lau.github.io/post/6e109dad/1.PNG">
 
 <link rel="canonical" href="http://curtis-lau.github.io/post/6e109dad/">
 
@@ -259,7 +268,62 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a>研究背景</h2><p>辛烷值（RON）并不为大家所熟知，但几乎都知道汽油有90#，93#，97#这几种分类，而汽油的分类依据就是RON，RON越高汽油的纯度则会越高，燃烧的效果就越好。</p>
+<p>现有一石化企业催化裂化汽油精制脱硫装置己运行4年，并且记录了大量的数据，其汽油产品的平均RON损失为1.37个单位，而类似单位的最低RON损失仅为0.6个单位。因此，还有较大的优化空间。</p>
+<p>从该企业的数据中收集325个样本，根据这些样本数据建立预测汽油RON损失的数学模型，得出样本的优化操作条件，在硫含量不大于5ug/g的条件下，至少降低30%的汽油RON损失。</p>
+<h2 id="问题四"><a href="#问题四" class="headerlink" title="问题四"></a>问题四</h2><p>首先确定RON损失降幅最大、操作风险最小的目标函数，根据问题要求给出相应的约束条件，从而建立多目标非线性优化模型。然后将多目标化为单目标，并通过引入新变量去绝对值，将非线性优化变为线性优化。最后通过Python求解，使得325个样本中RON损失降幅大于30%的样本所对应的操作变量的优化操作方案。</p>
+<span id="more"></span>
+<p>通过问题分析可以知道问题四需要建立一个优化模型，目标是损失降幅最大。但考虑到工程问题的实际情况，每操作一次即每修改一次操作变量，都会造成一定的风险，因26此，我们应该同时令风险最小。那么我们要建立的就是对RON降损的多目标规划模型。</p>
+<h3 id="RON降损多目标优化模型的建立"><a href="#RON降损多目标优化模型的建立" class="headerlink" title="RON降损多目标优化模型的建立"></a>RON降损多目标优化模型的建立</h3><p>为了对该石化企业的催化裂化汽油精制脱硫装置的操作方案做出优化调整，使得在保证汽油产品脱硫效果（硫含量不大于5ug/g）的前提下，尽量令汽油RON降损达到30%以上，除考虑RON降损和操作风险最优之外，还要把硫含量、操作的可行性、操作变量的取值范围等其他因素考虑在内，只有将各因素综合衡量后，做出来的决策才会更加合理，这便是典型的多目标优化问题。</p>
+<p>结合问题的实质情况，可以忽略那些影响微小的因素，由此，我们构建了两个规划目标，RON降损最大和操作风险最小。</p>
+<ul>
+<li>规划目标一：</li>
+</ul>
+<p>以RON降损最大为目标，得到其相应的函数关系式。RON降损=原来的RON损失-调整后的RON损失，用$R_0$表示原料RON，$R_1$表示原来的产品RON，$y_1$表示调整后的产品RON，则RON降损可以表示为：</p>
+<script type="math/tex; mode=display">R_0-R_1-（R_0-y_1）=y_1-R_1</script><p>将式（1）带入上式得目标函数：</p>
+<script type="math/tex; mode=display">max a_1x_1+a_2x_2+..+a_{12}x_{12}+b_1-R_1</script><p>将其用连加符号简写为：</p>
+<script type="math/tex; mode=display">max\displaystyle\sum^{12}_{i=1}a_ix_i+b_1-R_1</script><ul>
+<li>规划目标二：</li>
+</ul>
+<p>以操作风险最小为目标，写出其相应的函数关系式。在实际工程操作过程中，不论是人手工调整还是用电脑或机器控制，每操作一次都有可能带来一定的风险，所以操作次数越少越好。用$s_i$表示附件一中$x_i$对应的原来的数据，$\Delta_i$表示操作变量每次的最大改变量，因为$x_1,x_2$不是操作变量，所以在操作次数的函数表达式中$i=3,4,…,12$。另外在操作中需要改变，但达不到$\Delta_i$的整数倍的，应该向上取整，因为不到$\Delta_i$也需要操作一次。则操作次数最小的的目标函数是：</p>
+<script type="math/tex; mode=display">max\displaystyle\sum^{12}_3[\frac{|x_i-s_i|}{\Delta}]</script><p>但是操作次数与变量有关，需要将包含变量的关系式进行向上取整。这在规划求解过程中很难实现，所以需要将取整符号去掉。而去掉取整符号后，该是表达的是相对修改幅度，同样的相对修改幅度越小，操作次数就会越少，操作风险也会越小。因此用相对修改幅度最小替代操作次数最少，从而达到操作风险最小的目标。所以，规划目标二的函数表达式为：</p>
+<script type="math/tex; mode=display">max\displaystyle\sum^{12}_3\frac{|x_i-s_i|}{\Delta}</script><ul>
+<li>约束条件一：</li>
+</ul>
+<p>首先既然进行优化，那么优化操作后的产品RON肯定要比原来的产品RON$R_1$大，否则优化没有意义。另外，产品RON是由原料RON转化而来，不是无中生有的，所以优化操作后的产品RON肯定不能大于原来的产品RON$R_1$，由此，我们得约束条件为：</p>
+<script type="math/tex; mode=display">R_1≤\displaystyle\sum^{12}_{i=1}a_ix_i+b_1≤R_0</script><ul>
+<li>约束条件二：</li>
+</ul>
+<p>题目要求在硫含量小于等于5ug/g的条件下，尽量令汽油RON降损达到30%以上，所以我们需要约束硫含量小于等于5ug/g，第三问中，我们求得硫含量y2的表达式，因此得约束条件二：</p>
+<script type="math/tex; mode=display">c_3x_3+c_{10}x_{10}+c_{14}x_{14}+b_2≤5</script><ul>
+<li>约束条件三：</li>
+</ul>
+<p>为了控制操作风险，我们设置每个操作变量最多可以40个调整幅度值，由此可得约束条件三：</p>
+<script type="math/tex; mode=display">\frac{|x_i-s_i|}{\Delta_i}≤40,i=3,4,.…,12</script><ul>
+<li>约束条件四：</li>
+</ul>
+<p>由于工艺的要求和操作经验的总结，每个操作变量都有其操作范围，记$x_i$对应的操作范围为$[l_i,u_i]$，而$x_1,x_2$不是操作变量，所以$i=3,4,.…,12$。对应的约束条件为：</p>
+<script type="math/tex; mode=display">l_i≤x_i≤u_i,i=3,4,…,12</script><p>另外，$x_1,x_2$等于其原始值，并不会发生变动。为了保持$x_i$的完整，我们依然将其当做变量放在模型中，但会给其约束：</p>
+<script type="math/tex; mode=display">x_i=s_i，i=1,2</script><p>将上述目标函数和约束条件经过整理、化简等，得出RON降损多目标非线性优化模型为：</p>
+<script type="math/tex; mode=display">max\displaystyle\sum^{12}_{i=1}a_ix_i+b_1-R_1</script><script type="math/tex; mode=display">min\displaystyle\sum^{12}_{i=3}\frac{|x_i-s_i|}{\Delta_i}</script><p><img src="/post/6e109dad/1.PNG" alt></p>
+<h3 id="RON降损多目标优化模型的求解"><a href="#RON降损多目标优化模型的求解" class="headerlink" title="RON降损多目标优化模型的求解"></a>RON降损多目标优化模型的求解</h3><p>RON降损多目标优化模型虽然已经建立，但是会发现在求解前有两个问题急需解决，第一个问题是双目标要化成单目标，另一个是要去绝对值，将非线性规划化为线性规划，然后再用Python进行求解。</p>
+<h4 id="多目标非线性优化模型化为单目标线性优化模型"><a href="#多目标非线性优化模型化为单目标线性优化模型" class="headerlink" title="多目标非线性优化模型化为单目标线性优化模型"></a>多目标非线性优化模型化为单目标线性优化模型</h4><p>多目标决策由于考虑的目标多，有些目标之间又彼此有矛盾，这就使得多目标问题比较复杂。但实际问题中，多目标问题应用范围很广，因而出现了许多解决此问题的方法。一般来说，其基本途径是，把求解多目标问题转化为求解单目标问题。其主要步骤是，先转化为单目标问题，然后利用单目标模型的方法，求出单目标模型的最优解，以此作为多目标问题的解。而本题就是采用这种方法来求解。</p>
+<p>多目标问题转化为单目标问题比较常见的方法有优选法、线性加权法、分层序列法等等，当在多个目标中有一个目标是明显重要的，就比较适合用优选法。这样可以在对主要目标进行优化的同时兼顾其余目标，那么问题化为求该主要目标的最优值，其他的目标化为约束条件，限制其在一定的范围内变动。</p>
+<p>这里RON降损是明显重要的主要目标，所以设将风险最小化为约束条件从而将多目标问题化成单目标问题。设操作风险对应的约束范围的最大值为T，则RON降损多目标非线性优化模型转化为以下单目标非线性模型：</p>
+<script type="math/tex; mode=display">max\displaystyle\sum^{12}_{i=1}a_ix_i+b_1-R_1</script><p><img src="/post/6e109dad/3.png" alt></p>
+<p>模型中还有绝对值，所以通过引入新变量去绝对值，将非线性优化变为线性优化。</p>
+<p>引入非负变量$x^1_i,x^2_i$，</p>
+<p><img src="/post/6e109dad/4.png" alt></p>
+<h4 id="RON降损优化的操作方案"><a href="#RON降损优化的操作方案" class="headerlink" title="RON降损优化的操作方案"></a>RON降损优化的操作方案</h4><p>针对RON降损多目标优化模型，用Python进行求解（见附录1），具体结果详见附件2，随机选取5个降损幅度高于30%的样本，列出其主要变量的操作方案，结果见表8：</p>
+<p><img src="/post/6e109dad/8.PNG" alt></p>
+<p>从降损幅度高于30%的样本中随机选取10个，画出其RON损失降幅图如9：</p>
+<p><img src="/post/6e109dad/9.jpg" alt="图9：部分降损幅度高于30%额样本RON损失降幅图"></p>
+<p>通过分析RON降损多目标优化模型的结果，发现这10个样本具有相同的进行调整的操作变量，从中选出变化较明显的两个变量$x_4,x_5$，分别画出这10个样本中他们的改变：</p>
+<p><img src="/post/6e109dad/10.jpg" alt></p>
+<p><img src="/post/6e109dad/11.JPG" alt></p>
+<p><img src="/post/6e109dad/12.JPG" alt></p>
+<p>———————问题3处理结束——————-</p>
+
     </div>
 
     
@@ -391,6 +455,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">研究背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E5%9B%9B"><span class="nav-number">2.</span> <span class="nav-text">问题四</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#RON%E9%99%8D%E6%8D%9F%E5%A4%9A%E7%9B%AE%E6%A0%87%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BB%BA%E7%AB%8B"><span class="nav-number">2.1.</span> <span class="nav-text">RON降损多目标优化模型的建立</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#RON%E9%99%8D%E6%8D%9F%E5%A4%9A%E7%9B%AE%E6%A0%87%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%B1%82%E8%A7%A3"><span class="nav-number">2.2.</span> <span class="nav-text">RON降损多目标优化模型的求解</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%9A%E7%9B%AE%E6%A0%87%E9%9D%9E%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B%E5%8C%96%E4%B8%BA%E5%8D%95%E7%9B%AE%E6%A0%87%E7%BA%BF%E6%80%A7%E4%BC%98%E5%8C%96%E6%A8%A1%E5%9E%8B"><span class="nav-number">2.2.1.</span> <span class="nav-text">多目标非线性优化模型化为单目标线性优化模型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#RON%E9%99%8D%E6%8D%9F%E4%BC%98%E5%8C%96%E7%9A%84%E6%93%8D%E4%BD%9C%E6%96%B9%E6%A1%88"><span class="nav-number">2.2.2.</span> <span class="nav-text">RON降损优化的操作方案</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 

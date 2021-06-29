@@ -21,18 +21,26 @@
     var CONFIG = {"hostname":"curtis-lau.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":15,"offset":10,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":true,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="人生起伏以意志勇怯而定">
+  <meta name="description" content="研究背景辛烷值（RON）并不为大家所熟知，但几乎都知道汽油有90#，93#，97#这几种分类，而汽油的分类依据就是RON，RON越高汽油的纯度则会越高，燃烧的效果就越好。 现有一石化企业催化裂化汽油精制脱硫装置己运行4年，并且记录了大量的数据，其汽油产品的平均RON损失为1.37个单位，而类似单位的最低RON损失仅为0.6个单位。因此，还有较大的优化空间。 从该企业的数据中收集325个样本，根据这">
 <meta property="og:type" content="article">
 <meta property="og:title" content="2020年研究生数学建模B题第2问">
 <meta property="og:url" content="http://curtis-lau.github.io/post/87733898/index.html">
 <meta property="og:site_name" content="Curtis LAU&#39;s BLOG">
-<meta property="og:description" content="人生起伏以意志勇怯而定">
+<meta property="og:description" content="研究背景辛烷值（RON）并不为大家所熟知，但几乎都知道汽油有90#，93#，97#这几种分类，而汽油的分类依据就是RON，RON越高汽油的纯度则会越高，燃烧的效果就越好。 现有一石化企业催化裂化汽油精制脱硫装置己运行4年，并且记录了大量的数据，其汽油产品的平均RON损失为1.37个单位，而类似单位的最低RON损失仅为0.6个单位。因此，还有较大的优化空间。 从该企业的数据中收集325个样本，根据这">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://curtis-lau.github.io/post/87733898/表1.png">
+<meta property="og:image" content="http://curtis-lau.github.io/post/87733898/技术路线图.jpg">
+<meta property="og:image" content="http://curtis-lau.github.io/post/87733898/重要性分值图.jpg">
+<meta property="og:image" content="http://curtis-lau.github.io/post/87733898/表3.png">
+<meta property="og:image" content="http://curtis-lau.github.io/post/87733898/表4.png">
+<meta property="og:image" content="http://curtis-lau.github.io/post/87733898/最优子集回归.jpg">
+<meta property="og:image" content="http://curtis-lau.github.io/post/87733898/表5.png">
 <meta property="article:published_time" content="2020-09-29T05:06:07.000Z">
 <meta property="article:modified_time" content="2020-09-30T01:36:21.000Z">
 <meta property="article:author" content="Curtis Lau">
 <meta property="article:tag" content="数学建模">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://curtis-lau.github.io/post/87733898/表1.png">
 
 <link rel="canonical" href="http://curtis-lau.github.io/post/87733898/">
 
@@ -259,7 +267,75 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        
+        <h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a>研究背景</h2><p>辛烷值（RON）并不为大家所熟知，但几乎都知道汽油有90#，93#，97#这几种分类，而汽油的分类依据就是RON，RON越高汽油的纯度则会越高，燃烧的效果就越好。</p>
+<p>现有一石化企业催化裂化汽油精制脱硫装置己运行4年，并且记录了大量的数据，其汽油产品的平均RON损失为1.37个单位，而类似单位的最低RON损失仅为0.6个单位。因此，还有较大的优化空间。</p>
+<p>从该企业的数据中收集325个样本，根据这些样本数据建立预测汽油RON损失的数学模型，得出样本的优化操作条件，在硫含量不大于5ug/g的条件下，至少降低30%的汽油RON损失。</p>
+<h2 id="问题二"><a href="#问题二" class="headerlink" title="问题二"></a>问题二</h2><p>对于问题二，为了建立汽油RON损失预测模型和汽油RON降损模型，需要先筛选出影响模型的主要变量。为了能够获得更系统、更合理的变量集，借鉴集成学习，使用多种方法相结合构成集成方法，使得因为数据以及方法的单一所产生的问题最小化，从而提高效果。先用随机森林和最大信息系数法各筛选出来一部分变量，合并到一起，再用最优子集回归进行最终的筛选。</p>
+<p>为了建立汽油RON损失预测模型和汽油RON降损模型，需要先筛选出影响模型的主要变量。因此我们采用先降维再建模的思路，这也是工程技术类问题经常使用的。</p>
+<span id="more"></span>
+<h3 id="随机森林"><a href="#随机森林" class="headerlink" title="随机森林"></a>随机森林</h3><p>随机森林算法（Random Forest简称为RF）是由若干个相互独立的决策树集成，决策树是一类常见的机器学习算法。以二分类任务为例，通过给定的训练集通过剪枝过程学得一个决策树模型，然后用这个模型对未见过的新样例进行分类，但是决策树也许依然适用于某些噪声数据，从而导致模型对训练数据集产生过拟合现象。针对此问题，2001年布莱曼将随机子空间算法和Bagging算法相结合并首次提出了随机森林算法。<br>RF是由多棵独立的决策树组成的集成分类器。通过对算法的输出类别由每个决策树的输出类别共同决定，如果把每个决策树看作一个“专家”，则最终输出结果可以看做由这些“专家”打分后，以少数服从多数的方式决定。与单决策树模型相比，RF能更好地解决噪声问题以及数据中的异常值且更适合用来处理大规模数据。在本问题中，我们通过随机森林来得出变量重要分数，它主要用来反映训练样例集中变量对目标变量的影响，从而完成重要指标的筛选，同时达到降维的目的。</p>
+<p><img src="/post/87733898/表1.png" alt></p>
+<h4 id="随机森林的生成"><a href="#随机森林的生成" class="headerlink" title="随机森林的生成"></a>随机森林的生成</h4><p>随机森林在变量重要性判定方面有着独特的优势，使其广泛应用于变量、指标筛选以及影响因素权重确定等方面，因此本文在对影响汽油辛烷值的因素进行筛选时，主要采用随机森林方法对各个影响因素的重要性进行判定。随机森林的生成步骤如下。</p>
+<ol>
+<li>首先通过有放回随机抽样Bootstraping的方式从原始样例集$D$中抽取$N$个样例作13为一个训练集，共进行$k$轮抽取，得到$k$个训练集，记$D_1,D_2…,D_k$；</li>
+<li>根据1生成的$k$个样例集，依据构建决策树的算法及原理构建出$k$个相互独立的决策树；</li>
+<li>对根据2中生成的$k$个决策树进行集成构成随机森林集成分类器。针对分类问题，最终的分类结果是由所有决策树的投票来确定的，对于回归问题，使用所有决策树输出结果的均值来作为最终的输出结果；</li>
+<li>对于选取测试集来对模型进行验证，由于训练集生成过程中，采取的是有放回抽样，所以在$k$次生成训练集的过程中会存在从没有被抽到过的样本，因此用这些样本作为验证集验证模型是合理的。</li>
+</ol>
+<h4 id="基于随机森林的变量影响力测算及筛选"><a href="#基于随机森林的变量影响力测算及筛选" class="headerlink" title="基于随机森林的变量影响力测算及筛选"></a>基于随机森林的变量影响力测算及筛选</h4><p>利用随机森林方法对影响因素重要性进行判定时主要采用的衡量指标是变量重要性分数，随机森林计算变量重要性分数已经被广泛应用于各种数据分析以及数据挖掘任务中，本文在对汽油辛烷值影响因素重要性进行衡量时主要采用基于置换的变量重要性分数。利用该衡量指标对某个指标进行重要性判定的基本步骤为：</p>
+<ol>
+<li>首先依据Bootstraping的方式从原始样例集$D$中抽取$N$个样例作为一个训练集，没有抽取到的样本构成一组袋外数据，这样就构成了$k$个训练集$D_1,D_2,…,D_k$和$k$个袋外数据$D^{‘}_k$。</li>
+<li>用这$k$个训练集构成$k$个独立决策树$T_1,T_2,…,T_k$，对相应的袋外数据进行分类并计算对应分类准确率$R_I$，对每个训练集i的每个变量值j进行变换，并将变量变换之后的袋外数据用$D^{‘}_{ij}$表示，其中$i=1,2,…k,j=1,2,…354$，用决策树$T_i$对变化后的袋外数据$D^{‘}_{ij}$计算分类准确率$R_{ij}$，得出扰动前后的分类正确率。</li>
+<li>最后，计算这两次对袋外数据分类准确率的减少量即为该因素重要性的衡量依据，减少量越大，那么就证明对应变量的重要程度越强，反之则表明该变量不是很重要，可以删去。特征$X_j$的变量重要性分数记为$score_j$，求解公式为：$score_j=\frac{1}{k}\displaystyle\sum^k_{i=1}(R_i-R_{ij})$</li>
+<li>以相同的方式重复构建随机森林，然后求出变量的重要性分数，对变量的若干重要性均值求解得出最终的变量重要性分数，进行排序得出排名靠前的若干个影响因素。</li>
+</ol>
+<h4 id="最大信息系数法"><a href="#最大信息系数法" class="headerlink" title="最大信息系数法"></a>最大信息系数法</h4><p>最大信息系数法适用于在大数据集中探寻潜在的紧密相关的变量对，是一种确定两变量相关性的标准，且具备广泛性和公平性两种属性。因此本文同时用最大信息系数法与随机森林结合来进行因素的初步筛选。</p>
+<h5 id="最大信息系数法相关的信息论理论"><a href="#最大信息系数法相关的信息论理论" class="headerlink" title="最大信息系数法相关的信息论理论"></a>最大信息系数法相关的信息论理论</h5><p>最大信息系数是以信息论中的互信息为基础的，所以我们首先引入信息论中信息熵、条件熵和互信息量的概念及理论。<br>在如今数据驱动的时代，各行各业每天每时每刻都在产生无穷尽的数据，但是并不是数据越多越好或者如此多的数据可能有很多都不会给我们提供有用的信息。信息论作为衡量不确定性的一种方法，在机器学习算法中的特征选择方面，人们常常将不确定性较小的特征作为最优特征，但是问题在于如何将信息进行量化。基于此问题，Shannon于1948年提出信息熵的概念，将特征的不确定性用数值的形式反映出来，随着信息熵的应用的发展，基于信息熵在特征选择算法上也更具有适用性，本文把互信息最大信息系数法作为我们特征筛选的方法之一。</p>
+<ul>
+<li>信息熵</li>
+</ul>
+<p>信息熵将特征的不确定性用数值的形式反映出来，它是由Shannon于1948年提出来的。信息熵越大就表明特征的不确定性越大，反之。由于离散信源的明了和易懂性，以下所介绍的信息熵都是基于离散信源。</p>
+<p>信息熵问题在介绍决策树时已经讲过，这里就不讲了。</p>
+<ul>
+<li>最大信息系数法步骤</li>
+</ul>
+<p>特征选择的最大信息系数法：</p>
+<p>设已知有包含$k$个类别的样本数据集，且这$k$个类别中的每类有$m$个样本，每个样本点包含$N$个特征{$x^{(1)}_1,…,x^{(1)}_m,…,x^{(k)}_1,…,x^{(k)}_m$}，其中$x^{(k)}_i=(x_{i,1},…,x_{i.N})$表示类别$k$的第$i$个样本的特征组成的向量。</p>
+<p>此方法根据单独最优特征组合搜索法的观点，从$N$个特征中搜索出有效性判据值最大的前$n$个特征作为特征子集用于分类。把最大信息系数作为有效性判据，用于单独最优特征组合搜索法中做特征选择，具体步骤如下：</p>
+<p>步骤一：记对照样本为$y^{(1)},…,y^{(k)}$，它们是从每个类中分别随机选取的，其余样本即为训练样本；</p>
+<p>步骤二：将对照样本的第个特征与对应的$m-1$个训练样本的第$j$个特征一一对应，$k$个类别一共构成与特征$j$有关的$k(m-1)$个变量对；</p>
+<p>步骤三：求出步骤二中所得变量对的$MIC$，$N$个特征共得到个$N$个$MIC$；</p>
+<p>步骤四：最后，对全部特征的$MIC$值由大到小进行排序，选择$MIC$最大的前$n$个特征进入特征子集。</p>
+<h3 id="最优子集回归"><a href="#最优子集回归" class="headerlink" title="最优子集回归"></a>最优子集回归</h3><p>最优子集选择的思路很容易理解，就是把所有自变量的组合都拟合一遍，比较一下哪个模型更好，选出最优模型。<br>给定一组观测值$(x_{i1},x_{i2},….,x_{ip},yi(i=1,2,…,n))$，用最小二乘法建立回归方程，我们不清楚哪些自变量和因变量有显著的线性关系，列出全部的回归方程，$p$个因素有$2^p-1$个回归方程，那么这些方程哪个是最优的？根据一些比较标准我们就能得到最优的回归方程。以下有四个常用比较标准：</p>
+<ul>
+<li><p>剩余均方和：</p>
+<script type="math/tex; mode=display">\hat{\sigma}(p^{'})=\frac{SSE(p^{'})}{n-p^{'}-1}</script><p>$\hat{\sigma}(p^{‘})$较小的回归方程最优；</p>
+</li>
+<li><p>校正后的复决定系数：</p>
+<script type="math/tex; mode=display">R_{Adj}=R^2(p^{'})-\frac{p^{'}(1-R^2(p^{'}))}{n-p^{'}-1}</script><p>$R_{Adj}$较大的回归方程较优；</p>
+</li>
+<li><p>Akaike信息量：</p>
+<script type="math/tex; mode=display">AIC=nlnSSE(p^{'})n+2(p^{'}+1)</script><p>$AIC$较小的回归方程最优；</p>
+</li>
+</ul>
+<h3 id="基于随机森林和最大信息系数法的RON最优子集回归模型的建立"><a href="#基于随机森林和最大信息系数法的RON最优子集回归模型的建立" class="headerlink" title="基于随机森林和最大信息系数法的RON最优子集回归模型的建立"></a>基于随机森林和最大信息系数法的RON最优子集回归模型的建立</h3><p>对于筛查因素或特征选择问题，计算量会随着变量数量的增加呈指数增长，我们想要知道哪组变量在能够反映问题特征的同时计算量也最小，所以本质上，它是组合优化题。对于这个优化问题，每个方法只能给出一个近似解，而且因为子集搜索方法和评价标准是不同的，且不同方法解决方案的合理性会受到其本身局限性的影响。为了能够获得更系统、更合理的变量子集，借鉴集成学习，使用多种方法相结合构成集成方法，使得因头数据以及方法的单一所产生的问题最小化，从而提高效果。</p>
+<p>最优子集回归最大的优点在于它能够找出所有特征的最优组合，这也是上述两种法所欠缺的。当然，由于这种方法是从所有特征的任意组合中筛选出主要的变量，因此如果变量的数目非常大时，计算量也会呈指数式增长。因此我们先用随机森林和最大信息系数法各筛选出来一部分变量，合并到一起，此时变量个数已大大缩减，便可以用最优子集回归进行最终的筛选。</p>
+<p>基于随机森林和最大信息系数法的RON最优子集回归模型的技术路线如图5：</p>
+<p><img src="/post/87733898/技术路线图.jpg" alt="图5：技术路线图"></p>
+<h3 id="基于随机森林和最大信息系数法的RON最优子集回归模型的求解"><a href="#基于随机森林和最大信息系数法的RON最优子集回归模型的求解" class="headerlink" title="基于随机森林和最大信息系数法的RON最优子集回归模型的求解"></a>基于随机森林和最大信息系数法的RON最优子集回归模型的求解</h3><p>通过构建基于随机森林的影响因素变量重要性求解模型，用Python求得各个影响因素的重要性分数的均值。给出根据367个变量的重要性分数筛选出的较高的前二十个变量的信息，结果见图6：</p>
+<p><img src="/post/87733898/重要性分值图.jpg" alt="图6：重要性分值图"></p>
+<p>图中，可以看出硫含量的重要性分数最高，说明在影响产品辛烷值的所有因素中，其发挥的作用做大，其次是饱和氢和S-Z0RB.TC-2801，除图中所示的影响因素的重要性分数以外，其余影响因素的重要性分数由于都很小几乎接近于0，因此没有给出。因此为了简化辛烷值损失预测模型输入，本文在进行产品辛烷值影响因素时只选取影响力相对较大的因素，不考虑作用很小几乎可以忽略不计的影响因素。</p>
+<p>同理，用最大信息系数法对367个变量进行筛选排序，用Python求解后，也选出前20个，因此通过随机森林算法和最大信息系数法筛选后的辛烷值影响因素结果见表3：</p>
+<p><img src="/post/87733898/表3.png" alt></p>
+<p>结果发现两种方法算出的前20个变量有8个是重合的，因此合并后共32个变量，见表4:</p>
+<p><img src="/post/87733898/表4.png" alt></p>
+<p>对以上32个变量的数据进行最优子集回归，用R语言求解最优子集回归模型，将4种比较标准都运行过后，发现结果几乎一致，其中以校正后的复决定系数为比较标准的结果更趋于稳定，得到图7：</p>
+<p><img src="/post/87733898/最优子集回归.jpg" alt="图7：最优子集回归拟合图"></p>
+<p>由图可知，当指标个数在20至24时回归效果达到稳定最优，而当指标个数达到25之后回归效果又开始下降，因此我们应该选择20-24个变量，鉴于指标个数越小越好，本文取20个指标。用R语言求出变量个数为20个时的最优子集见表5：</p>
+<p><img src="/post/87733898/表5.png" alt></p>
+<p>为了建立汽油RON损失模型，从而得到相应的汽油RON损失预测模型和汽油 RON降损模型，我们首先需要降维筛选出主要变量。为此，本文用随机森林、互信息法和最优子集回归相结合所构成的集成方法，通过Python和R语言进行求解，最终筛选出20个主要变量，这20个主要变量如表5所示。</p>
+<p>———————问题2处理结束——————-</p>
+
     </div>
 
     
@@ -391,6 +467,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF"><span class="nav-number">1.</span> <span class="nav-text">研究背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98%E4%BA%8C"><span class="nav-number">2.</span> <span class="nav-text">问题二</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97"><span class="nav-number">2.1.</span> <span class="nav-text">随机森林</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97%E7%9A%84%E7%94%9F%E6%88%90"><span class="nav-number">2.1.1.</span> <span class="nav-text">随机森林的生成</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97%E7%9A%84%E5%8F%98%E9%87%8F%E5%BD%B1%E5%93%8D%E5%8A%9B%E6%B5%8B%E7%AE%97%E5%8F%8A%E7%AD%9B%E9%80%89"><span class="nav-number">2.1.2.</span> <span class="nav-text">基于随机森林的变量影响力测算及筛选</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9C%80%E5%A4%A7%E4%BF%A1%E6%81%AF%E7%B3%BB%E6%95%B0%E6%B3%95"><span class="nav-number">2.1.3.</span> <span class="nav-text">最大信息系数法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%9C%80%E5%A4%A7%E4%BF%A1%E6%81%AF%E7%B3%BB%E6%95%B0%E6%B3%95%E7%9B%B8%E5%85%B3%E7%9A%84%E4%BF%A1%E6%81%AF%E8%AE%BA%E7%90%86%E8%AE%BA"><span class="nav-number">2.1.3.1.</span> <span class="nav-text">最大信息系数法相关的信息论理论</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E4%BC%98%E5%AD%90%E9%9B%86%E5%9B%9E%E5%BD%92"><span class="nav-number">2.2.</span> <span class="nav-text">最优子集回归</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97%E5%92%8C%E6%9C%80%E5%A4%A7%E4%BF%A1%E6%81%AF%E7%B3%BB%E6%95%B0%E6%B3%95%E7%9A%84RON%E6%9C%80%E4%BC%98%E5%AD%90%E9%9B%86%E5%9B%9E%E5%BD%92%E6%A8%A1%E5%9E%8B%E7%9A%84%E5%BB%BA%E7%AB%8B"><span class="nav-number">2.3.</span> <span class="nav-text">基于随机森林和最大信息系数法的RON最优子集回归模型的建立</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E4%BA%8E%E9%9A%8F%E6%9C%BA%E6%A3%AE%E6%9E%97%E5%92%8C%E6%9C%80%E5%A4%A7%E4%BF%A1%E6%81%AF%E7%B3%BB%E6%95%B0%E6%B3%95%E7%9A%84RON%E6%9C%80%E4%BC%98%E5%AD%90%E9%9B%86%E5%9B%9E%E5%BD%92%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%B1%82%E8%A7%A3"><span class="nav-number">2.4.</span> <span class="nav-text">基于随机森林和最大信息系数法的RON最优子集回归模型的求解</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
