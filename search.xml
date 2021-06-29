@@ -111,7 +111,7 @@
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">bandit_stock</span>(<span class="params">delta, n, t, eta, weight_lst, cluster, HS300, date_all, quitted_codes, cand, beta, lam</span>):</span></span><br><span class="line">    w_list = copy.deepcopy(weight_lst)</span><br><span class="line">    cluster_copy = copy.deepcopy(cluster)</span><br><span class="line">    quitted_codes_copy = copy.deepcopy(quitted_codes)</span><br><span class="line">    candidates = copy.deepcopy(cand)</span><br><span class="line"></span><br><span class="line">    moneyPrt = <span class="number">1000000</span></span><br><span class="line">    moneyHS300 = <span class="number">1000000</span></span><br><span class="line">    backtesting = pd.DataFrame(columns=[<span class="string">&#x27;date&#x27;</span>, <span class="string">&#x27;Portfolio-capital&#x27;</span>, <span class="string">&#x27;HS300-capital&#x27;</span>])</span><br><span class="line">    regret = <span class="number">0</span></span><br><span class="line">    timerange_n = date_all[t-n:t]</span><br><span class="line">    timerange_m = date_all[t-n-delta:t-delta]</span><br><span class="line">    bound_dict = &#123;&#125;</span><br><span class="line"></span><br><span class="line">    pre_time = <span class="built_in">str</span>(date_all[t-n-delta-n])[:<span class="number">10</span>].replace(<span class="string">&#x27;-&#x27;</span>, <span class="string">&#x27;&#x27;</span>)</span><br><span class="line">    hold_time = <span class="built_in">str</span>(date_all[t-<span class="number">1</span>+delta])[:<span class="number">10</span>].replace(<span class="string">&#x27;-&#x27;</span>, <span class="string">&#x27;&#x27;</span>)</span><br><span class="line"></span><br><span class="line">    code_list = <span class="built_in">list</span>(<span class="built_in">set</span>([code <span class="keyword">for</span> portfolio <span class="keyword">in</span> cluster_copy <span class="keyword">for</span> code <span class="keyword">in</span> portfolio]))</span><br><span class="line">    nav_df_cluster = get_fund_nav(code_list, pre_time, hold_time)</span><br><span class="line">    nav_df_quitted = get_fund_nav(quitted_codes_copy, pre_time, hold_time)</span><br><span class="line">    nav_df_all = get_fund_nav(candidates, pre_time, hold_time)</span><br><span class="line">    returns_df = (nav_df_all - nav_df_all.shift(<span class="number">1</span>)) / nav_df_all.shift(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 将停牌的基金剔除出cluster_copy</span></span><br><span class="line">    quitted_codes_used = <span class="built_in">list</span>(nav_df_quitted.columns)</span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> code_list:</span><br><span class="line">        <span class="keyword">if</span> _ <span class="keyword">in</span> quitted_codes_used:</span><br><span class="line">            quitted_codes_used.remove(_)</span><br><span class="line"></span><br><span class="line">    stopped_code = []</span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">list</span>(nav_df_cluster.columns) != code_list:</span><br><span class="line">        <span class="keyword">for</span> q <span class="keyword">in</span> code_list:</span><br><span class="line">            <span class="keyword">if</span> q <span class="keyword">not</span> <span class="keyword">in</span> <span class="built_in">list</span>(nav_df_cluster.columns):</span><br><span class="line">                stopped_code.append(q)</span><br><span class="line">        stopped_code = <span class="built_in">list</span>(<span class="built_in">set</span>(stopped_code))</span><br><span class="line">        substitute_code_1 = np.array(quitted_codes_used)[</span><br><span class="line">            random.sample(<span class="built_in">list</span>(<span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(quitted_codes_used))), <span class="built_in">len</span>(stopped_code))]</span><br><span class="line">        <span class="keyword">for</span> g <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(cluster_copy)):</span><br><span class="line">            <span class="keyword">for</span> p <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(stopped_code)):</span><br><span class="line">                <span class="keyword">if</span> stopped_code[p] <span class="keyword">in</span> cluster_copy[g]:</span><br><span class="line">                    idx_ = cluster_copy[g].index(stopped_code[p])</span><br><span class="line">                    cluster_copy[g][idx_] = substitute_code_1[p]</span><br><span class="line">        <span class="keyword">for</span> cd1 <span class="keyword">in</span> substitute_code_1:</span><br><span class="line">            quitted_codes_used.remove(cd1)</span><br><span class="line"></span><br><span class="line">    d_quitted = utility_series(timerange_m, returns_df, quitted_codes_used, n, date_all, eta)</span><br><span class="line">    d_quitted_1 = d_quitted.isna().<span class="built_in">sum</span>()</span><br><span class="line">    nan_code_quitted = <span class="built_in">list</span>(<span class="built_in">set</span>(d_quitted_1[d_quitted_1 != <span class="number">0</span>].index.tolist()))</span><br><span class="line"></span><br><span class="line">    a_quitted = utility_series(timerange_n, returns_df, quitted_codes_used, n, date_all, eta)</span><br><span class="line">    a_quitted_1 = a_quitted.isna().<span class="built_in">sum</span>()</span><br><span class="line">    nan_code_quitted_2 = <span class="built_in">list</span>(<span class="built_in">set</span>(a_quitted_1[a_quitted_1 != <span class="number">0</span>].index.tolist()))</span><br><span class="line">    nan_code_quitted.extend(nan_code_quitted_2)</span><br><span class="line">    nan_code_quitted = <span class="built_in">list</span>(<span class="built_in">set</span>(nan_code_quitted))</span><br><span class="line"></span><br><span class="line">    d_quitted_new = d_quitted.drop(nan_code_quitted, axis=<span class="number">1</span>)</span><br><span class="line">    a_quitted_new = a_quitted.drop(nan_code_quitted, axis=<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">for</span> cd2 <span class="keyword">in</span> nan_code_quitted:</span><br><span class="line">        quitted_codes_used.remove(cd2)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> m <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(cluster_copy)):</span><br><span class="line">        a = utility_series(timerange_n, returns_df, cluster_copy[m], n, date_all, eta)</span><br><span class="line">        d = utility_series(timerange_m, returns_df, cluster_copy[m], n, date_all, eta)</span><br><span class="line">        b1 = a.isna().<span class="built_in">sum</span>()</span><br><span class="line">        b2 = d.isna().<span class="built_in">sum</span>()</span><br><span class="line">        nan_code = b1[b1 != <span class="number">0</span>].index.tolist()</span><br><span class="line">        nan_code.extend(b2[b2 != <span class="number">0</span>].index.tolist())</span><br><span class="line">        nan_code = <span class="built_in">list</span>(<span class="built_in">set</span>(nan_code))</span><br><span class="line">        substitute_code_3 = np.array(quitted_codes_used)[</span><br><span class="line">            random.sample(<span class="built_in">list</span>(<span class="built_in">range</span>(<span class="number">0</span>, <span class="built_in">len</span>(quitted_codes_used))), <span class="built_in">len</span>(nan_code))]</span><br><span class="line">        new_a = a.drop(nan_code, axis=<span class="number">1</span>)</span><br><span class="line">        new_d = d.drop(nan_code, axis=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> _code_ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(nan_code)):</span><br><span class="line">            idx = cluster_copy[m].index(nan_code[_code_])</span><br><span class="line">            cluster_copy[m][idx] = substitute_code_3[_code_]</span><br><span class="line">            w_list[m][idx] = <span class="number">0.05</span></span><br><span class="line">            new_a[substitute_code_3[_code_]] = a_quitted_new[substitute_code_3[_code_]]</span><br><span class="line">            new_d[substitute_code_3[_code_]] = d_quitted_new[substitute_code_3[_code_]]</span><br><span class="line">        <span class="keyword">for</span> cd4 <span class="keyword">in</span> substitute_code_3:</span><br><span class="line">            quitted_codes_used.remove(cd4)</span><br><span class="line">        copy_ = w_list[m].copy()</span><br><span class="line">        <span class="keyword">for</span> w_ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(copy_)):</span><br><span class="line">            <span class="keyword">if</span> copy_[w_] != <span class="number">0.05</span>:</span><br><span class="line">                w_list[m][w_] = copy_[w_] / (np.<span class="built_in">sum</span>(copy_) - <span class="number">0.05</span> * <span class="built_in">len</span>(nan_code)) * (<span class="number">1</span> - <span class="number">0.05</span> * <span class="built_in">len</span>(nan_code))</span><br><span class="line"></span><br><span class="line">        u = np.dot(new_a, w_list[m])</span><br><span class="line">        w = ridge_regression(new_d, u, lam)  <span class="comment"># 无常数项的岭回归</span></span><br><span class="line"></span><br><span class="line">        f = <span class="number">0</span></span><br><span class="line">        m_list = []</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> w.tolist():</span><br><span class="line">            <span class="keyword">if</span> i[<span class="number">0</span>] &lt;= <span class="number">0</span>:</span><br><span class="line">                f += <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> f &gt;= <span class="built_in">len</span>(w_list[m]) * <span class="number">0.5</span>:</span><br><span class="line">            m_list.append(m)</span><br><span class="line">            weight_list_m = [k[<span class="number">0</span>] <span class="keyword">for</span> k <span class="keyword">in</span> w.tolist()]</span><br><span class="line">            _max_ = np.<span class="built_in">max</span>(weight_list_m)</span><br><span class="line">            <span class="keyword">if</span> _max_ &lt;= <span class="number">0</span>:</span><br><span class="line">                _min_ = <span class="number">0.05</span></span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                _min_ = np.<span class="built_in">min</span>([s <span class="keyword">for</span> s <span class="keyword">in</span> weight_list_m <span class="keyword">if</span> s &gt; <span class="number">0</span>]) + <span class="number">0.000001</span></span><br><span class="line">                <span class="keyword">if</span> _min_ &gt; <span class="number">0.050001</span> <span class="keyword">or</span> _min_ &lt; <span class="number">0.03</span>:</span><br><span class="line">                    _min_ = <span class="number">0.05</span></span><br><span class="line">            <span class="keyword">for</span> o <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(weight_list_m)):</span><br><span class="line">                <span class="keyword">if</span> weight_list_m[o] &lt;= <span class="number">0</span>:</span><br><span class="line">                    weight_list_m[o] = _min_</span><br><span class="line">            weight_list_m_copy = weight_list_m.copy()</span><br><span class="line">            <span class="keyword">for</span> o_ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(weight_list_m_copy)):</span><br><span class="line">                <span class="keyword">if</span> weight_list_m_copy[o_] != _min_:</span><br><span class="line">                    weight_list_m[o_] = weight_list_m_copy[o_]/(np.<span class="built_in">sum</span>(weight_list_m_copy)-f*_min_)*(<span class="number">1</span>-f*_min_)</span><br><span class="line">            w = np.mat(weight_list_m).T</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            <span class="comment"># 将系数标准化</span></span><br><span class="line">            w[w &lt; <span class="number">0</span>] = <span class="number">0</span>  <span class="comment"># 将出现的权重为负，强制设置为0</span></span><br><span class="line">        w_list[m] = w / np.<span class="built_in">sum</span>(w)  <span class="comment"># 对权重进行标准化</span></span><br><span class="line">        x = utility_series(timerange_n, returns_df, cluster_copy[m], n, date_all, eta).mean()</span><br><span class="line">        bound_dict[m] = upper_bound_probs(w, new_d, x, beta)[<span class="number">0</span>, <span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">    key_name = <span class="built_in">max</span>(bound_dict, key=bound_dict.get)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;  选择的臂:&#x27;</span>, key_name)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 得到所选臂的实际收益</span></span><br><span class="line">    backtesting = backtesting.append(</span><br><span class="line">        [&#123;<span class="string">&#x27;date&#x27;</span>: timerange_n[-<span class="number">1</span>], <span class="string">&#x27;Portfolio-capital&#x27;</span>: moneyPrt, <span class="string">&#x27;HS300-capital&#x27;</span>: moneyHS300&#125;], ignore_index=<span class="literal">True</span>)</span><br><span class="line">    code = cluster_copy[key_name]</span><br><span class="line">    amount = []</span><br><span class="line">    <span class="comment"># 获取最优portfolio的每个股票权重</span></span><br><span class="line">    weight = w_list[key_name]</span><br><span class="line">    <span class="comment"># 将资金按权重分给对应股票</span></span><br><span class="line">    div = moneyPrt * weight</span><br><span class="line">    <span class="comment"># 计算资金可购买的股票数量</span></span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(code)):</span><br><span class="line">        amount.append(<span class="built_in">int</span>(div[j][<span class="number">0</span>, <span class="number">0</span>] / nav_df_all[code[j]][timerange_n[-<span class="number">1</span>]]))</span><br><span class="line">    <span class="comment"># 买股票后的剩余资金</span></span><br><span class="line">    cash_funds = moneyPrt - (np.mat(amount) * (np.mat(nav_df_all.loc[timerange_n[-<span class="number">1</span>], code]).T))[<span class="number">0</span>, <span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 可以购买指数的数量</span></span><br><span class="line">    amount_index = <span class="built_in">int</span>(moneyHS300 / HS300.loc[timerange_n[-<span class="number">1</span>]])</span><br><span class="line">    <span class="comment"># 买指数后的剩余资金</span></span><br><span class="line">    cash_index = moneyHS300 - (HS300.loc[timerange_n[-<span class="number">1</span>]] * amount_index)</span><br><span class="line"></span><br><span class="line">    holding_time = date_all[t:t + delta]</span><br><span class="line">    <span class="keyword">for</span> d <span class="keyword">in</span> holding_time:</span><br><span class="line">        moneyPrt = (cash_funds + (np.mat(amount) * (np.mat(nav_df_all.loc[d, code].values).T)))[<span class="number">0</span>, <span class="number">0</span>]</span><br><span class="line">        moneyHS300 = cash_index + (amount_index * HS300.loc[d])</span><br><span class="line">        backtesting = backtesting.append([&#123;<span class="string">&#x27;date&#x27;</span>: d, <span class="string">&#x27;Portfolio-capital&#x27;</span>: moneyPrt, <span class="string">&#x27;HS300-capital&#x27;</span>: moneyHS300[<span class="number">0</span>]&#125;], ignore_index=<span class="literal">True</span>)</span><br><span class="line">        <span class="comment"># 计算后悔度</span></span><br><span class="line">        reward = []</span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(cluster_copy)):</span><br><span class="line">            w = w_list[j]</span><br><span class="line">            reward.append((np.dot(w.T, returns_df.loc[d, cluster_copy[j]]))[<span class="number">0</span>, <span class="number">0</span>])</span><br><span class="line">        regret += np.<span class="built_in">max</span>(reward) - reward[key_name]</span><br><span class="line">    <span class="keyword">return</span> regret, w_list, cluster_copy</span><br></pre></td></tr></table></figure>
 <p>这里需要事先定义岭回归函数、效用函数以及置信上界，由于篇幅问题，我将这些代码放入GitHub。</p>
 <p>对LinUCB这一部分有兴趣或者有疑问的读者可以通过首页微信或邮箱联系我。</p>
-<p>下面附上文章全部代码地址：<a href="https://github.com/Curtis-Lau/LinUCB-Based-on-GA">~点我~</a></p>
+<p>下面附上文章全部代码地址：<a href="https://github.com/Curtis-Lau/LinUCB-Based-on-GA">~戳我~</a></p>
 ]]></content>
       <categories>
         <category>算法</category>
@@ -123,6 +123,157 @@
         <tag>强化学习</tag>
         <tag>推荐算法</tag>
         <tag>遗传算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LinUCB Based on Decision Tree</title>
+    <url>/post/40deb9b1/</url>
+    <content><![CDATA[<p>本部分将前面写的LinUCB算法和决策树算法结合起来，以HS300成分股为股票池，首先定义一些因子，放入决策树将股票分组，每一组可以看成是一个portfolio，在时间$t$，将改时间所有的portfolio放入推荐系统，根据投资者的偏好、效用等特征选取投资组合推荐给投资者。</p>
+<span id="more"></span>
+<p>在诸如新闻推荐的各种机器学习应用中，已经很好地研究了多臂强盗方法。基于Bandit学习的线性置信上限算法是一种典型的强化学习方法，可用于在资产重新分配时重新平衡收益和风险，以使给定时间间隔内的累积利润最大化。</p>
+<p>大多数投资者可能对不同的资产有不一致的偏好，例如，他们可能在时间较长的资产上寻求安全的投资，而在一些资本比例较小的资产上碰运气。因此，需要设计奖励函数来平衡探索和开发。该研究包括开发一个两阶段模型，首先使用监督自适应决策树的方法来建立一个候选投资组合池。因此，基于LinUCB的Bandit学习被用来为具有不同风险偏好的投资者推荐最合适的投资组合。</p>
+<p>期望效用函数对于模型的参数估计至关重要。该模型已在HS300成份股上进行了检验。该模型在不同测试期的累计收益率可以远远超过基准指数。</p>
+<h2 id="决策树的设定"><a href="#决策树的设定" class="headerlink" title="决策树的设定"></a>决策树的设定</h2><h3 id="分类的标准"><a href="#分类的标准" class="headerlink" title="分类的标准"></a>分类的标准</h3><p>分裂标准应该是平均效用值，而不是纯度度量，如熵。最高平均效用意味着任何候选投资组合的最佳可实现效用。效用应该是回报和风险的综合衡量标准。LinUCB算法往往比风险厌恶效用的最初定义更乐观。为了保持平衡的衡量，既不太保守也不太乐观，我们采用风险中性策略，只考虑回报。</p>
+<h3 id="停止分裂的标准"><a href="#停止分裂的标准" class="headerlink" title="停止分裂的标准"></a>停止分裂的标准</h3><p>该标准用于防止过度训练。除了纯度要求，即基于节点的资产标签值的信息增益率应小于阈值$G^*$，投资组合应实现某种适当的效用。由于没有任何基准来建议最佳的可实现效用，我们在此提出，对于任何投资组合，候选人都应该有最小数量的最小资产和历史平均效用的下限。</p>
+<p>对于叶节点，如果被分类到该节点的资产的数量等于或小于其平均效用的最小公约数，则该节点被视为终端叶节点。历史平均效用$u_{lb}$可以根据经验确定。例如，在给定的时间段内，$u_{lb}$是低于平均效用的75%。</p>
+<h3 id="重叠分类的设定"><a href="#重叠分类的设定" class="headerlink" title="重叠分类的设定"></a>重叠分类的设定</h3><p>由于投资者在投资类似资产时可能会有一些投资标的的额重复，当资产分类前的投资组合效用已经达到令人满意的水平时，我们应该考虑修改二元分割。经济含义是，这组资产质量良好。由于该算法建议通过进一步分割可以实现更高的效用，因此我们执行分割，但会保留一些重叠。重叠的程度应该与实现的效用水平成比例。假设在给定的时间段内，效用$q(u)$的分位数衡量的是小于$u$的效用百分比，重叠水平可以通过$ξ(u)=1-q(u)$来控制。因此，在一般情况下分类，是$γ&gt;v$和$γ&lt;v$，而在这里，是$γ≥ξv$和$γ&lt;(1+ξ)v$。</p>
+<h3 id="股票的清洗"><a href="#股票的清洗" class="headerlink" title="股票的清洗"></a>股票的清洗</h3><p>对于所有的候选样本，即HS300股票池中的股票，首先根据他们过去在风险中性回报方面的表现被标上标签（例如，离散化平均收益率：过去收益率在整个股票池中股票的10%以内的股票被标上1；如果股票的回报率在10%-20%范围内，股票被标上2，以此类推）。</p>
+<p>训练后，股票被分组到决策树叶子节点。假设一组股票（portfolio）平均标签值在5以上，且信息增益率较低，这种节点的投资组合将会被修剪。</p>
+<p>保留的叶子节点意味着一个赢家股票组，该组股票的平均标签值较低，信息增益率较低。通过特定路径的最优决策序列可以通过从叶节点开始并向后滚动到决策树的根来找到。</p>
+<p>正如之前提到的，我们需要不同投资组合之间有一些重叠，这不仅解决了不同投资者之间选择股票的重叠，而且有助于控制交易成本。除了在每个决策树的非叶节点的每次分类中使用软阈值之外。对于Bandit算法，较多的候选组合不会对资产推荐造成不好的影响。</p>
+<p><strong><em>部分决策树结果如下</em></strong>：*</p>
+<p><img src="/post/40deb9b1/决策树.png" alt="决策树图"></p>
+<p><strong><em>分类得到的投资组合如下所示：</em></strong></p>
+<p><img src="/post/40deb9b1/cluster.jpg" alt="投资组合图"></p>
+<p><strong>如图A，该投资组合中股票的标签都大于等于5，所以这是一个输家组合，应当被剪枝。而E、F两组投资组合中，标签小于5的占绝大多数，说明这是一个好的投资组合，应当留下。</strong></p>
+<h2 id="Decision-Tree与LinUCB结合"><a href="#Decision-Tree与LinUCB结合" class="headerlink" title="Decision Tree与LinUCB结合"></a>Decision Tree与LinUCB结合</h2><p>LinUCB的设定前面文章已经写过，这里主要将决策树和LinUCB算法相结合，构建成推荐系统。</p>
+<p>该模型从基于树的算法开始，该算法用于根据各种经济指标和成份股的市场表现形成多个候选投资组合。Bandit在线计算了几个最小测试周期(MTP)，直到候选投资组合的表现不能超过市场平均水平。</p>
+<p>一个典型的评价是累积回报和累积后悔的发展。大多数基于MAB算法的一个关键问题是：错误的决定会带来多少遗憾？通过改进算法可以减少累积后悔吗？</p>
+<p>累积后悔的定义如下：</p>
+<script type="math/tex; mode=display">CumRer_T=\displaystyle\sum^T_{t=0}(r_{t,max}-r_{t,B})</script><p>其中，$r_{t,max}$表示在时间t可以获得的最佳回报，这可以在时间t之后观察到，$r_{t,B}$是Bandit算法所选择的投资组合的回报。$r_{t,max}$和$r_{t,B}$之间的差值必须是非负的。理想情况下，对于一个强化学习算法，当算法逐渐收敛时，$CumReg_T$的值应该在学习开始时相对较快地上升，然后逐渐减慢甚至停止上升。累积回报是对大多数在线投资策略的典型回溯测试，定义为：</p>
+<script type="math/tex; mode=display">R_T=\displaystyle\sum^T_{t=0}r_{t,B}</script><h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>在股市中，投资者最关心的指标是股票收益信息，它在很大程度上与股票的后续市场走势密切相关。因此，我们将返回属性作为样本集的标签属性。由于返回值是连续的，并且标签属性必须是离散的值，因此我们需要离散化返回属性。我们通过$R_{α,t}= \frac{P_{α,t}}{P_{α,t}}-1$来定义收益属性，其中$R_{α,t}$表示股票$\alpha$在$t$期的收盘价，我们将所有股票的平均收益值按逆序排序，并将其分为10个等级(如1，2，…，10)的标签属性。</p>
+<p>在模型结果的回测部分，我们构建投资组合，并根据n天(MTP)调整在线更新权重。为了检验本文构建的模型是否有效，是否能够抵御市场轮换风险，我们将模型的表现与两个基准组合进行了比较：沪深300指数，历史最优组合</p>
+<p>这里先附上结论图：</p>
+<p><img src="/post/40deb9b1/六个收益率图.jpg" alt="收益率图"></p>
+<p>从这六张图中可以看出，在绝大多数的时间内，我们的投资组合表现都较好，比较的基准是历史最优组合和HS300指数，其中历史最优组合是那过去一个投资时间最优的组合进行下一期的投资，在图中我们明显能看出，Bandit投资组合在很长一段时间内都是超越历史最优组合的，说明我们的算法组合能够在实际应用中考虑到投资者的效用而进行调整。</p>
+<p><img src="/post/40deb9b1/六个柱状图.jpg" alt="与投资期内的最优组合比较"></p>
+<p>这张图表现的是我们的组合算法与它投资同时间段内最优的组合的差距，我们可以看出在绝大多数时间内，我们的组合算法表现出来的结果与最优组合的结果相差不是特别大，这是因为我们的组合算法在考虑exploit的同时，也考虑了explore。</p>
+<p>本文具体代码详见Github主页：<a href="https://github.com/Curtis-Lau/LinUCB-Based-on-Decision-Tree">~戳我~</a></p>
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>强化学习</category>
+        <category>推荐算法</category>
+      </categories>
+      <tags>
+        <tag>机器学习</tag>
+        <tag>决策树</tag>
+        <tag>强化学习</tag>
+        <tag>推荐算法</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>推荐算法：LinUCB</title>
+    <url>/post/2973/</url>
+    <content><![CDATA[<p>推荐系统里面有两个经典问题：EE 问题和冷启动问题。前者涉及到平衡准确和多样，后者涉及到产品算法运营等一系列东西。Bandit 算法是一种简单的在线学习算法，常常用于尝试解决这两个问题，本文为你介绍基础的 Bandit 算法及一系列升级版，以及对推荐系统这两个经典问题的思考。</p>
+<p>Bandit算法是一类用来实现Exploitation-Exploration机制的策略。根据是否考虑上下文特征，Bandit算法分为Context-free Bandit和Contextual Bandit两大类，本文简单介绍Context-free Bandit，重点讲解Contextual Bandit。</p>
+<span id="more"></span>
+<h2 id="什么是-bandit-算法"><a href="#什么是-bandit-算法" class="headerlink" title="什么是 bandit 算法"></a>什么是 bandit 算法</h2><h3 id="为选择而生"><a href="#为选择而生" class="headerlink" title="为选择而生"></a>为选择而生</h3><p>我们会遇到很多选择的场景。上哪个大学，学什么专业，去哪家公司，中午吃什么，等等。这些事情，都让选择困难症的我们头很大。那么，有算法能够很好地对付这些问题吗？</p>
+<p>当然有！那就是 Bandit 算法！</p>
+<p>bandit 算法来源于历史悠久的赌博学，它要解决的问题是这样的：</p>
+<p>一个赌徒，要去摇老虎机，走进赌场一看，一排老虎机，外表一模一样，但是每个老虎机吐钱的概率可不一样，他不知道每个老虎机吐钱的概率分布是什么，那么每次该选择哪个老虎机可以做到最大化收益呢？这就是多臂赌博机问题 (Multi-armed bandit problem, K-armed bandit problem, MAB)。</p>
+<p>怎么解决这个问题呢？最好的办法是去试一试，不是盲目地试，而是有策略地快速试一试，这些策略就是 Bandit 算法。</p>
+<p>这个多臂问题，推荐系统里面很多问题都与他类似：</p>
+<p>假设一个用户对不同类别的内容感兴趣程度不同，那么我们的推荐系统初次见到这个用户时，怎么快速地知道他对每类内容的感兴趣程度？这就是推荐系统的冷启动。</p>
+<p>假设我们有若干广告库存，怎么知道该给每个用户展示哪个广告，从而获得最大的点击收益？是每次都挑效果最好那个么？那么新广告如何才有出头之日？</p>
+<p>我们的算法工程师又想出了新的模型，有没有比 A/B test 更快的方法知道它和旧模型相比谁更靠谱？</p>
+<p>如果只是推荐已知的用户感兴趣的物品，如何才能科学地冒险给他推荐一些新鲜的物品？</p>
+<p>这些问题本质上全都是关乎如何选择。只要是关于选择，都可以简化成一个多臂赌博机问题，毕竟小赌怡情嘛，人生何处不赌博。</p>
+<h3 id="bandit-算法与推荐系统"><a href="#bandit-算法与推荐系统" class="headerlink" title="bandit 算法与推荐系统"></a>bandit 算法与推荐系统</h3><p>在推荐系统领域里，有两个比较经典的问题常被人提起，<strong>一个是 EE 问题，另一个是用户冷启动问题</strong>。</p>
+<p><em>什么是 EE 问题？又叫exploit－explore问题</em></p>
+<p>exploit 就是：对用户比较确定的兴趣，当然要利用开采迎合，好比说已经挣到的钱，当然要花</p>
+<p>explore就是：光对着用户已知的兴趣使用，用户很快会腻，所以要不断探索用户新的兴趣才行，这就好比虽然有一点钱可以花了，但是还得继续搬砖挣钱，不然花完了就得喝西北风。</p>
+<p><em>用户冷启动问题</em>，也就是面对新用户时，如何能够通过若干次实验，猜出用户的大致兴趣。</p>
+<p>我想，屏幕前的你已经想到了，推荐系统冷启动可以用Bandit算法来解决一部分。</p>
+<p>这两个问题本质上都是如何选择用户感兴趣的主题进行推荐，比较符合Bandit算法背后的MAB问题。</p>
+<p>比如，用Bandit算法解决冷启动的大致思路如下：</p>
+<p>用分类或者Topic来表示每个用户兴趣，也就是 MAB 问题中的臂（Arm），我们可以通过几次试验，来刻画出新用户心目中对每个topic的感兴趣概率。</p>
+<p>这里，如果用户对某个 topic 感兴趣（提供了显式反馈或隐式反馈），就表示我们得到了收益，如果推给了它不感兴趣的 topic，推荐系统就表示很遗憾 (regret) 了。</p>
+<p>如此经历 “选择 - 观察 - 更新 - 选择” 的循环，理论上是越来越逼近用户真正感兴趣的 topic 的。</p>
+<h2 id="常用Context-free-Bandit-算法"><a href="#常用Context-free-Bandit-算法" class="headerlink" title="常用Context-free Bandit 算法"></a>常用Context-free Bandit 算法</h2><h3 id="Thompson-sampling-算法"><a href="#Thompson-sampling-算法" class="headerlink" title="Thompson sampling 算法"></a><strong>Thompson sampling 算法</strong></h3><p>thompson sampling算法简单实用，简单介绍一下它的原理，要点如下：假设每个臂是否产生收益，其背后有一个概率分布，产生收益的概率为$p$。我们不断地试验，去估计出一个置信度较高的 “概率$p$的概率分布” 就能近似解决这个问题了。</p>
+<p><strong>怎么能估计 “概率$p$的概率分布” 呢？</strong></p>
+<p> 答案是假设概率$p$的概率分布符合 $beta(wins, lose)$分布，它有两个参数: $wins, lose$。每个臂都维护一个 $beta$分布的参数。每次试验后，选中一个臂，摇一下，有收益则该臂的$wins$增加 1，否则该臂的$lose$增加 1。每次选择臂的方式是：用每个臂现有的$beta$分布产生一个随机数$b$，选择所有臂产生的随机数中最大的那个臂去摇。</p>
+<p>以上就是 Thompson 采样，用 python 实现就一行：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pymc</span><br><span class="line"></span><br><span class="line"><span class="comment">#wins 和 trials 是一个N维向量，N是赌博机的臂的个数，每个元素记录了</span></span><br><span class="line"></span><br><span class="line">choice = np.argmax(pymc.rbeta(<span class="number">1</span> + wins, <span class="number">1</span> + trials - wins))</span><br><span class="line"></span><br><span class="line">wins[choice] += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">trials += <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<h3 id="UCB-算法"><a href="#UCB-算法" class="headerlink" title="UCB 算法"></a><strong>UCB 算法</strong></h3><p>UCB 算法全称是 Upper Confidence Bound(置信区间上界)，它的算法步骤如下:</p>
+<p>初始化：先对每一个臂都试一遍，按照如下公式计算每个臂arm的分数，然后选择分数最大的臂作为选择：</p>
+<script type="math/tex; mode=display">arm_i=\hat{u_i}+\sqrt{\frac{2ln(n)}{n_i}}</script><p>其中$\hat{u_i}$是对$arm_i$期望收益的预估，$n$是总的选择次数，$n_i$是对$arm_i$的尝试次数，可以看到尝试越多，其预估值与置信上限的差值就越小，也就是越有置信度。</p>
+<p>这个公式反映一个特点：均值越大，标准差越小，被选中的概率会越来越大，同时哪些被选次数较少的臂也会得到试验机会。</p>
+<h3 id="Epsilon-Greedy-算法"><a href="#Epsilon-Greedy-算法" class="headerlink" title="Epsilon-Greedy 算法"></a><strong>Epsilon-Greedy 算法</strong></h3><p>这是一个朴素的 bandit 算法，有点类似模拟退火的思想：选一个 (0,1) 之间较小的数作为$epsilon$，每次以概率$epsilon$做一件事：所有臂中随机选一个，每次以概率$1-epsilon$选择截止到当前，平均收益最大的那个臂。</p>
+<p>是不是简单粗暴？$epsilon$的值可以控制对Exploit和Explore的偏好程度。越接近 0，越保守，只想花钱不想挣钱。</p>
+<h3 id="朴素-bandit-算法"><a href="#朴素-bandit-算法" class="headerlink" title="朴素 bandit 算法"></a><strong>朴素 bandit 算法</strong></h3><p>最朴素的 bandit 算法就是：先随机试若干次，计算每个臂的平均收益，一直选均值最大那个臂。这个算法是人类在实际中最常采用的，不可否认，它还是比随机乱猜要好。</p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>以上这五种算法都是常见的Context-free Bandit，这类算法没有充分利用推荐场景的上下文信息，为所有用户的选择展现商品的策略都是相同的，忽略了用户作为一个个活生生的个体本身的兴趣点、偏好、购买力等因素都是不同的，因而，同一个商品在不同的用户、不同的情景下接受程度是不同的。故在实际的推荐系统中，context-free的MAB算法基本都不会被采用。</p>
+<h2 id="Contextual-Bandit：LinUCB"><a href="#Contextual-Bandit：LinUCB" class="headerlink" title="Contextual Bandit：LinUCB"></a>Contextual Bandit：LinUCB</h2><p>与Context-free Bandit算法对应的是Contextual Bandit算法，顾名思义，这类算法在实现E&amp;E时考虑了上下文信息，因而更加适合实际的个性化推荐场景。</p>
+<h3 id="公式推导"><a href="#公式推导" class="headerlink" title="公式推导"></a>公式推导</h3><p>形式化地说，在时间步$t$，<strong>Contextual Bandit算法</strong>观察到当前用户$u_t$，以及每个可选择的商品（arm）$a$的特征向量$x_{t,a}$ 。$x_{t,a}$称之为上下文信息，它概况了用户和商品两方面的信息。算法根据之前观察到的反馈结果选择一个商品$a_t$展现给用户，并接受到用户的反馈收益$r_{t,a_t}$，$r_{t,a_t}$的期望取决于用户和商品两个方面。接着，算法根据新的观察$(x_{t,a},a_t,r_{t,a_t})$ 改进自身选择商品展现的策略，目标是使得整个过程中损失的收益最小，即regret值 $R_a(T)$最小， $R_a(T)$定义如下：</p>
+<script type="math/tex; mode=display">R_a(T)=E[\displaystyle \sum^T_{t=1}r^*_{t,a_t}]-E[\displaystyle \sum^T_{t=1}r_{t,a_t}]</script><p>其中，$T$为实验的总步数，$a^*_t$为在时间步$t$时有最大期望收益的arm，不能提前得知。</p>
+<p>LinUCB是处理Contextual Bandit的一个方法，在LinUCB中，设定每个arm的期望收益为该arm的特征向量(context)的线性函数，如下：</p>
+<script type="math/tex; mode=display">E[r_{t,a}|x_{t,a}]=x^T_{t,a}\theta _a</script><p>$\theta _a$是LinUCB模型的参数，维度为$d$。每个arm维护一个$\theta _a$</p>
+<p>对于单个arm $a$，以其前$m$个context向量为行向量组成的矩阵称为$D_a$，维度为$m\times d$。 前$m$个收益（reward）组成的向量称为$C_a$。采用平方损失函数：</p>
+<script type="math/tex; mode=display">loss=\displaystyle\sum^m_{i=1}(C_{a,i}-\displaystyle\sum^d_{j=0}\theta_{a,j}x_{a,j})^2+\lambda\displaystyle\sum^d_{j=0}\theta^2_{a,j}</script><p>其中$\lambda$为正则项系数。求损失函数的最小值，令损失函数对$\theta_a$求导，结果为：</p>
+<script type="math/tex; mode=display">\nabla_{\theta_a}loss=2D^a_T(C_a-D_a\theta_a)-2\lambda\theta_a</script><p>令$\nabla_{\theta_a}loss=0，\lambda=1$，可得：</p>
+<script type="math/tex; mode=display">\theta_a=(D^T_aD_a+I)^{-1}D^T_aC_a</script><p>上述参数结果是用最小二乘法推导得到。更进一步，从<strong>贝叶斯推断</strong>的角度出发，使用岭回归（ridge regression）方法，可以得到<script type="math/tex">\theta_a</script>的概率分布为高斯分布：</p>
+<p>$\theta_a$~$N((D^T_aD_a+I)^{-1}D^T_aC_a,(D^T_aD_a+I)^{-1})$</p>
+<p>为了符号简洁，令</p>
+<script type="math/tex; mode=display">\hat{\theta_a}=(D^T_aD_a+I)^{-1}D^T_aC_a</script><script type="math/tex; mode=display">A_a=D^T_aD_a+I</script><p>于是$\theta_a$的概率分布为$\theta_a$~$N(\hat{\theta_a},A^{-1}_a)$</p>
+<p>于是在第$t$次时可以得到：$x^T_{t,a}\theta_a$~$N(x^T_{t,a}\hat{\theta_a},x^T_{t,a}A^{-1}_ax_{t,a})$</p>
+<p>也就是：$r_{t,a}$~$N(x^T_{t,a}\hat{\theta_a},x^T_{t,a}A^{-1}_ax_{t,a})$</p>
+<p>根据高斯分布的性质，得到置信上界后就可以使用普通UCB规则了，即每次选择$x^T_{t,a}\hat{\theta_a}+\alpha\sqrt{x^T_{t,a}A^{-1}_ax_{t,a}}$最大的arm，$\alpha$为算法超参数。$\alpha$越大，置信区间越宽，也就是越偏向于探索；反之，$\alpha$越小越偏向于利用。</p>
+<p>需要注意的是，$A_a$与$D^T_aC_a$可以增量异步更新，于是标准流程如下：</p>
+<ul>
+<li>设定$\alpha$：</li>
+<li>For $t=1,2,3,…$<ul>
+<li>对所有的arm获得本次的context向量</li>
+<li>For all $a$<ul>
+<li>if $a$ is new<ul>
+<li>设置$A_a$为单位矩阵</li>
+<li>设置$b_a$为d维零向量</li>
+</ul>
+</li>
+<li>计算$\hat{\theta_a}=A^{-1}_ab_a$</li>
+<li>计算上界$p_{t,a}=x^T_{t,a}\hat{\theta_a}+\alpha\sqrt{x^T_{ta}A^T_ax_{t,a}}$</li>
+</ul>
+</li>
+<li>选择最大上界$p_{t,a}$对应的arm即$a_t$，并得到对应的$r_t$</li>
+<li>更新$A_{a_t}=A_{a_t}+x_{t,a_t}x^T_{t,a_t}$</li>
+<li>更新$b_{a_t}=b_{a_t}+r_tx_{t,a_t}$</li>
+</ul>
+</li>
+</ul>
+<p>从上述过程可以总结出LinUCB算法的两点优势：</p>
+<ul>
+<li>计算复杂度与arm的数量成线性关系</li>
+<li>支持动态变化的候选arm集合</li>
+</ul>
+<p>LinUCB与相对于传统的在线学习（online learning）模型相比，主要有2点区别：</p>
+<ul>
+<li><strong>每个arm学习一个独立的模型（Context只需要包含user-side和user-arm interaction的特征，不需要包含arm-side特征）；而传统在线学习为整个业务场景学习一个统一的模型</strong></li>
+<li><strong>传统的在线学习采用贪心策略，尽最大可能利用已学到的知识，没有explore机制（贪心策略通常情况下都不是最优的）；LinUCB则有较完善的E&amp;E机制，关注长期整体收益</strong></li>
+</ul>
+<h3 id="核心代码"><a href="#核心代码" class="headerlink" title="核心代码"></a>核心代码</h3><p>这里结合金融知识，将投资者的效用定义为风险收益偏好，即$Utility_\alpha=E[r_t]-\eta_\alpha\sigma^2$</p>
+<h4 id="效应的定义"><a href="#效应的定义" class="headerlink" title="效应的定义"></a>效应的定义</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">utility_oneday</span>(<span class="params">returns_df, starttime, endtime, code, eta</span>):</span></span><br><span class="line">    return_cluster = returns_df.loc[starttime:endtime, code]  <span class="comment"># 获取所有基金时间范围内收益</span></span><br><span class="line">    rf = <span class="number">0.015</span></span><br><span class="line">    <span class="comment"># len_date = len(return_cluster)</span></span><br><span class="line">    <span class="comment"># D = (np.power(1 + return_cluster.mean(), 250) - 1 - rf) / (return_cluster.std() * np.sqrt(250))</span></span><br><span class="line">    D = return_cluster.mean()-eta*return_cluster.var()  <span class="comment"># 收益减方差</span></span><br><span class="line">    <span class="keyword">return</span> D</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取时间范围内每日的向前推delta时间窗口（包括工作日与非工作日）的收益率月均和方差</span></span><br><span class="line"><span class="comment"># 目的是为了获取D</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">utility_series</span>(<span class="params">timerange, returns_df, code, n, eta</span>):</span></span><br><span class="line">    eve_utility = pd.DataFrame(index=timerange, columns=code, dtype=<span class="string">&quot;float&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> timerange:</span><br><span class="line">        preday = get_pre_day(i, n)</span><br><span class="line">        <span class="comment"># nav_df_m = get_fund_nav(code, str(preday)[:10].replace(&#x27;-&#x27;, &#x27;&#x27;), str(i)[:10].replace(&#x27;-&#x27;, &#x27;&#x27;))</span></span><br><span class="line">        <span class="comment"># returns_df_m = (nav_df_m - nav_df_m.shift(1)) / nav_df_m.shift(1)</span></span><br><span class="line">        eve_utility.loc[i, :] = utility_oneday(returns_df, preday, i, code, eta)</span><br><span class="line">    <span class="keyword">return</span> Standardize(eve_utility)</span><br></pre></td></tr></table></figure>
+<h4 id="岭回归权重定义"><a href="#岭回归权重定义" class="headerlink" title="岭回归权重定义"></a>岭回归权重定义</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ridge_regression</span>(<span class="params">xArr, yArr, lam=<span class="number">0.02</span></span>):</span></span><br><span class="line">    xMat = np.mat(xArr)</span><br><span class="line">    yMat = np.mat(yArr)</span><br><span class="line">    xTx = xMat.T*xMat</span><br><span class="line">    denom = xTx + np.eye(np.shape(xMat)[<span class="number">1</span>])*lam</span><br><span class="line">    <span class="keyword">if</span> np.linalg.det(denom) == <span class="number">0.0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;This matrix is singular, cannot do inverse !&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    weight = denom.I * (xMat.T*yMat)</span><br><span class="line">    <span class="keyword">return</span> weight</span><br></pre></td></tr></table></figure>
+<h4 id="置信上界定义"><a href="#置信上界定义" class="headerlink" title="置信上界定义"></a>置信上界定义</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">upper_bound_probs</span>(<span class="params">weight, D, x_new, beta=<span class="number">1</span></span>):</span></span><br><span class="line">    a_a = np.mat(np.dot(D.values.T, D.values)+np.eye(D.shape[<span class="number">1</span>]))</span><br><span class="line">    upper_bound_probs = np.dot(np.mat(x_new), weight) + beta*np.sqrt(np.dot(np.dot(x_new.values, a_a.I), x_new.values.T))</span><br><span class="line">    <span class="keyword">return</span> upper_bound_probs</span><br></pre></td></tr></table></figure>
+<p>因为使用的是HS300股票数据，前期需要对股票数据进行清洗，而且在LinUCB运行过程中，需要注意停牌或数据缺失较多的股票的处理，代码较为复杂，详情可见GinHub。</p>
+<p>本文全部代码详见GitHub：<a href="https://github.com/Curtis-Lau/LinUCB">~戳我~</a></p>
+]]></content>
+      <categories>
+        <category>算法</category>
+        <category>强化学习</category>
+        <category>推荐算法</category>
+      </categories>
+      <tags>
+        <tag>强化学习</tag>
+        <tag>推荐算法</tag>
       </tags>
   </entry>
   <entry>
@@ -247,7 +398,7 @@
 <li>全局搜索能力不强,很容易陷入局部最优解跳不出来；(可结合SA进行改进,因为SA在理率上是100%得到全局最优的,但搜索代价高)</li>
 </ul>
 <p>将遗传算法用于解决各种实际问题后，人们发现遣传算法也会由于各种原因过早向目标函数的局部最优解收敛，从而很难找到全局最优解。其中有些是由于目标函数的特性造成的，例如函数具有欺骗性，不满足构造模块假说等等；另外一些则是由于算法设计不当。为此，不断有人对遗传算法提出各种各样的改进方案。例如：针对原先的定长二进制编码方案；提出了动态编码、实数编码等改进方案；针对按比例的选择机制，提出了竞争选择、按续挑选等改进方案；针对原先的一点交<em>算子，提出了两点交</em>、多点交<em>、均匀交</em>等算子；针对原先遗传算法各控制参数在进化过程中不变的情况，提出了退化遗传算法、自适应遗传算法等。另外，针对不同问题还出现了分布式遗传算法、并行遗传算法等等。</p>
-<p><a href="https://github.com/Curtis-Lau/Genetic-Algorithm">本文全部代码详见GitHub</a></p>
+<p>本文全部代码详见GitHub：<a href="https://github.com/Curtis-Lau/Genetic-Algorithm">~戳我~</a></p>
 ]]></content>
       <categories>
         <category>算法</category>
@@ -257,415 +408,6 @@
       <tags>
         <tag>机器学习</tag>
         <tag>遗传算法</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>2020年研究生数学建模B题第4问</title>
-    <url>/post/6e109dad/</url>
-    <content><![CDATA[<h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a>研究背景</h2><p>辛烷值（RON）并不为大家所熟知，但几乎都知道汽油有90#，93#，97#这几种分类，而汽油的分类依据就是RON，RON越高汽油的纯度则会越高，燃烧的效果就越好。</p>
-<p>现有一石化企业催化裂化汽油精制脱硫装置己运行4年，并且记录了大量的数据，其汽油产品的平均RON损失为1.37个单位，而类似单位的最低RON损失仅为0.6个单位。因此，还有较大的优化空间。</p>
-<p>从该企业的数据中收集325个样本，根据这些样本数据建立预测汽油RON损失的数学模型，得出样本的优化操作条件，在硫含量不大于5ug/g的条件下，至少降低30%的汽油RON损失。</p>
-<h2 id="问题四"><a href="#问题四" class="headerlink" title="问题四"></a>问题四</h2><p>首先确定RON损失降幅最大、操作风险最小的目标函数，根据问题要求给出相应的约束条件，从而建立多目标非线性优化模型。然后将多目标化为单目标，并通过引入新变量去绝对值，将非线性优化变为线性优化。最后通过Python求解，使得325个样本中RON损失降幅大于30%的样本所对应的操作变量的优化操作方案。</p>
-<span id="more"></span>
-<p>通过问题分析可以知道问题四需要建立一个优化模型，目标是损失降幅最大。但考虑到工程问题的实际情况，每操作一次即每修改一次操作变量，都会造成一定的风险，因26此，我们应该同时令风险最小。那么我们要建立的就是对RON降损的多目标规划模型。</p>
-<h3 id="RON降损多目标优化模型的建立"><a href="#RON降损多目标优化模型的建立" class="headerlink" title="RON降损多目标优化模型的建立"></a>RON降损多目标优化模型的建立</h3><p>为了对该石化企业的催化裂化汽油精制脱硫装置的操作方案做出优化调整，使得在保证汽油产品脱硫效果（硫含量不大于5ug/g）的前提下，尽量令汽油RON降损达到30%以上，除考虑RON降损和操作风险最优之外，还要把硫含量、操作的可行性、操作变量的取值范围等其他因素考虑在内，只有将各因素综合衡量后，做出来的决策才会更加合理，这便是典型的多目标优化问题。</p>
-<p>结合问题的实质情况，可以忽略那些影响微小的因素，由此，我们构建了两个规划目标，RON降损最大和操作风险最小。</p>
-<ul>
-<li>规划目标一：</li>
-</ul>
-<p>以RON降损最大为目标，得到其相应的函数关系式。RON降损=原来的RON损失-调整后的RON损失，用$R_0$表示原料RON，$R_1$表示原来的产品RON，$y_1$表示调整后的产品RON，则RON降损可以表示为：</p>
-<script type="math/tex; mode=display">R_0-R_1-（R_0-y_1）=y_1-R_1</script><p>将式（1）带入上式得目标函数：</p>
-<script type="math/tex; mode=display">max a_1x_1+a_2x_2+..+a_{12}x_{12}+b_1-R_1</script><p>将其用连加符号简写为：</p>
-<script type="math/tex; mode=display">max\displaystyle\sum^{12}_{i=1}a_ix_i+b_1-R_1</script><ul>
-<li>规划目标二：</li>
-</ul>
-<p>以操作风险最小为目标，写出其相应的函数关系式。在实际工程操作过程中，不论是人手工调整还是用电脑或机器控制，每操作一次都有可能带来一定的风险，所以操作次数越少越好。用$s_i$表示附件一中$x_i$对应的原来的数据，$\Delta_i$表示操作变量每次的最大改变量，因为$x_1,x_2$不是操作变量，所以在操作次数的函数表达式中$i=3,4,…,12$。另外在操作中需要改变，但达不到$\Delta_i$的整数倍的，应该向上取整，因为不到$\Delta_i$也需要操作一次。则操作次数最小的的目标函数是：</p>
-<script type="math/tex; mode=display">max\displaystyle\sum^{12}_3[\frac{|x_i-s_i|}{\Delta}]</script><p>但是操作次数与变量有关，需要将包含变量的关系式进行向上取整。这在规划求解过程中很难实现，所以需要将取整符号去掉。而去掉取整符号后，该是表达的是相对修改幅度，同样的相对修改幅度越小，操作次数就会越少，操作风险也会越小。因此用相对修改幅度最小替代操作次数最少，从而达到操作风险最小的目标。所以，规划目标二的函数表达式为：</p>
-<script type="math/tex; mode=display">max\displaystyle\sum^{12}_3\frac{|x_i-s_i|}{\Delta}</script><ul>
-<li>约束条件一：</li>
-</ul>
-<p>首先既然进行优化，那么优化操作后的产品RON肯定要比原来的产品RON$R_1$大，否则优化没有意义。另外，产品RON是由原料RON转化而来，不是无中生有的，所以优化操作后的产品RON肯定不能大于原来的产品RON$R_1$，由此，我们得约束条件为：</p>
-<script type="math/tex; mode=display">R_1≤\displaystyle\sum^{12}_{i=1}a_ix_i+b_1≤R_0</script><ul>
-<li>约束条件二：</li>
-</ul>
-<p>题目要求在硫含量小于等于5ug/g的条件下，尽量令汽油RON降损达到30%以上，所以我们需要约束硫含量小于等于5ug/g，第三问中，我们求得硫含量y2的表达式，因此得约束条件二：</p>
-<script type="math/tex; mode=display">c_3x_3+c_{10}x_{10}+c_{14}x_{14}+b_2≤5</script><ul>
-<li>约束条件三：</li>
-</ul>
-<p>为了控制操作风险，我们设置每个操作变量最多可以40个调整幅度值，由此可得约束条件三：</p>
-<script type="math/tex; mode=display">\frac{|x_i-s_i|}{\Delta_i}≤40,i=3,4,.…,12</script><ul>
-<li>约束条件四：</li>
-</ul>
-<p>由于工艺的要求和操作经验的总结，每个操作变量都有其操作范围，记$x_i$对应的操作范围为$[l_i,u_i]$，而$x_1,x_2$不是操作变量，所以$i=3,4,.…,12$。对应的约束条件为：</p>
-<script type="math/tex; mode=display">l_i≤x_i≤u_i,i=3,4,…,12</script><p>另外，$x_1,x_2$等于其原始值，并不会发生变动。为了保持$x_i$的完整，我们依然将其当做变量放在模型中，但会给其约束：</p>
-<script type="math/tex; mode=display">x_i=s_i，i=1,2</script><p>将上述目标函数和约束条件经过整理、化简等，得出RON降损多目标非线性优化模型为：</p>
-<script type="math/tex; mode=display">max\displaystyle\sum^{12}_{i=1}a_ix_i+b_1-R_1</script><script type="math/tex; mode=display">min\displaystyle\sum^{12}_{i=3}\frac{|x_i-s_i|}{\Delta_i}</script><p><img src="/post/6e109dad/1.PNG" alt></p>
-<h3 id="RON降损多目标优化模型的求解"><a href="#RON降损多目标优化模型的求解" class="headerlink" title="RON降损多目标优化模型的求解"></a>RON降损多目标优化模型的求解</h3><p>RON降损多目标优化模型虽然已经建立，但是会发现在求解前有两个问题急需解决，第一个问题是双目标要化成单目标，另一个是要去绝对值，将非线性规划化为线性规划，然后再用Python进行求解。</p>
-<h4 id="多目标非线性优化模型化为单目标线性优化模型"><a href="#多目标非线性优化模型化为单目标线性优化模型" class="headerlink" title="多目标非线性优化模型化为单目标线性优化模型"></a>多目标非线性优化模型化为单目标线性优化模型</h4><p>多目标决策由于考虑的目标多，有些目标之间又彼此有矛盾，这就使得多目标问题比较复杂。但实际问题中，多目标问题应用范围很广，因而出现了许多解决此问题的方法。一般来说，其基本途径是，把求解多目标问题转化为求解单目标问题。其主要步骤是，先转化为单目标问题，然后利用单目标模型的方法，求出单目标模型的最优解，以此作为多目标问题的解。而本题就是采用这种方法来求解。</p>
-<p>多目标问题转化为单目标问题比较常见的方法有优选法、线性加权法、分层序列法等等，当在多个目标中有一个目标是明显重要的，就比较适合用优选法。这样可以在对主要目标进行优化的同时兼顾其余目标，那么问题化为求该主要目标的最优值，其他的目标化为约束条件，限制其在一定的范围内变动。</p>
-<p>这里RON降损是明显重要的主要目标，所以设将风险最小化为约束条件从而将多目标问题化成单目标问题。设操作风险对应的约束范围的最大值为T，则RON降损多目标非线性优化模型转化为以下单目标非线性模型：</p>
-<script type="math/tex; mode=display">max\displaystyle\sum^{12}_{i=1}a_ix_i+b_1-R_1</script><p><img src="/post/6e109dad/3.png" alt></p>
-<p>模型中还有绝对值，所以通过引入新变量去绝对值，将非线性优化变为线性优化。</p>
-<p>引入非负变量$x^1_i,x^2_i$，</p>
-<p><img src="/post/6e109dad/4.png" alt></p>
-<h4 id="RON降损优化的操作方案"><a href="#RON降损优化的操作方案" class="headerlink" title="RON降损优化的操作方案"></a>RON降损优化的操作方案</h4><p>针对RON降损多目标优化模型，用Python进行求解（见附录1），具体结果详见附件2，随机选取5个降损幅度高于30%的样本，列出其主要变量的操作方案，结果见表8：</p>
-<p><img src="/post/6e109dad/8.PNG" alt></p>
-<p>从降损幅度高于30%的样本中随机选取10个，画出其RON损失降幅图如9：</p>
-<p><img src="/post/6e109dad/9.jpg" alt="图9：部分降损幅度高于30%额样本RON损失降幅图"></p>
-<p>通过分析RON降损多目标优化模型的结果，发现这10个样本具有相同的进行调整的操作变量，从中选出变化较明显的两个变量$x_4,x_5$，分别画出这10个样本中他们的改变：</p>
-<p><img src="/post/6e109dad/10.jpg" alt></p>
-<p><img src="/post/6e109dad/11.JPG" alt></p>
-<p><img src="/post/6e109dad/12.JPG" alt></p>
-<p>———————问题3处理结束——————-</p>
-]]></content>
-      <categories>
-        <category>数学建模</category>
-        <category>2020十七届研究生B</category>
-      </categories>
-      <tags>
-        <tag>数学建模</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>2020年研究生数学建模B题第3问</title>
-    <url>/post/f074080e/</url>
-    <content><![CDATA[<h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a>研究背景</h2><p>辛烷值（RON）并不为大家所熟知，但几乎都知道汽油有90#，93#，97#这几种分类，而汽油的分类依据就是RON，RON越高汽油的纯度则会越高，燃烧的效果就越好。</p>
-<p>现有一石化企业催化裂化汽油精制脱硫装置己运行4年，并且记录了大量的数据，其汽油产品的平均RON损失为1.37个单位，而类似单位的最低RON损失仅为0.6个单位。因此，还有较大的优化空间。</p>
-<p>从该企业的数据中收集325个样本，根据这些样本数据建立预测汽油RON损失的数学模型，得出样本的优化操作条件，在硫含量不大于5ug/g的条件下，至少降低30%的汽油RON损失。</p>
-<h2 id="问题三"><a href="#问题三" class="headerlink" title="问题三"></a>问题三</h2><p>对于问题三，首先，以问题二筛选出的20个变量作为自变量，分别以产品RON和产品硫含量为因变量，建立多元线性回归模型，并进行t检验和F检验，从而构建出产品RON损失预测模型。然后以剩余变量继续做线性回归，并确保通过验证。为了进一步探索因变量和自变量之间更为精确的关系，建立BP神经网络模型进行拟合，并对其验证。</p>
-<span id="more"></span>
-<h3 id="多元线性回归模型"><a href="#多元线性回归模型" class="headerlink" title="多元线性回归模型"></a>多元线性回归模型</h3><p>在众多的统计模型中，多元回归模型是使用频率较高的模型。如果因变量和自变量的关系可以以线性形式展示出来，就可以建立多元线性回归模型来进行分析。多元线性回归模型利用已知数据集对我们所关心的因变量以及主要影响因素做拟合，然后通过得到的线性表达式可以分析影响变量的作用效果，从而用这些影响因素的变化来解释和预测因变量的变化趋势。</p>
-<p>普通线性回归模型</p>
-<p>预测变量$y$与变量$x_1,x_2,…,x_p$的普通线性回归模型为：</p>
-<script type="math/tex; mode=display">y=\omega_0+\omega_1x_1+...+\omega_px_p+\epsilon</script><p>其中$\omega_0$为回归常数，$\omega_j,j=1,2,…,p$表示回归系数，$y$为预测变量，$x_i,i=1,2,…,p$为解释变量，$\epsilon$为随机误项。并且存在假设$E(\epsilon)=0,Var(\epsilon)=1$，当$p=1$时，上述普通线性回归模型即为一元线性回归模型，当$p&gt;1$时即为多元线性回归模型。</p>
-<p>假设样本数据集$D=(x_1,y_1),(x_2,y_2),…,(x_n,y_n)$，其中$x_i=(x_{i1},x_{i2},…,x_{ip}),i=1,2,…,n$都是$p$维向量。多元回归模型可以记为：</p>
-<p><img src="/post/f074080e/0.png" alt></p>
-<p>则模型可写成$y=X\omega+\epsilon$</p>
-<p>通过最小二乘法求得$w_0,w_1,…,w_p$，即：$\hat{\beta}=(X^TX)^{-1}X^Ty$</p>
-<p>针对325个样本数据，利用问题二中筛选出的20个主要变量，产品辛烷值作为预测变量做最小二乘回归，经过$t$检验剔除表5中8个变量，分别为第3个，第4个，第6个，第9个，第11个，第12个，第14个，第16个，将剩下的12个变量按照在附件一中出现的顺序依次设为$x_1,x_2…,x_{12}$，结果见表6：</p>
-<p><img src="/post/f074080e/表6.png" alt></p>
-<p>由结果可知回归模型如下：</p>
-<p>$y_1=a_1x_1+a_2x_2+…+a_{12}x_{12}+b_1<br>=0.002x_1-0.102x_2+0.003x_3-0.005x_4+0.256x_5-0.003x_6-0.039x_7<br>-0.065x_8-0.168x_9+0.005x_{10}+0.0003x_{11}-0.011x_{12}+93.863$</p>
-<p>同理，上述条件不变，产品硫含量作为预测变量进行最小二乘回归，结果见表7：</p>
-<p><img src="/post/f074080e/表7.png" alt></p>
-<p>以产品硫含量为预测变量，经过$t$检验最终筛选出最优的三个变量，分别对应上述变量$x_2,x_6,x_9$，为了与变量下标相对应，它们的系数分别设为$c_2,c_6,C9$，则回归模型如下：</p>
-<script type="math/tex; mode=display">y_2=c_2x_2+c_6x_6+c_9x_9+b_2=-0.072x_2+0.002x_6+0.190x_9+7.774</script><h3 id="BP基于BP神经网络的RON损失预测模型的建立"><a href="#BP基于BP神经网络的RON损失预测模型的建立" class="headerlink" title="BP基于BP神经网络的RON损失预测模型的建立"></a>BP基于BP神经网络的RON损失预测模型的建立</h3><h4 id="神经网络的特征"><a href="#神经网络的特征" class="headerlink" title="神经网络的特征"></a>神经网络的特征</h4><p>神经网络是由简单自适应单元组成的广泛并行网络，其最基本的组成结构是神经元模型。它可以模拟生物神经系统对现实物体的反应。在生物神经网络中，每个神经元都与其他神经元相连，当某个神经元兴奋时，它就会像相连的神经元发送改变神经元电势的化学物质；如果这个电势超过一个“阈值”，神经元就会被激活，便会向其余神经元传递化学物质。</p>
-<p>神经网络的结构如下：</p>
-<ul>
-<li>结构：神经网络中的结构反映了神经网络中的神经元之间的连接关系。一般而言，BP神经网络一般由输入层、隐藏层、输出层组成，由它们构成的神经网络足以拟合绝大多数的数据模型；</li>
-<li>激励函数：激励函数主要用于引用非线性因素来解决由于线性模型的不足之处，针对本问题，我们在众多的激励函数中选择Relu函数作为我们的激励函数；</li>
-<li>学习规则：输入变量数据，然后经过Relu函数进入隐藏层，通过向后传递最终通过输出层输出结果，通过输出结果和真实值之间的误差来不断调整权重，形成最优的拟合模型。</li>
-</ul>
-<h4 id="神经网络算法"><a href="#神经网络算法" class="headerlink" title="神经网络算法"></a>神经网络算法</h4><p>在利用BP神经网络算法拟合数据时，没有必要知道算法的结构和参数。BP神经网络由两个部分组成：信息的正向传递和误差的反向传播。也就是说通过对样本不断反复的进行正向传递以及误差的反向传递就可以得出输入层与输出层之间的函数关系。<br>具体来说，信号由BP神经网络的输入层经过隐藏层向后传递，直到在输出层得出结果，接下来计算出输出值与真实值之间的拟合误差，根据拟合误差的原则来调整权重，进而得出最优模型。</p>
-<p>BP神经网络学习算法如下：</p>
-<p>（1）BP神经网络的初始化</p>
-<p>$X(x_1,x_2,…,x_n)$和$Y(y_1,y_2,…,y_m)$表示神经网络的输入变量和输出变量，输入层、隐藏层、输出层参数为$n,l,m$；$w_{ij}$为第$i$个输入层和第$j$个中间神经元之间的连接权值；$w_{jk}$表示第$j$个中间层和第$k$个输出层神经元之间的连接权值；$a$为中间层阈值；$b$为输出层阈值，然后为算法设定学习速率以及激励函数；</p>
-<p>（2）计算中间层的输出</p>
-<p>由输入变量，输入层和中间层之间的连接权值和中间层阀值，计算中间层输出$H$：</p>
-<script type="math/tex; mode=display">H_j=f(\displaystyle\sum^n_{i=1}x_i\omega_{ij}-a_j),j=1,2,...,l</script><p>其中，$f$表示中间激励函数。</p>
-<p>（3）计算输出层的输出</p>
-<p>由神经网络中间层的输出$H$，连接权值$w_{jk}$和阈值$b$，计算神经网络的预测值$\omicron$：</p>
-<script type="math/tex; mode=display">\omicron_k=f(\displaystyle\sum^l_{j=1}H_j\omega_{jk}-b_k),k=1,2,…,m</script><p>（4）计算拟合误差<br>比较神经网络的输出结果和训练集中的真实结果，计算拟合误差：</p>
-<script type="math/tex; mode=display">E=\frac{1}{m}\displaystyle\sum^m_{k=1}(y_k-\omicron_k)^2</script><p>将以上误差定义式展开到隐藏层，则有，</p>
-<script type="math/tex; mode=display">E=\frac{1}{m}\displaystyle\sum^m_{k=1}[f(\displaystyle\sum^l_{j-1}H_j\omega_{jk}-\omicron_k)]^2</script><p>然后展开到输入层，得到：</p>
-<script type="math/tex; mode=display">E=\frac{1}{m}\displaystyle\sum^m_{k=1}[f[\displaystyle\sum^l_{j=1}(\displaystyle\sum^n_{i=1}x_i\omega_{ij}-a_j)\omega_{jk}-b_k]-\omicron_k]^2</script><p>由以上式子可以看出，神经网络输入误差是wij，Wik的函数，可以通过降低误差$h$值来调整权重。</p>
-<script type="math/tex; mode=display">\Delta\omega_{jk}=-\eta\frac{\partial E}{\partial\omega_{jk}}</script><script type="math/tex; mode=display">\Delta\omega_{ij}=-\eta\frac{\partial E}{\partial\omega_{ij}}</script><p>上面两个式子中，负号代表梯度下降，常数$\eta\in(0,2)$表示比例系数，在训练中反映了学习速率。</p>
-<h4 id="基于BP神经网络的RON损失预测模型的验证"><a href="#基于BP神经网络的RON损失预测模型的验证" class="headerlink" title="基于BP神经网络的RON损失预测模型的验证"></a>基于BP神经网络的RON损失预测模型的验证</h4><p>为了验证模型的预测效果，将325个数据样本随机分为两部分，其中70%为训练集，30%为验证集，通过软件求解得出效果图如图8：</p>
-<p><img src="/post/f074080e/BP.jpg" alt="图8：BP神经网络效果图"></p>
-<p>从图中看出拟合以及验证的效果R均大于0.7，表明该模型具有一定的合理性。</p>
-<p>———————问题3处理结束——————-</p>
-]]></content>
-      <categories>
-        <category>数学建模</category>
-        <category>2020十七届研究生B</category>
-      </categories>
-      <tags>
-        <tag>数学建模</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>2020年研究生数学建模B题第2问</title>
-    <url>/post/87733898/</url>
-    <content><![CDATA[<h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a>研究背景</h2><p>辛烷值（RON）并不为大家所熟知，但几乎都知道汽油有90#，93#，97#这几种分类，而汽油的分类依据就是RON，RON越高汽油的纯度则会越高，燃烧的效果就越好。</p>
-<p>现有一石化企业催化裂化汽油精制脱硫装置己运行4年，并且记录了大量的数据，其汽油产品的平均RON损失为1.37个单位，而类似单位的最低RON损失仅为0.6个单位。因此，还有较大的优化空间。</p>
-<p>从该企业的数据中收集325个样本，根据这些样本数据建立预测汽油RON损失的数学模型，得出样本的优化操作条件，在硫含量不大于5ug/g的条件下，至少降低30%的汽油RON损失。</p>
-<h2 id="问题二"><a href="#问题二" class="headerlink" title="问题二"></a>问题二</h2><p>对于问题二，为了建立汽油RON损失预测模型和汽油RON降损模型，需要先筛选出影响模型的主要变量。为了能够获得更系统、更合理的变量集，借鉴集成学习，使用多种方法相结合构成集成方法，使得因为数据以及方法的单一所产生的问题最小化，从而提高效果。先用随机森林和最大信息系数法各筛选出来一部分变量，合并到一起，再用最优子集回归进行最终的筛选。</p>
-<p>为了建立汽油RON损失预测模型和汽油RON降损模型，需要先筛选出影响模型的主要变量。因此我们采用先降维再建模的思路，这也是工程技术类问题经常使用的。</p>
-<span id="more"></span>
-<h3 id="随机森林"><a href="#随机森林" class="headerlink" title="随机森林"></a>随机森林</h3><p>随机森林算法（Random Forest简称为RF）是由若干个相互独立的决策树集成，决策树是一类常见的机器学习算法。以二分类任务为例，通过给定的训练集通过剪枝过程学得一个决策树模型，然后用这个模型对未见过的新样例进行分类，但是决策树也许依然适用于某些噪声数据，从而导致模型对训练数据集产生过拟合现象。针对此问题，2001年布莱曼将随机子空间算法和Bagging算法相结合并首次提出了随机森林算法。<br>RF是由多棵独立的决策树组成的集成分类器。通过对算法的输出类别由每个决策树的输出类别共同决定，如果把每个决策树看作一个“专家”，则最终输出结果可以看做由这些“专家”打分后，以少数服从多数的方式决定。与单决策树模型相比，RF能更好地解决噪声问题以及数据中的异常值且更适合用来处理大规模数据。在本问题中，我们通过随机森林来得出变量重要分数，它主要用来反映训练样例集中变量对目标变量的影响，从而完成重要指标的筛选，同时达到降维的目的。</p>
-<p><img src="/post/87733898/表1.png" alt></p>
-<h4 id="随机森林的生成"><a href="#随机森林的生成" class="headerlink" title="随机森林的生成"></a>随机森林的生成</h4><p>随机森林在变量重要性判定方面有着独特的优势，使其广泛应用于变量、指标筛选以及影响因素权重确定等方面，因此本文在对影响汽油辛烷值的因素进行筛选时，主要采用随机森林方法对各个影响因素的重要性进行判定。随机森林的生成步骤如下。</p>
-<ol>
-<li>首先通过有放回随机抽样Bootstraping的方式从原始样例集$D$中抽取$N$个样例作13为一个训练集，共进行$k$轮抽取，得到$k$个训练集，记$D_1,D_2…,D_k$；</li>
-<li>根据1生成的$k$个样例集，依据构建决策树的算法及原理构建出$k$个相互独立的决策树；</li>
-<li>对根据2中生成的$k$个决策树进行集成构成随机森林集成分类器。针对分类问题，最终的分类结果是由所有决策树的投票来确定的，对于回归问题，使用所有决策树输出结果的均值来作为最终的输出结果；</li>
-<li>对于选取测试集来对模型进行验证，由于训练集生成过程中，采取的是有放回抽样，所以在$k$次生成训练集的过程中会存在从没有被抽到过的样本，因此用这些样本作为验证集验证模型是合理的。</li>
-</ol>
-<h4 id="基于随机森林的变量影响力测算及筛选"><a href="#基于随机森林的变量影响力测算及筛选" class="headerlink" title="基于随机森林的变量影响力测算及筛选"></a>基于随机森林的变量影响力测算及筛选</h4><p>利用随机森林方法对影响因素重要性进行判定时主要采用的衡量指标是变量重要性分数，随机森林计算变量重要性分数已经被广泛应用于各种数据分析以及数据挖掘任务中，本文在对汽油辛烷值影响因素重要性进行衡量时主要采用基于置换的变量重要性分数。利用该衡量指标对某个指标进行重要性判定的基本步骤为：</p>
-<ol>
-<li>首先依据Bootstraping的方式从原始样例集$D$中抽取$N$个样例作为一个训练集，没有抽取到的样本构成一组袋外数据，这样就构成了$k$个训练集$D_1,D_2,…,D_k$和$k$个袋外数据$D^{‘}_k$。</li>
-<li>用这$k$个训练集构成$k$个独立决策树$T_1,T_2,…,T_k$，对相应的袋外数据进行分类并计算对应分类准确率$R_I$，对每个训练集i的每个变量值j进行变换，并将变量变换之后的袋外数据用$D^{‘}_{ij}$表示，其中$i=1,2,…k,j=1,2,…354$，用决策树$T_i$对变化后的袋外数据$D^{‘}_{ij}$计算分类准确率$R_{ij}$，得出扰动前后的分类正确率。</li>
-<li>最后，计算这两次对袋外数据分类准确率的减少量即为该因素重要性的衡量依据，减少量越大，那么就证明对应变量的重要程度越强，反之则表明该变量不是很重要，可以删去。特征$X_j$的变量重要性分数记为$score_j$，求解公式为：$score_j=\frac{1}{k}\displaystyle\sum^k_{i=1}(R_i-R_{ij})$</li>
-<li>以相同的方式重复构建随机森林，然后求出变量的重要性分数，对变量的若干重要性均值求解得出最终的变量重要性分数，进行排序得出排名靠前的若干个影响因素。</li>
-</ol>
-<h4 id="最大信息系数法"><a href="#最大信息系数法" class="headerlink" title="最大信息系数法"></a>最大信息系数法</h4><p>最大信息系数法适用于在大数据集中探寻潜在的紧密相关的变量对，是一种确定两变量相关性的标准，且具备广泛性和公平性两种属性。因此本文同时用最大信息系数法与随机森林结合来进行因素的初步筛选。</p>
-<h5 id="最大信息系数法相关的信息论理论"><a href="#最大信息系数法相关的信息论理论" class="headerlink" title="最大信息系数法相关的信息论理论"></a>最大信息系数法相关的信息论理论</h5><p>最大信息系数是以信息论中的互信息为基础的，所以我们首先引入信息论中信息熵、条件熵和互信息量的概念及理论。<br>在如今数据驱动的时代，各行各业每天每时每刻都在产生无穷尽的数据，但是并不是数据越多越好或者如此多的数据可能有很多都不会给我们提供有用的信息。信息论作为衡量不确定性的一种方法，在机器学习算法中的特征选择方面，人们常常将不确定性较小的特征作为最优特征，但是问题在于如何将信息进行量化。基于此问题，Shannon于1948年提出信息熵的概念，将特征的不确定性用数值的形式反映出来，随着信息熵的应用的发展，基于信息熵在特征选择算法上也更具有适用性，本文把互信息最大信息系数法作为我们特征筛选的方法之一。</p>
-<ul>
-<li>信息熵</li>
-</ul>
-<p>信息熵将特征的不确定性用数值的形式反映出来，它是由Shannon于1948年提出来的。信息熵越大就表明特征的不确定性越大，反之。由于离散信源的明了和易懂性，以下所介绍的信息熵都是基于离散信源。</p>
-<p>信息熵问题在介绍决策树时已经讲过，这里就不讲了。</p>
-<ul>
-<li>最大信息系数法步骤</li>
-</ul>
-<p>特征选择的最大信息系数法：</p>
-<p>设已知有包含$k$个类别的样本数据集，且这$k$个类别中的每类有$m$个样本，每个样本点包含$N$个特征{$x^{(1)}_1,…,x^{(1)}_m,…,x^{(k)}_1,…,x^{(k)}_m$}，其中$x^{(k)}_i=(x_{i,1},…,x_{i.N})$表示类别$k$的第$i$个样本的特征组成的向量。</p>
-<p>此方法根据单独最优特征组合搜索法的观点，从$N$个特征中搜索出有效性判据值最大的前$n$个特征作为特征子集用于分类。把最大信息系数作为有效性判据，用于单独最优特征组合搜索法中做特征选择，具体步骤如下：</p>
-<p>步骤一：记对照样本为$y^{(1)},…,y^{(k)}$，它们是从每个类中分别随机选取的，其余样本即为训练样本；</p>
-<p>步骤二：将对照样本的第个特征与对应的$m-1$个训练样本的第$j$个特征一一对应，$k$个类别一共构成与特征$j$有关的$k(m-1)$个变量对；</p>
-<p>步骤三：求出步骤二中所得变量对的$MIC$，$N$个特征共得到个$N$个$MIC$；</p>
-<p>步骤四：最后，对全部特征的$MIC$值由大到小进行排序，选择$MIC$最大的前$n$个特征进入特征子集。</p>
-<h3 id="最优子集回归"><a href="#最优子集回归" class="headerlink" title="最优子集回归"></a>最优子集回归</h3><p>最优子集选择的思路很容易理解，就是把所有自变量的组合都拟合一遍，比较一下哪个模型更好，选出最优模型。<br>给定一组观测值$(x_{i1},x_{i2},….,x_{ip},yi(i=1,2,…,n))$，用最小二乘法建立回归方程，我们不清楚哪些自变量和因变量有显著的线性关系，列出全部的回归方程，$p$个因素有$2^p-1$个回归方程，那么这些方程哪个是最优的？根据一些比较标准我们就能得到最优的回归方程。以下有四个常用比较标准：</p>
-<ul>
-<li><p>剩余均方和：</p>
-<script type="math/tex; mode=display">\hat{\sigma}(p^{'})=\frac{SSE(p^{'})}{n-p^{'}-1}</script><p>$\hat{\sigma}(p^{‘})$较小的回归方程最优；</p>
-</li>
-<li><p>校正后的复决定系数：</p>
-<script type="math/tex; mode=display">R_{Adj}=R^2(p^{'})-\frac{p^{'}(1-R^2(p^{'}))}{n-p^{'}-1}</script><p>$R_{Adj}$较大的回归方程较优；</p>
-</li>
-<li><p>Akaike信息量：</p>
-<script type="math/tex; mode=display">AIC=nlnSSE(p^{'})n+2(p^{'}+1)</script><p>$AIC$较小的回归方程最优；</p>
-</li>
-</ul>
-<h3 id="基于随机森林和最大信息系数法的RON最优子集回归模型的建立"><a href="#基于随机森林和最大信息系数法的RON最优子集回归模型的建立" class="headerlink" title="基于随机森林和最大信息系数法的RON最优子集回归模型的建立"></a>基于随机森林和最大信息系数法的RON最优子集回归模型的建立</h3><p>对于筛查因素或特征选择问题，计算量会随着变量数量的增加呈指数增长，我们想要知道哪组变量在能够反映问题特征的同时计算量也最小，所以本质上，它是组合优化题。对于这个优化问题，每个方法只能给出一个近似解，而且因为子集搜索方法和评价标准是不同的，且不同方法解决方案的合理性会受到其本身局限性的影响。为了能够获得更系统、更合理的变量子集，借鉴集成学习，使用多种方法相结合构成集成方法，使得因头数据以及方法的单一所产生的问题最小化，从而提高效果。</p>
-<p>最优子集回归最大的优点在于它能够找出所有特征的最优组合，这也是上述两种法所欠缺的。当然，由于这种方法是从所有特征的任意组合中筛选出主要的变量，因此如果变量的数目非常大时，计算量也会呈指数式增长。因此我们先用随机森林和最大信息系数法各筛选出来一部分变量，合并到一起，此时变量个数已大大缩减，便可以用最优子集回归进行最终的筛选。</p>
-<p>基于随机森林和最大信息系数法的RON最优子集回归模型的技术路线如图5：</p>
-<p><img src="/post/87733898/技术路线图.jpg" alt="图5：技术路线图"></p>
-<h3 id="基于随机森林和最大信息系数法的RON最优子集回归模型的求解"><a href="#基于随机森林和最大信息系数法的RON最优子集回归模型的求解" class="headerlink" title="基于随机森林和最大信息系数法的RON最优子集回归模型的求解"></a>基于随机森林和最大信息系数法的RON最优子集回归模型的求解</h3><p>通过构建基于随机森林的影响因素变量重要性求解模型，用Python求得各个影响因素的重要性分数的均值。给出根据367个变量的重要性分数筛选出的较高的前二十个变量的信息，结果见图6：</p>
-<p><img src="/post/87733898/重要性分值图.jpg" alt="图6：重要性分值图"></p>
-<p>图中，可以看出硫含量的重要性分数最高，说明在影响产品辛烷值的所有因素中，其发挥的作用做大，其次是饱和氢和S-Z0RB.TC-2801，除图中所示的影响因素的重要性分数以外，其余影响因素的重要性分数由于都很小几乎接近于0，因此没有给出。因此为了简化辛烷值损失预测模型输入，本文在进行产品辛烷值影响因素时只选取影响力相对较大的因素，不考虑作用很小几乎可以忽略不计的影响因素。</p>
-<p>同理，用最大信息系数法对367个变量进行筛选排序，用Python求解后，也选出前20个，因此通过随机森林算法和最大信息系数法筛选后的辛烷值影响因素结果见表3：</p>
-<p><img src="/post/87733898/表3.png" alt></p>
-<p>结果发现两种方法算出的前20个变量有8个是重合的，因此合并后共32个变量，见表4:</p>
-<p><img src="/post/87733898/表4.png" alt></p>
-<p>对以上32个变量的数据进行最优子集回归，用R语言求解最优子集回归模型，将4种比较标准都运行过后，发现结果几乎一致，其中以校正后的复决定系数为比较标准的结果更趋于稳定，得到图7：</p>
-<p><img src="/post/87733898/最优子集回归.jpg" alt="图7：最优子集回归拟合图"></p>
-<p>由图可知，当指标个数在20至24时回归效果达到稳定最优，而当指标个数达到25之后回归效果又开始下降，因此我们应该选择20-24个变量，鉴于指标个数越小越好，本文取20个指标。用R语言求出变量个数为20个时的最优子集见表5：</p>
-<p><img src="/post/87733898/表5.png" alt></p>
-<p>为了建立汽油RON损失模型，从而得到相应的汽油RON损失预测模型和汽油 RON降损模型，我们首先需要降维筛选出主要变量。为此，本文用随机森林、互信息法和最优子集回归相结合所构成的集成方法，通过Python和R语言进行求解，最终筛选出20个主要变量，这20个主要变量如表5所示。</p>
-<p>———————问题2处理结束——————-</p>
-]]></content>
-      <categories>
-        <category>数学建模</category>
-        <category>2020十七届研究生B</category>
-      </categories>
-      <tags>
-        <tag>数学建模</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>2020年研究生数学建模B题第1问</title>
-    <url>/post/aff86645/</url>
-    <content><![CDATA[<h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a>研究背景</h2><p>辛烷值（RON）并不为大家所熟知，但几乎都知道汽油有90#，93#，97#这几种分类，而汽油的分类依据就是RON，RON越高汽油的纯度则会越高，燃烧的效果就越好。</p>
-<p>现有一石化企业催化裂化汽油精制脱硫装置己运行4年，并且记录了大量的数据，其汽油产品的平均RON损失为1.37个单位，而类似单位的最低RON损失仅为0.6个单位。因此，还有较大的优化空间。</p>
-<p>从该企业的数据中收集325个样本，根据这些样本数据建立预测汽油RON损失的数学模型，得出样本的优化操作条件，在硫含量不大于5ug/g的条件下，至少降低30%的汽油RON损失。</p>
-<h2 id="问题一"><a href="#问题一" class="headerlink" title="问题一"></a>问题一</h2><p>对于问题一，首先对近4年325个样本的工业数据进行分析，清楚其数据特点。为了更有效地进行数据预处理，在原本“样本确定方法”的基础上又加入箱型图法，从而构成新的数据整理方法。接下来对285号和313号数据样本再进行预处理，将处理结果对应其样本号，按操作位点名称相应加到附件一中，以供后续问题使用。</p>
-<span id="more"></span>
-<h3 id="数据采集"><a href="#数据采集" class="headerlink" title="数据采集"></a>数据采集</h3><p>本文采用的是中石化高桥石化从2017年4月至2020年5月近4年的数据，采集了催化裂化汽油精制脱硫装置的354个操作位点，以及7个原料性质、2个待生吸附剂性质、2个再生吸附剂性质、2个产品性质等变量。具体见表1：</p>
-<p><img src="/post/aff86645/图1.png" alt></p>
-<h3 id="数据预处理"><a href="#数据预处理" class="headerlink" title="数据预处理"></a>数据预处理</h3><p>本文的数据比较常见的情况有：只含有部分时间点的时间残缺值、样本数据有空值、需要剔除的异常值。基于这些问题，主要的操作是对于难以弥补、纠正的数据直接删除，空值用其前后两个小时数据的平均值替代，可以弥补的将原数据剔除后其前后两个小时数据的平均值替代。本文选的数据整理方法如图2：</p>
-<p><img src="/post/aff86645/箱型图.jpg" alt="图2：箱型图"></p>
-<p><img src="/post/aff86645/样本确定方法.jpg" alt="图3：样本确定方法"></p>
-<h4 id="箱型图"><a href="#箱型图" class="headerlink" title="箱型图"></a>箱型图</h4><p>其中箱型图又称盒式图，是美国杰出学家John Tukey于1977年发明。原始数据的分布特征不仅可以通过箱线图不仅可以通过箱型图反映出来，而且多组数据的分布特征间的比较也能够通过它反映出来。通过绘制箱型图，不但能够看出数据的离散程度还能直接看出数据点的异常值，如图3：绘制箱型图的具体步骤如下：</p>
-<ol>
-<li>将数据由小到大排序，找出中位数，上四分位数和下四分位数以及数据的上边缘和下边缘；</li>
-<li>然后连接上四分位数和下四分位数构成箱体；</li>
-<li>将上下边缘与箱体相连，中位数位于箱体中间位置。</li>
-</ol>
-<p>在这里我们记上四分位数为Q3，下四分位数Q1，上边缘为Q3+1.51QR，下边缘为Qi-1.5IQR，其中上边缘和下边缘又称为异常值截断点，处于上边缘或下边缘之外的点就为数据的异常点。</p>
-<h4 id="拉依达准则"><a href="#拉依达准则" class="headerlink" title="拉依达准则"></a>拉依达准则</h4><p>在处理数据时，有时为了提高数据的准确性，需要对某些异常值进行剔除，在这种情况下，可以考虑拉依达准则，也称$3\sigma$准则。<br>假设一组测量变量只包含随机误差，设这些变量分别为$x_1,x_2,…,x_n$，对它们求均值记为$x$，计算出剩余误差$v_i=x_i-x,i=1,2…,n$，利用贝塞尔公式算出标准误差$\sigma$，若某个测量值$x_i$的剩余误差$v_i$，满足$|v_i|=|x_i-x|&gt;3\sigma$，就认为此剩余误差属于粗大误差，应该剔除。贝塞尔公式如下：</p>
-<script type="math/tex; mode=display">\sigma=[\frac{1}{n-1}\displaystyle\sum^n_{i=1}V^2_i]^{1/2}=[[\displaystyle\sum^n_{i=1}x^2_i-{(\displaystyle\sum^n_{i=1}x_i)^2}/n]/(n-1)]^{1/2}</script><h3 id="数据整理结果"><a href="#数据整理结果" class="headerlink" title="数据整理结果"></a>数据整理结果</h3><p>利用以上数据整理方法，用Python软件来预处理285号样本数据和313号样本数据，结果显示，285号样本数据不存在残缺值、空值和异常值，而313号样本数据共有42个变量存在异常值。其中部分箱型图如图4：</p>
-<p><img src="/post/aff86645/部分箱型图.png" alt="图4：部分箱型图"></p>
-<p>这42个存在异常值的操作位点名称见表2：<br>对于这些异常值，我们用其前后两个小时数据的平均值进行替代处理。最后将这些处理过的数据，对应其样本号，按操作位点名称相应加到附件一中，以供后续问题使用。</p>
-<p>———————问题1处理结束——————-</p>
-]]></content>
-      <categories>
-        <category>数学建模</category>
-        <category>2020十七届研究生B</category>
-      </categories>
-      <tags>
-        <tag>数学建模</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>LinUCB Based on Decision Tree</title>
-    <url>/post/40deb9b1/</url>
-    <content><![CDATA[<p>本部分将前面写的LinUCB算法和决策树算法结合起来，以HS300成分股为股票池，首先定义一些因子，放入决策树将股票分组，每一组可以看成是一个portfolio，在时间$t$，将改时间所有的portfolio放入推荐系统，根据投资者的偏好、效用等特征选取投资组合推荐给投资者。</p>
-<span id="more"></span>
-<p>在诸如新闻推荐的各种机器学习应用中，已经很好地研究了多臂强盗方法。基于Bandit学习的线性置信上限算法是一种典型的强化学习方法，可用于在资产重新分配时重新平衡收益和风险，以使给定时间间隔内的累积利润最大化。</p>
-<p>大多数投资者可能对不同的资产有不一致的偏好，例如，他们可能在时间较长的资产上寻求安全的投资，而在一些资本比例较小的资产上碰运气。因此，需要设计奖励函数来平衡探索和开发。该研究包括开发一个两阶段模型，首先使用监督自适应决策树的方法来建立一个候选投资组合池。因此，基于LinUCB的Bandit学习被用来为具有不同风险偏好的投资者推荐最合适的投资组合。</p>
-<p>期望效用函数对于模型的参数估计至关重要。该模型已在HS300成份股上进行了检验。该模型在不同测试期的累计收益率可以远远超过基准指数。</p>
-<h2 id="决策树的设定"><a href="#决策树的设定" class="headerlink" title="决策树的设定"></a>决策树的设定</h2><h3 id="分类的标准"><a href="#分类的标准" class="headerlink" title="分类的标准"></a>分类的标准</h3><p>分裂标准应该是平均效用值，而不是纯度度量，如熵。最高平均效用意味着任何候选投资组合的最佳可实现效用。效用应该是回报和风险的综合衡量标准。LinUCB算法往往比风险厌恶效用的最初定义更乐观。为了保持平衡的衡量，既不太保守也不太乐观，我们采用风险中性策略，只考虑回报。</p>
-<h3 id="停止分裂的标准"><a href="#停止分裂的标准" class="headerlink" title="停止分裂的标准"></a>停止分裂的标准</h3><p>该标准用于防止过度训练。除了纯度要求，即基于节点的资产标签值的信息增益率应小于阈值$G^*$，投资组合应实现某种适当的效用。由于没有任何基准来建议最佳的可实现效用，我们在此提出，对于任何投资组合，候选人都应该有最小数量的最小资产和历史平均效用的下限。</p>
-<p>对于叶节点，如果被分类到该节点的资产的数量等于或小于其平均效用的最小公约数，则该节点被视为终端叶节点。历史平均效用$u_{lb}$可以根据经验确定。例如，在给定的时间段内，$u_{lb}$是低于平均效用的75%。</p>
-<h3 id="重叠分类的设定"><a href="#重叠分类的设定" class="headerlink" title="重叠分类的设定"></a>重叠分类的设定</h3><p>由于投资者在投资类似资产时可能会有一些投资标的的额重复，当资产分类前的投资组合效用已经达到令人满意的水平时，我们应该考虑修改二元分割。经济含义是，这组资产质量良好。由于该算法建议通过进一步分割可以实现更高的效用，因此我们执行分割，但会保留一些重叠。重叠的程度应该与实现的效用水平成比例。假设在给定的时间段内，效用$q(u)$的分位数衡量的是小于$u$的效用百分比，重叠水平可以通过$ξ(u)=1-q(u)$来控制。因此，在一般情况下分类，是$γ&gt;v$和$γ&lt;v$，而在这里，是$γ≥ξv$和$γ&lt;(1+ξ)v$。</p>
-<h3 id="股票的清洗"><a href="#股票的清洗" class="headerlink" title="股票的清洗"></a>股票的清洗</h3><p>对于所有的候选样本，即HS300股票池中的股票，首先根据他们过去在风险中性回报方面的表现被标上标签（例如，离散化平均收益率：过去收益率在整个股票池中股票的10%以内的股票被标上1；如果股票的回报率在10%-20%范围内，股票被标上2，以此类推）。</p>
-<p>训练后，股票被分组到决策树叶子节点。假设一组股票（portfolio）平均标签值在5以上，且信息增益率较低，这种节点的投资组合将会被修剪。</p>
-<p>保留的叶子节点意味着一个赢家股票组，该组股票的平均标签值较低，信息增益率较低。通过特定路径的最优决策序列可以通过从叶节点开始并向后滚动到决策树的根来找到。</p>
-<p>正如之前提到的，我们需要不同投资组合之间有一些重叠，这不仅解决了不同投资者之间选择股票的重叠，而且有助于控制交易成本。除了在每个决策树的非叶节点的每次分类中使用软阈值之外。对于Bandit算法，较多的候选组合不会对资产推荐造成不好的影响。</p>
-<p><strong><em>部分决策树结果如下</em></strong>：*</p>
-<p><img src="/post/40deb9b1/决策树.png" alt="决策树图"></p>
-<p><strong><em>分类得到的投资组合如下所示：</em></strong></p>
-<p><img src="/post/40deb9b1/cluster.jpg" alt="投资组合图"></p>
-<p><strong>如图A，该投资组合中股票的标签都大于等于5，所以这是一个输家组合，应当被剪枝。而E、F两组投资组合中，标签小于5的占绝大多数，说明这是一个好的投资组合，应当留下。</strong></p>
-<h2 id="Decision-Tree与LinUCB结合"><a href="#Decision-Tree与LinUCB结合" class="headerlink" title="Decision Tree与LinUCB结合"></a>Decision Tree与LinUCB结合</h2><p>LinUCB的设定前面文章已经写过，这里主要将决策树和LinUCB算法相结合，构建成推荐系统。</p>
-<p>该模型从基于树的算法开始，该算法用于根据各种经济指标和成份股的市场表现形成多个候选投资组合。Bandit在线计算了几个最小测试周期(MTP)，直到候选投资组合的表现不能超过市场平均水平。</p>
-<p>一个典型的评价是累积回报和累积后悔的发展。大多数基于MAB算法的一个关键问题是：错误的决定会带来多少遗憾？通过改进算法可以减少累积后悔吗？</p>
-<p>累积后悔的定义如下：</p>
-<script type="math/tex; mode=display">CumRer_T=\displaystyle\sum^T_{t=0}(r_{t,max}-r_{t,B})</script><p>其中，$r_{t,max}$表示在时间t可以获得的最佳回报，这可以在时间t之后观察到，$r_{t,B}$是Bandit算法所选择的投资组合的回报。$r_{t,max}$和$r_{t,B}$之间的差值必须是非负的。理想情况下，对于一个强化学习算法，当算法逐渐收敛时，$CumReg_T$的值应该在学习开始时相对较快地上升，然后逐渐减慢甚至停止上升。累积回报是对大多数在线投资策略的典型回溯测试，定义为：</p>
-<script type="math/tex; mode=display">R_T=\displaystyle\sum^T_{t=0}r_{t,B}</script><h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>在股市中，投资者最关心的指标是股票收益信息，它在很大程度上与股票的后续市场走势密切相关。因此，我们将返回属性作为样本集的标签属性。由于返回值是连续的，并且标签属性必须是离散的值，因此我们需要离散化返回属性。我们通过$R_{α,t}= \frac{P_{α,t}}{P_{α,t}}-1$来定义收益属性，其中$R_{α,t}$表示股票$\alpha$在$t$期的收盘价，我们将所有股票的平均收益值按逆序排序，并将其分为10个等级(如1，2，…，10)的标签属性。</p>
-<p>在模型结果的回测部分，我们构建投资组合，并根据n天(MTP)调整在线更新权重。为了检验本文构建的模型是否有效，是否能够抵御市场轮换风险，我们将模型的表现与两个基准组合进行了比较：沪深300指数，历史最优组合</p>
-<p>这里先附上结论图：</p>
-<p><img src="/post/40deb9b1/六个收益率图.jpg" alt="收益率图"></p>
-<p>从这六张图中可以看出，在绝大多数的时间内，我们的投资组合表现都较好，比较的基准是历史最优组合和HS300指数，其中历史最优组合是那过去一个投资时间最优的组合进行下一期的投资，在图中我们明显能看出，Bandit投资组合在很长一段时间内都是超越历史最优组合的，说明我们的算法组合能够在实际应用中考虑到投资者的效用而进行调整。</p>
-<p><img src="/post/40deb9b1/六个柱状图.jpg" alt="与投资期内的最优组合比较"></p>
-<p>这张图表现的是我们的组合算法与它投资同时间段内最优的组合的差距，我们可以看出在绝大多数时间内，我们的组合算法表现出来的结果与最优组合的结果相差不是特别大，这是因为我们的组合算法在考虑exploit的同时，也考虑了explore。</p>
-<p>本文具体代码详见Github主页：<a href="https://github.com/Curtis-Lau/LinUCB-Based-on-Decision-Tree">点击这里跳转</a></p>
-]]></content>
-      <categories>
-        <category>算法</category>
-        <category>强化学习</category>
-        <category>推荐算法</category>
-      </categories>
-      <tags>
-        <tag>机器学习</tag>
-        <tag>决策树</tag>
-        <tag>强化学习</tag>
-        <tag>推荐算法</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>慧博研投爬虫</title>
-    <url>/post/55099ab/</url>
-    <content><![CDATA[<p>本文爬取的是慧博研投(www.hibor.com.cn)研报栏目的数据，主要包含研报的发布时间、标题、摘要的信息，然后将数据存于本地MongoDB数据库中。</p>
-<span id="more"></span>
-<h2 id="第一部分：导入需要的库"><a href="#第一部分：导入需要的库" class="headerlink" title="第一部分：导入需要的库"></a>第一部分：导入需要的库</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> pymongo</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> schedule</span><br></pre></td></tr></table></figure>
-<h2 id="第二部分：设置MongoDB"><a href="#第二部分：设置MongoDB" class="headerlink" title="第二部分：设置MongoDB"></a>第二部分：设置MongoDB</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">client = pymongo.MongoClient(host=<span class="string">&#x27;localhost&#x27;</span>,port=<span class="number">27017</span>)</span><br><span class="line">db = client[<span class="string">&#x27;hibor_report&#x27;</span>]</span><br><span class="line">collection_report = db[<span class="string">&quot;report_data&quot;</span>]</span><br><span class="line">report = &#123;&#125;</span><br></pre></td></tr></table></figure>
-<h2 id="第三部分：编写函数"><a href="#第三部分：编写函数" class="headerlink" title="第三部分：编写函数"></a>第三部分：编写函数</h2><h3 id="获取研报时间、标题以及具体网址"><a href="#获取研报时间、标题以及具体网址" class="headerlink" title="获取研报时间、标题以及具体网址"></a>获取研报时间、标题以及具体网址</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">spider_detail_urls</span>(<span class="params">url</span>):</span></span><br><span class="line">    title_list = []</span><br><span class="line">    detail_url_list = []</span><br><span class="line">    <span class="built_in">id</span> = []</span><br><span class="line">    headers = &#123;<span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 UBrowser/6.2.4098.3 Safari/537.36&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Host&#x27;</span>: <span class="string">&#x27;www.hibor.com.cn&#x27;</span>&#125;</span><br><span class="line">    response = requests.get(url, headers=headers)</span><br><span class="line">    text = response.content.decode()</span><br><span class="line">    bs = BeautifulSoup(text,<span class="string">&quot;html5lib&quot;</span>)</span><br><span class="line">    div = bs.find(<span class="string">&quot;div&quot;</span>,class_=<span class="string">&quot;leftn2&quot;</span>)</span><br><span class="line">    table = div.find(<span class="string">&quot;table&quot;</span>,class_=<span class="string">&quot;tab_ltnew&quot;</span>)</span><br><span class="line">    trs = table.find_all(<span class="string">&quot;tr&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> tr <span class="keyword">in</span> trs[::<span class="number">4</span>]:</span><br><span class="line">        span = tr.find(<span class="string">&quot;span&quot;</span>,class_=<span class="string">&quot;tab_lta&quot;</span>)</span><br><span class="line">        title =  <span class="built_in">list</span>(span.stripped_strings)[<span class="number">0</span>]</span><br><span class="line">        title_list.append(title)</span><br><span class="line">        _url = span.find(<span class="string">&quot;a&quot;</span>).get(<span class="string">&quot;href&quot;</span>)</span><br><span class="line">        detail_url = <span class="string">&quot;http://www.hibor.com.cn&quot;</span>+_url</span><br><span class="line">        detail_url_list.append(detail_url)</span><br><span class="line">        _<span class="built_in">id</span> = _url.split(<span class="string">&quot;_&quot;</span>)[-<span class="number">1</span>].split(<span class="string">&quot;.&quot;</span>)[<span class="number">0</span>]</span><br><span class="line">        <span class="built_in">id</span>.append(_<span class="built_in">id</span>)</span><br><span class="line">    report[<span class="string">&quot;id&quot;</span>] = <span class="built_in">id</span></span><br><span class="line">    report[<span class="string">&quot;连接&quot;</span>] = detail_url_list</span><br><span class="line">    report[<span class="string">&quot;标题&quot;</span>] = title_list</span><br><span class="line">    <span class="keyword">return</span> detail_url_list</span><br></pre></td></tr></table></figure>
-<h3 id="根据具体网址获取研报摘要"><a href="#根据具体网址获取研报摘要" class="headerlink" title="根据具体网址获取研报摘要"></a>根据具体网址获取研报摘要</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">spider_abstract</span>(<span class="params">detail_url_list</span>):</span></span><br><span class="line">    abstract = []</span><br><span class="line">    headers = &#123;<span class="string">&#x27;Accept-Language&#x27;</span>: <span class="string">&#x27;zh-CN,zh;q=0.9&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Connection&#x27;</span>: <span class="string">&#x27;keep-alive&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Cookie&#x27;</span>: <span class="string">&#x27;c=; safedog-flow-item=E452688EA9408CDB488598E819CA5CAE; UM_distinctid=17221e00e0a26-02018c653952da-d373666-144000-17221e00e0b56; did=67A671BFE; ASPSESSIONIDCABDDAQR=CNAHPHPCOHJBHKGHKGAGLOND; Hm_lvt_d554f0f6d738d9e505c72769d450253d=1589706231,1590147502,1590713899,1592128454; ASPSESSIONIDAQSSSRDS=KKGBDNADKNMBKOAAJFLPBJED; CNZZDATA1752123=cnzz_eid%3D1486449273-1589705206-https%253A%252F%252Fwww.baidu.com%252F%26ntime%3D1592138092; robih=OWvVuXvWjVoWKY9WdWsU; MBpermission=0; MBname=Curtis%5FLau; Hm_lpvt_d554f0f6d738d9e505c72769d450253d=1592140743&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Host&#x27;</span>: <span class="string">&#x27;www.hibor.com.cn&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Referer&#x27;</span>: <span class="string">&#x27;http://www.hibor.com.cn/docdetail_2937262.html&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;X-Requested-With&#x27;</span>: <span class="string">&#x27;XMLHttpRequest&#x27;</span>&#125;</span><br><span class="line">    <span class="keyword">for</span> url <span class="keyword">in</span> detail_url_list:</span><br><span class="line">        response = requests.get(url=url, headers=headers)</span><br><span class="line">        text = response.content.decode(<span class="string">&quot;gbk&quot;</span>)</span><br><span class="line">        bs = BeautifulSoup(text, <span class="string">&quot;html5lib&quot;</span>)</span><br><span class="line">        div = bs.find(<span class="string">&quot;div&quot;</span>, class_=<span class="string">&quot;neir&quot;</span>)</span><br><span class="line">        span = div.find(<span class="string">&quot;span&quot;</span>)</span><br><span class="line">        txt = <span class="built_in">list</span>(span.stripped_strings)</span><br><span class="line">        sentence = <span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> txt:</span><br><span class="line">            <span class="keyword">if</span> <span class="string">&quot;http://www.hibor.com.cn&quot;</span> <span class="keyword">not</span> <span class="keyword">in</span> i:</span><br><span class="line">                sentence += i</span><br><span class="line">        abstract.append(sentence)</span><br><span class="line">    report[<span class="string">&quot;摘要&quot;</span>] = abstract</span><br><span class="line">    report_data = pd.DataFrame(report)</span><br><span class="line">    <span class="keyword">return</span> report_data</span><br></pre></td></tr></table></figure>
-<h3 id="将数据导入MongoDB"><a href="#将数据导入MongoDB" class="headerlink" title="将数据导入MongoDB"></a>将数据导入MongoDB</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_mongodb</span>(<span class="params">report_data</span>):</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(pd.DataFrame(collection_report.find()))==<span class="number">0</span>:</span><br><span class="line">        new_l = report_data.sort_values(by=<span class="string">&#x27;id&#x27;</span>, ascending=<span class="literal">True</span>)</span><br><span class="line">        collection_report.insert_many(json.loads(new_l.T.to_json()).values())</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        last_id = pd.DataFrame(collection_report.find()).sort_values(by=<span class="string">&quot;id&quot;</span>, ascending=<span class="literal">False</span>)[<span class="string">&quot;id&quot;</span>].<span class="built_in">max</span>()</span><br><span class="line">        in_list = report_data[report_data[<span class="string">&#x27;id&#x27;</span>] &gt; last_id]</span><br><span class="line">        new_l = in_list.sort_values(by=<span class="string">&#x27;id&#x27;</span>, ascending=<span class="literal">True</span>)</span><br><span class="line">        collection_report.insert_many(json.loads(new_l.T.to_json()).values())</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;&#123;&#125; items has been update Successed on &#123;&#125;&#x27;</span>.<span class="built_in">format</span>(<span class="built_in">len</span>(new_l), time.strftime(<span class="string">&#x27;%Y-%m-%d %H:%M:%S&#x27;</span>)))</span><br></pre></td></tr></table></figure>
-<h3 id="设置运行时间间隔"><a href="#设置运行时间间隔" class="headerlink" title="设置运行时间间隔"></a>设置运行时间间隔</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run_time</span>():</span></span><br><span class="line">    page = <span class="built_in">list</span>(<span class="built_in">range</span>(<span class="number">10</span>, <span class="number">0</span>, -<span class="number">1</span>))</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> page:</span><br><span class="line">        url = <span class="string">&quot;http://www.hibor.com.cn/microns_1_&#123;&#125;.html&quot;</span>.<span class="built_in">format</span>(i)</span><br><span class="line">        detail_urls = spider_detail_urls(url)</span><br><span class="line">        report_data = spider_abstract(detail_urls)</span><br><span class="line">        update_mongodb(report_data)</span><br><span class="line"></span><br><span class="line">schedule.every(<span class="number">4</span>).to(<span class="number">6</span>).days.do(run_time)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        schedule.run_pending()</span><br></pre></td></tr></table></figure>
-<p><a href="https://github.com/Curtis-Lau/crawl-hibor">本文全部代码详见GitHub</a></p>
-]]></content>
-      <categories>
-        <category>爬虫</category>
-      </categories>
-      <tags>
-        <tag>爬虫</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>推荐算法：LinUCB</title>
-    <url>/post/2973/</url>
-    <content><![CDATA[<p>推荐系统里面有两个经典问题：EE 问题和冷启动问题。前者涉及到平衡准确和多样，后者涉及到产品算法运营等一系列东西。Bandit 算法是一种简单的在线学习算法，常常用于尝试解决这两个问题，本文为你介绍基础的 Bandit 算法及一系列升级版，以及对推荐系统这两个经典问题的思考。</p>
-<p>Bandit算法是一类用来实现Exploitation-Exploration机制的策略。根据是否考虑上下文特征，Bandit算法分为Context-free Bandit和Contextual Bandit两大类，本文简单介绍Context-free Bandit，重点讲解Contextual Bandit。</p>
-<span id="more"></span>
-<h2 id="什么是-bandit-算法"><a href="#什么是-bandit-算法" class="headerlink" title="什么是 bandit 算法"></a>什么是 bandit 算法</h2><h3 id="为选择而生"><a href="#为选择而生" class="headerlink" title="为选择而生"></a>为选择而生</h3><p>我们会遇到很多选择的场景。上哪个大学，学什么专业，去哪家公司，中午吃什么，等等。这些事情，都让选择困难症的我们头很大。那么，有算法能够很好地对付这些问题吗？</p>
-<p>当然有！那就是 Bandit 算法！</p>
-<p>bandit 算法来源于历史悠久的赌博学，它要解决的问题是这样的：</p>
-<p>一个赌徒，要去摇老虎机，走进赌场一看，一排老虎机，外表一模一样，但是每个老虎机吐钱的概率可不一样，他不知道每个老虎机吐钱的概率分布是什么，那么每次该选择哪个老虎机可以做到最大化收益呢？这就是多臂赌博机问题 (Multi-armed bandit problem, K-armed bandit problem, MAB)。</p>
-<p>怎么解决这个问题呢？最好的办法是去试一试，不是盲目地试，而是有策略地快速试一试，这些策略就是 Bandit 算法。</p>
-<p>这个多臂问题，推荐系统里面很多问题都与他类似：</p>
-<p>假设一个用户对不同类别的内容感兴趣程度不同，那么我们的推荐系统初次见到这个用户时，怎么快速地知道他对每类内容的感兴趣程度？这就是推荐系统的冷启动。</p>
-<p>假设我们有若干广告库存，怎么知道该给每个用户展示哪个广告，从而获得最大的点击收益？是每次都挑效果最好那个么？那么新广告如何才有出头之日？</p>
-<p>我们的算法工程师又想出了新的模型，有没有比 A/B test 更快的方法知道它和旧模型相比谁更靠谱？</p>
-<p>如果只是推荐已知的用户感兴趣的物品，如何才能科学地冒险给他推荐一些新鲜的物品？</p>
-<p>这些问题本质上全都是关乎如何选择。只要是关于选择，都可以简化成一个多臂赌博机问题，毕竟小赌怡情嘛，人生何处不赌博。</p>
-<h3 id="bandit-算法与推荐系统"><a href="#bandit-算法与推荐系统" class="headerlink" title="bandit 算法与推荐系统"></a>bandit 算法与推荐系统</h3><p>在推荐系统领域里，有两个比较经典的问题常被人提起，<strong>一个是 EE 问题，另一个是用户冷启动问题</strong>。</p>
-<p><em>什么是 EE 问题？又叫exploit－explore问题</em></p>
-<p>exploit 就是：对用户比较确定的兴趣，当然要利用开采迎合，好比说已经挣到的钱，当然要花</p>
-<p>explore就是：光对着用户已知的兴趣使用，用户很快会腻，所以要不断探索用户新的兴趣才行，这就好比虽然有一点钱可以花了，但是还得继续搬砖挣钱，不然花完了就得喝西北风。</p>
-<p><em>用户冷启动问题</em>，也就是面对新用户时，如何能够通过若干次实验，猜出用户的大致兴趣。</p>
-<p>我想，屏幕前的你已经想到了，推荐系统冷启动可以用Bandit算法来解决一部分。</p>
-<p>这两个问题本质上都是如何选择用户感兴趣的主题进行推荐，比较符合Bandit算法背后的MAB问题。</p>
-<p>比如，用Bandit算法解决冷启动的大致思路如下：</p>
-<p>用分类或者Topic来表示每个用户兴趣，也就是 MAB 问题中的臂（Arm），我们可以通过几次试验，来刻画出新用户心目中对每个topic的感兴趣概率。</p>
-<p>这里，如果用户对某个 topic 感兴趣（提供了显式反馈或隐式反馈），就表示我们得到了收益，如果推给了它不感兴趣的 topic，推荐系统就表示很遗憾 (regret) 了。</p>
-<p>如此经历 “选择 - 观察 - 更新 - 选择” 的循环，理论上是越来越逼近用户真正感兴趣的 topic 的。</p>
-<h2 id="常用Context-free-Bandit-算法"><a href="#常用Context-free-Bandit-算法" class="headerlink" title="常用Context-free Bandit 算法"></a>常用Context-free Bandit 算法</h2><h3 id="Thompson-sampling-算法"><a href="#Thompson-sampling-算法" class="headerlink" title="Thompson sampling 算法"></a><strong>Thompson sampling 算法</strong></h3><p>thompson sampling算法简单实用，简单介绍一下它的原理，要点如下：假设每个臂是否产生收益，其背后有一个概率分布，产生收益的概率为$p$。我们不断地试验，去估计出一个置信度较高的 “概率$p$的概率分布” 就能近似解决这个问题了。</p>
-<p><strong>怎么能估计 “概率$p$的概率分布” 呢？</strong></p>
-<p> 答案是假设概率$p$的概率分布符合 $beta(wins, lose)$分布，它有两个参数: $wins, lose$。每个臂都维护一个 $beta$分布的参数。每次试验后，选中一个臂，摇一下，有收益则该臂的$wins$增加 1，否则该臂的$lose$增加 1。每次选择臂的方式是：用每个臂现有的$beta$分布产生一个随机数$b$，选择所有臂产生的随机数中最大的那个臂去摇。</p>
-<p>以上就是 Thompson 采样，用 python 实现就一行：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> pymc</span><br><span class="line"></span><br><span class="line"><span class="comment">#wins 和 trials 是一个N维向量，N是赌博机的臂的个数，每个元素记录了</span></span><br><span class="line"></span><br><span class="line">choice = np.argmax(pymc.rbeta(<span class="number">1</span> + wins, <span class="number">1</span> + trials - wins))</span><br><span class="line"></span><br><span class="line">wins[choice] += <span class="number">1</span></span><br><span class="line"></span><br><span class="line">trials += <span class="number">1</span></span><br></pre></td></tr></table></figure>
-<h3 id="UCB-算法"><a href="#UCB-算法" class="headerlink" title="UCB 算法"></a><strong>UCB 算法</strong></h3><p>UCB 算法全称是 Upper Confidence Bound(置信区间上界)，它的算法步骤如下:</p>
-<p>初始化：先对每一个臂都试一遍，按照如下公式计算每个臂arm的分数，然后选择分数最大的臂作为选择：</p>
-<script type="math/tex; mode=display">arm_i=\hat{u_i}+\sqrt{\frac{2ln(n)}{n_i}}</script><p>其中$\hat{u_i}$是对$arm_i$期望收益的预估，$n$是总的选择次数，$n_i$是对$arm_i$的尝试次数，可以看到尝试越多，其预估值与置信上限的差值就越小，也就是越有置信度。</p>
-<p>这个公式反映一个特点：均值越大，标准差越小，被选中的概率会越来越大，同时哪些被选次数较少的臂也会得到试验机会。</p>
-<h3 id="Epsilon-Greedy-算法"><a href="#Epsilon-Greedy-算法" class="headerlink" title="Epsilon-Greedy 算法"></a><strong>Epsilon-Greedy 算法</strong></h3><p>这是一个朴素的 bandit 算法，有点类似模拟退火的思想：选一个 (0,1) 之间较小的数作为$epsilon$，每次以概率$epsilon$做一件事：所有臂中随机选一个，每次以概率$1-epsilon$选择截止到当前，平均收益最大的那个臂。</p>
-<p>是不是简单粗暴？$epsilon$的值可以控制对Exploit和Explore的偏好程度。越接近 0，越保守，只想花钱不想挣钱。</p>
-<h3 id="朴素-bandit-算法"><a href="#朴素-bandit-算法" class="headerlink" title="朴素 bandit 算法"></a><strong>朴素 bandit 算法</strong></h3><p>最朴素的 bandit 算法就是：先随机试若干次，计算每个臂的平均收益，一直选均值最大那个臂。这个算法是人类在实际中最常采用的，不可否认，它还是比随机乱猜要好。</p>
-<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>以上这五种算法都是常见的Context-free Bandit，这类算法没有充分利用推荐场景的上下文信息，为所有用户的选择展现商品的策略都是相同的，忽略了用户作为一个个活生生的个体本身的兴趣点、偏好、购买力等因素都是不同的，因而，同一个商品在不同的用户、不同的情景下接受程度是不同的。故在实际的推荐系统中，context-free的MAB算法基本都不会被采用。</p>
-<h2 id="Contextual-Bandit：LinUCB"><a href="#Contextual-Bandit：LinUCB" class="headerlink" title="Contextual Bandit：LinUCB"></a>Contextual Bandit：LinUCB</h2><p>与Context-free Bandit算法对应的是Contextual Bandit算法，顾名思义，这类算法在实现E&amp;E时考虑了上下文信息，因而更加适合实际的个性化推荐场景。</p>
-<h3 id="公式推导"><a href="#公式推导" class="headerlink" title="公式推导"></a>公式推导</h3><p>形式化地说，在时间步$t$，<strong>Contextual Bandit算法</strong>观察到当前用户$u_t$，以及每个可选择的商品（arm）$a$的特征向量$x_{t,a}$ 。$x_{t,a}$称之为上下文信息，它概况了用户和商品两方面的信息。算法根据之前观察到的反馈结果选择一个商品$a_t$展现给用户，并接受到用户的反馈收益$r_{t,a_t}$，$r_{t,a_t}$的期望取决于用户和商品两个方面。接着，算法根据新的观察$(x_{t,a},a_t,r_{t,a_t})$ 改进自身选择商品展现的策略，目标是使得整个过程中损失的收益最小，即regret值 $R_a(T)$最小， $R_a(T)$定义如下：</p>
-<script type="math/tex; mode=display">R_a(T)=E[\displaystyle \sum^T_{t=1}r^*_{t,a_t}]-E[\displaystyle \sum^T_{t=1}r_{t,a_t}]</script><p>其中，$T$为实验的总步数，$a^*_t$为在时间步$t$时有最大期望收益的arm，不能提前得知。</p>
-<p>LinUCB是处理Contextual Bandit的一个方法，在LinUCB中，设定每个arm的期望收益为该arm的特征向量(context)的线性函数，如下：</p>
-<script type="math/tex; mode=display">E[r_{t,a}|x_{t,a}]=x^T_{t,a}\theta _a</script><p>$\theta _a$是LinUCB模型的参数，维度为$d$。每个arm维护一个$\theta _a$</p>
-<p>对于单个arm $a$，以其前$m$个context向量为行向量组成的矩阵称为$D_a$，维度为$m\times d$。 前$m$个收益（reward）组成的向量称为$C_a$。采用平方损失函数：</p>
-<script type="math/tex; mode=display">loss=\displaystyle\sum^m_{i=1}(C_{a,i}-\displaystyle\sum^d_{j=0}\theta_{a,j}x_{a,j})^2+\lambda\displaystyle\sum^d_{j=0}\theta^2_{a,j}</script><p>其中$\lambda$为正则项系数。求损失函数的最小值，令损失函数对$\theta_a$求导，结果为：</p>
-<script type="math/tex; mode=display">\nabla_{\theta_a}loss=2D^a_T(C_a-D_a\theta_a)-2\lambda\theta_a</script><p>令$\nabla_{\theta_a}loss=0，\lambda=1$，可得：</p>
-<script type="math/tex; mode=display">\theta_a=(D^T_aD_a+I)^{-1}D^T_aC_a</script><p>上述参数结果是用最小二乘法推导得到。更进一步，从<strong>贝叶斯推断</strong>的角度出发，使用岭回归（ridge regression）方法，可以得到<script type="math/tex">\theta_a</script>的概率分布为高斯分布：</p>
-<p>$\theta_a$~$N((D^T_aD_a+I)^{-1}D^T_aC_a,(D^T_aD_a+I)^{-1})$</p>
-<p>为了符号简洁，令</p>
-<script type="math/tex; mode=display">\hat{\theta_a}=(D^T_aD_a+I)^{-1}D^T_aC_a</script><script type="math/tex; mode=display">A_a=D^T_aD_a+I</script><p>于是$\theta_a$的概率分布为$\theta_a$~$N(\hat{\theta_a},A^{-1}_a)$</p>
-<p>于是在第$t$次时可以得到：$x^T_{t,a}\theta_a$~$N(x^T_{t,a}\hat{\theta_a},x^T_{t,a}A^{-1}_ax_{t,a})$</p>
-<p>也就是：$r_{t,a}$~$N(x^T_{t,a}\hat{\theta_a},x^T_{t,a}A^{-1}_ax_{t,a})$</p>
-<p>根据高斯分布的性质，得到置信上界后就可以使用普通UCB规则了，即每次选择$x^T_{t,a}\hat{\theta_a}+\alpha\sqrt{x^T_{t,a}A^{-1}_ax_{t,a}}$最大的arm，$\alpha$为算法超参数。$\alpha$越大，置信区间越宽，也就是越偏向于探索；反之，$\alpha$越小越偏向于利用。</p>
-<p>需要注意的是，$A_a$与$D^T_aC_a$可以增量异步更新，于是标准流程如下：</p>
-<ul>
-<li>设定$\alpha$：</li>
-<li>For $t=1,2,3,…$<ul>
-<li>对所有的arm获得本次的context向量</li>
-<li>For all $a$<ul>
-<li>if $a$ is new<ul>
-<li>设置$A_a$为单位矩阵</li>
-<li>设置$b_a$为d维零向量</li>
-</ul>
-</li>
-<li>计算$\hat{\theta_a}=A^{-1}_ab_a$</li>
-<li>计算上界$p_{t,a}=x^T_{t,a}\hat{\theta_a}+\alpha\sqrt{x^T_{ta}A^T_ax_{t,a}}$</li>
-</ul>
-</li>
-<li>选择最大上界$p_{t,a}$对应的arm即$a_t$，并得到对应的$r_t$</li>
-<li>更新$A_{a_t}=A_{a_t}+x_{t,a_t}x^T_{t,a_t}$</li>
-<li>更新$b_{a_t}=b_{a_t}+r_tx_{t,a_t}$</li>
-</ul>
-</li>
-</ul>
-<p>从上述过程可以总结出LinUCB算法的两点优势：</p>
-<ul>
-<li>计算复杂度与arm的数量成线性关系</li>
-<li>支持动态变化的候选arm集合</li>
-</ul>
-<p>LinUCB与相对于传统的在线学习（online learning）模型相比，主要有2点区别：</p>
-<ul>
-<li><strong>每个arm学习一个独立的模型（Context只需要包含user-side和user-arm interaction的特征，不需要包含arm-side特征）；而传统在线学习为整个业务场景学习一个统一的模型</strong></li>
-<li><strong>传统的在线学习采用贪心策略，尽最大可能利用已学到的知识，没有explore机制（贪心策略通常情况下都不是最优的）；LinUCB则有较完善的E&amp;E机制，关注长期整体收益</strong></li>
-</ul>
-<h3 id="核心代码"><a href="#核心代码" class="headerlink" title="核心代码"></a>核心代码</h3><p>这里结合金融知识，将投资者的效用定义为风险收益偏好，即$Utility_\alpha=E[r_t]-\eta_\alpha\sigma^2$</p>
-<h4 id="效应的定义"><a href="#效应的定义" class="headerlink" title="效应的定义"></a>效应的定义</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">utility_oneday</span>(<span class="params">returns_df, starttime, endtime, code, eta</span>):</span></span><br><span class="line">    return_cluster = returns_df.loc[starttime:endtime, code]  <span class="comment"># 获取所有基金时间范围内收益</span></span><br><span class="line">    rf = <span class="number">0.015</span></span><br><span class="line">    <span class="comment"># len_date = len(return_cluster)</span></span><br><span class="line">    <span class="comment"># D = (np.power(1 + return_cluster.mean(), 250) - 1 - rf) / (return_cluster.std() * np.sqrt(250))</span></span><br><span class="line">    D = return_cluster.mean()-eta*return_cluster.var()  <span class="comment"># 收益减方差</span></span><br><span class="line">    <span class="keyword">return</span> D</span><br><span class="line"></span><br><span class="line"><span class="comment"># 获取时间范围内每日的向前推delta时间窗口（包括工作日与非工作日）的收益率月均和方差</span></span><br><span class="line"><span class="comment"># 目的是为了获取D</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">utility_series</span>(<span class="params">timerange, returns_df, code, n, eta</span>):</span></span><br><span class="line">    eve_utility = pd.DataFrame(index=timerange, columns=code, dtype=<span class="string">&quot;float&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> timerange:</span><br><span class="line">        preday = get_pre_day(i, n)</span><br><span class="line">        <span class="comment"># nav_df_m = get_fund_nav(code, str(preday)[:10].replace(&#x27;-&#x27;, &#x27;&#x27;), str(i)[:10].replace(&#x27;-&#x27;, &#x27;&#x27;))</span></span><br><span class="line">        <span class="comment"># returns_df_m = (nav_df_m - nav_df_m.shift(1)) / nav_df_m.shift(1)</span></span><br><span class="line">        eve_utility.loc[i, :] = utility_oneday(returns_df, preday, i, code, eta)</span><br><span class="line">    <span class="keyword">return</span> Standardize(eve_utility)</span><br></pre></td></tr></table></figure>
-<h4 id="岭回归权重定义"><a href="#岭回归权重定义" class="headerlink" title="岭回归权重定义"></a>岭回归权重定义</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">ridge_regression</span>(<span class="params">xArr, yArr, lam=<span class="number">0.02</span></span>):</span></span><br><span class="line">    xMat = np.mat(xArr)</span><br><span class="line">    yMat = np.mat(yArr)</span><br><span class="line">    xTx = xMat.T*xMat</span><br><span class="line">    denom = xTx + np.eye(np.shape(xMat)[<span class="number">1</span>])*lam</span><br><span class="line">    <span class="keyword">if</span> np.linalg.det(denom) == <span class="number">0.0</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;This matrix is singular, cannot do inverse !&quot;</span>)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">    weight = denom.I * (xMat.T*yMat)</span><br><span class="line">    <span class="keyword">return</span> weight</span><br></pre></td></tr></table></figure>
-<h4 id="置信上界定义"><a href="#置信上界定义" class="headerlink" title="置信上界定义"></a>置信上界定义</h4><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">upper_bound_probs</span>(<span class="params">weight, D, x_new, beta=<span class="number">1</span></span>):</span></span><br><span class="line">    a_a = np.mat(np.dot(D.values.T, D.values)+np.eye(D.shape[<span class="number">1</span>]))</span><br><span class="line">    upper_bound_probs = np.dot(np.mat(x_new), weight) + beta*np.sqrt(np.dot(np.dot(x_new.values, a_a.I), x_new.values.T))</span><br><span class="line">    <span class="keyword">return</span> upper_bound_probs</span><br></pre></td></tr></table></figure>
-<p>因为使用的是HS300股票数据，前期需要对股票数据进行清洗，而且在LinUCB运行过程中，需要注意停牌或数据缺失较多的股票的处理，代码较为复杂，详情可见GinHub。</p>
-<p><a href="https://github.com/Curtis-Lau/LinUCB">本文全部代码详见GitHub</a></p>
-]]></content>
-      <categories>
-        <category>算法</category>
-        <category>强化学习</category>
-        <category>推荐算法</category>
-      </categories>
-      <tags>
-        <tag>强化学习</tag>
-        <tag>推荐算法</tag>
       </tags>
   </entry>
   <entry>
@@ -748,7 +490,7 @@
 <figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#判断数据集的各个属性集是否完全一致</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">judgeEqualLabels</span>(<span class="params">dataSet</span>):</span> </span><br><span class="line">    feature_leng = <span class="built_in">len</span>(dataSet[<span class="number">0</span>]) - <span class="number">1</span>   </span><br><span class="line">    data_leng = <span class="built_in">len</span>(dataSet)</span><br><span class="line">    is_equal = <span class="literal">True</span>    </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(feature_leng):</span><br><span class="line">        first_feature = dataSet[<span class="number">0</span>][i]   </span><br><span class="line">        <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, data_leng):</span><br><span class="line">            <span class="keyword">if</span> first_feature != dataSet[_][i]:</span><br><span class="line">                <span class="keyword">return</span> <span class="literal">False</span>    </span><br><span class="line">    <span class="keyword">return</span> is_equal</span><br></pre></td></tr></table></figure>
 <h3 id="投票表决"><a href="#投票表决" class="headerlink" title="投票表决"></a>投票表决</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment">#投票表决</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">majorityCnt</span>(<span class="params">classList</span>):</span></span><br><span class="line">    classCount=&#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> vote <span class="keyword">in</span> classList:</span><br><span class="line">        <span class="keyword">if</span> vote <span class="keyword">not</span> <span class="keyword">in</span> classCount.keys(): classCount[vote] = <span class="number">0</span>   <span class="comment">#未出现过，生成一个键值对</span></span><br><span class="line">        classCount[vote] += <span class="number">1</span></span><br><span class="line">    sortedClassCount = <span class="built_in">sorted</span>(classCount.items(), key=operator.itemgetter(<span class="number">1</span>), reverse=<span class="literal">True</span>) <span class="comment">#classCount.iteritems()python3中已经没有这个属性，直接改为items</span></span><br><span class="line">    <span class="comment">#将字典拆为多个元祖[(‘url’, ‘value1’), (‘title’, ‘value2’)]组成的列表</span></span><br><span class="line">    <span class="keyword">return</span> sortedClassCount[<span class="number">0</span>][<span class="number">0</span>]   <span class="comment">#返回出现次数最多的分类名称</span></span><br></pre></td></tr></table></figure>
 <p>这里包含部分代码，因前期数据处理工作复杂，这里不方便展示，全部代码及数据详见GitHub：</p>
-<p><a href="https://github.com/Curtis-Lau/Decision-Tree">本文全部代码详见GitHub</a></p>
+<p>本文全部代码详见GitHub：<a href="https://github.com/Curtis-Lau/Decision-Tree">~戳我~</a></p>
 ]]></content>
       <categories>
         <category>算法</category>
@@ -758,6 +500,332 @@
       <tags>
         <tag>机器学习</tag>
         <tag>决策树</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>慧博研投爬虫</title>
+    <url>/post/55099ab/</url>
+    <content><![CDATA[<p>本文爬取的是慧博研投(www.hibor.com.cn)研报栏目的数据，主要包含研报的发布时间、标题、摘要的信息，然后将数据存于本地MongoDB数据库中。</p>
+<span id="more"></span>
+<h2 id="第一部分：导入需要的库"><a href="#第一部分：导入需要的库" class="headerlink" title="第一部分：导入需要的库"></a>第一部分：导入需要的库</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> pymongo</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> time</span><br><span class="line"><span class="keyword">import</span> schedule</span><br></pre></td></tr></table></figure>
+<h2 id="第二部分：设置MongoDB"><a href="#第二部分：设置MongoDB" class="headerlink" title="第二部分：设置MongoDB"></a>第二部分：设置MongoDB</h2><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">client = pymongo.MongoClient(host=<span class="string">&#x27;localhost&#x27;</span>,port=<span class="number">27017</span>)</span><br><span class="line">db = client[<span class="string">&#x27;hibor_report&#x27;</span>]</span><br><span class="line">collection_report = db[<span class="string">&quot;report_data&quot;</span>]</span><br><span class="line">report = &#123;&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="第三部分：编写函数"><a href="#第三部分：编写函数" class="headerlink" title="第三部分：编写函数"></a>第三部分：编写函数</h2><h3 id="获取研报时间、标题以及具体网址"><a href="#获取研报时间、标题以及具体网址" class="headerlink" title="获取研报时间、标题以及具体网址"></a>获取研报时间、标题以及具体网址</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">spider_detail_urls</span>(<span class="params">url</span>):</span></span><br><span class="line">    title_list = []</span><br><span class="line">    detail_url_list = []</span><br><span class="line">    <span class="built_in">id</span> = []</span><br><span class="line">    headers = &#123;<span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.87 UBrowser/6.2.4098.3 Safari/537.36&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Host&#x27;</span>: <span class="string">&#x27;www.hibor.com.cn&#x27;</span>&#125;</span><br><span class="line">    response = requests.get(url, headers=headers)</span><br><span class="line">    text = response.content.decode()</span><br><span class="line">    bs = BeautifulSoup(text,<span class="string">&quot;html5lib&quot;</span>)</span><br><span class="line">    div = bs.find(<span class="string">&quot;div&quot;</span>,class_=<span class="string">&quot;leftn2&quot;</span>)</span><br><span class="line">    table = div.find(<span class="string">&quot;table&quot;</span>,class_=<span class="string">&quot;tab_ltnew&quot;</span>)</span><br><span class="line">    trs = table.find_all(<span class="string">&quot;tr&quot;</span>)</span><br><span class="line">    <span class="keyword">for</span> tr <span class="keyword">in</span> trs[::<span class="number">4</span>]:</span><br><span class="line">        span = tr.find(<span class="string">&quot;span&quot;</span>,class_=<span class="string">&quot;tab_lta&quot;</span>)</span><br><span class="line">        title =  <span class="built_in">list</span>(span.stripped_strings)[<span class="number">0</span>]</span><br><span class="line">        title_list.append(title)</span><br><span class="line">        _url = span.find(<span class="string">&quot;a&quot;</span>).get(<span class="string">&quot;href&quot;</span>)</span><br><span class="line">        detail_url = <span class="string">&quot;http://www.hibor.com.cn&quot;</span>+_url</span><br><span class="line">        detail_url_list.append(detail_url)</span><br><span class="line">        _<span class="built_in">id</span> = _url.split(<span class="string">&quot;_&quot;</span>)[-<span class="number">1</span>].split(<span class="string">&quot;.&quot;</span>)[<span class="number">0</span>]</span><br><span class="line">        <span class="built_in">id</span>.append(_<span class="built_in">id</span>)</span><br><span class="line">    report[<span class="string">&quot;id&quot;</span>] = <span class="built_in">id</span></span><br><span class="line">    report[<span class="string">&quot;连接&quot;</span>] = detail_url_list</span><br><span class="line">    report[<span class="string">&quot;标题&quot;</span>] = title_list</span><br><span class="line">    <span class="keyword">return</span> detail_url_list</span><br></pre></td></tr></table></figure>
+<h3 id="根据具体网址获取研报摘要"><a href="#根据具体网址获取研报摘要" class="headerlink" title="根据具体网址获取研报摘要"></a>根据具体网址获取研报摘要</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">spider_abstract</span>(<span class="params">detail_url_list</span>):</span></span><br><span class="line">    abstract = []</span><br><span class="line">    headers = &#123;<span class="string">&#x27;Accept-Language&#x27;</span>: <span class="string">&#x27;zh-CN,zh;q=0.9&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Connection&#x27;</span>: <span class="string">&#x27;keep-alive&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Cookie&#x27;</span>: <span class="string">&#x27;c=; safedog-flow-item=E452688EA9408CDB488598E819CA5CAE; UM_distinctid=17221e00e0a26-02018c653952da-d373666-144000-17221e00e0b56; did=67A671BFE; ASPSESSIONIDCABDDAQR=CNAHPHPCOHJBHKGHKGAGLOND; Hm_lvt_d554f0f6d738d9e505c72769d450253d=1589706231,1590147502,1590713899,1592128454; ASPSESSIONIDAQSSSRDS=KKGBDNADKNMBKOAAJFLPBJED; CNZZDATA1752123=cnzz_eid%3D1486449273-1589705206-https%253A%252F%252Fwww.baidu.com%252F%26ntime%3D1592138092; robih=OWvVuXvWjVoWKY9WdWsU; MBpermission=0; MBname=Curtis%5FLau; Hm_lpvt_d554f0f6d738d9e505c72769d450253d=1592140743&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Host&#x27;</span>: <span class="string">&#x27;www.hibor.com.cn&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;Referer&#x27;</span>: <span class="string">&#x27;http://www.hibor.com.cn/docdetail_2937262.html&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;User-Agent&#x27;</span>: <span class="string">&#x27;Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36&#x27;</span>,</span><br><span class="line">               <span class="string">&#x27;X-Requested-With&#x27;</span>: <span class="string">&#x27;XMLHttpRequest&#x27;</span>&#125;</span><br><span class="line">    <span class="keyword">for</span> url <span class="keyword">in</span> detail_url_list:</span><br><span class="line">        response = requests.get(url=url, headers=headers)</span><br><span class="line">        text = response.content.decode(<span class="string">&quot;gbk&quot;</span>)</span><br><span class="line">        bs = BeautifulSoup(text, <span class="string">&quot;html5lib&quot;</span>)</span><br><span class="line">        div = bs.find(<span class="string">&quot;div&quot;</span>, class_=<span class="string">&quot;neir&quot;</span>)</span><br><span class="line">        span = div.find(<span class="string">&quot;span&quot;</span>)</span><br><span class="line">        txt = <span class="built_in">list</span>(span.stripped_strings)</span><br><span class="line">        sentence = <span class="string">&quot;&quot;</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> txt:</span><br><span class="line">            <span class="keyword">if</span> <span class="string">&quot;http://www.hibor.com.cn&quot;</span> <span class="keyword">not</span> <span class="keyword">in</span> i:</span><br><span class="line">                sentence += i</span><br><span class="line">        abstract.append(sentence)</span><br><span class="line">    report[<span class="string">&quot;摘要&quot;</span>] = abstract</span><br><span class="line">    report_data = pd.DataFrame(report)</span><br><span class="line">    <span class="keyword">return</span> report_data</span><br></pre></td></tr></table></figure>
+<h3 id="将数据导入MongoDB"><a href="#将数据导入MongoDB" class="headerlink" title="将数据导入MongoDB"></a>将数据导入MongoDB</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">update_mongodb</span>(<span class="params">report_data</span>):</span></span><br><span class="line">    <span class="keyword">if</span> <span class="built_in">len</span>(pd.DataFrame(collection_report.find()))==<span class="number">0</span>:</span><br><span class="line">        new_l = report_data.sort_values(by=<span class="string">&#x27;id&#x27;</span>, ascending=<span class="literal">True</span>)</span><br><span class="line">        collection_report.insert_many(json.loads(new_l.T.to_json()).values())</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        last_id = pd.DataFrame(collection_report.find()).sort_values(by=<span class="string">&quot;id&quot;</span>, ascending=<span class="literal">False</span>)[<span class="string">&quot;id&quot;</span>].<span class="built_in">max</span>()</span><br><span class="line">        in_list = report_data[report_data[<span class="string">&#x27;id&#x27;</span>] &gt; last_id]</span><br><span class="line">        new_l = in_list.sort_values(by=<span class="string">&#x27;id&#x27;</span>, ascending=<span class="literal">True</span>)</span><br><span class="line">        collection_report.insert_many(json.loads(new_l.T.to_json()).values())</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&#x27;&#123;&#125; items has been update Successed on &#123;&#125;&#x27;</span>.<span class="built_in">format</span>(<span class="built_in">len</span>(new_l), time.strftime(<span class="string">&#x27;%Y-%m-%d %H:%M:%S&#x27;</span>)))</span><br></pre></td></tr></table></figure>
+<h3 id="设置运行时间间隔"><a href="#设置运行时间间隔" class="headerlink" title="设置运行时间间隔"></a>设置运行时间间隔</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">run_time</span>():</span></span><br><span class="line">    page = <span class="built_in">list</span>(<span class="built_in">range</span>(<span class="number">10</span>, <span class="number">0</span>, -<span class="number">1</span>))</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> page:</span><br><span class="line">        url = <span class="string">&quot;http://www.hibor.com.cn/microns_1_&#123;&#125;.html&quot;</span>.<span class="built_in">format</span>(i)</span><br><span class="line">        detail_urls = spider_detail_urls(url)</span><br><span class="line">        report_data = spider_abstract(detail_urls)</span><br><span class="line">        update_mongodb(report_data)</span><br><span class="line"></span><br><span class="line">schedule.every(<span class="number">4</span>).to(<span class="number">6</span>).days.do(run_time)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    <span class="keyword">while</span> <span class="literal">True</span>:</span><br><span class="line">        schedule.run_pending()</span><br></pre></td></tr></table></figure>
+<p>本文全部代码详见GitHub：<a href="https://github.com/Curtis-Lau/crawl-hibor">~戳我~</a></p>
+]]></content>
+      <categories>
+        <category>爬虫</category>
+      </categories>
+      <tags>
+        <tag>爬虫</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>k-means</title>
+    <url>/post/b9d2a2fc/</url>
+    <content><![CDATA[<p>K-means 是我们最常用的基于欧式距离的聚类算法，其认为两个目标的距离越近，相似度越大。</p>
+<p>本文大致思路为：先介绍经典的牧师-村名模型来引入 K-means 算法，然后介绍算法步骤和时间复杂度，通过介绍其优缺点来引入算法的调优与改进，最后我们利用之前学的 EM 算法，对其进行收敛证明。</p>
+<span id="more"></span>
+<h2 id="算法"><a href="#算法" class="headerlink" title="算法"></a>算法</h2><h3 id="牧师-村民模型"><a href="#牧师-村民模型" class="headerlink" title="牧师-村民模型"></a>牧师-村民模型</h3><p>K-means 有一个著名的解释——牧师-村民模型：</p>
+<p><em>有四个牧师去郊区布道，一开始牧师们随意选了几个布道点，并且把这几个布道点的情况公告给了郊区所有的村民，于是每个村民到离自己家最近的布道点去听课。</em></p>
+<p><em>听课之后，大家觉得距离太远了，于是每个牧师统计了一下自己的课上所有的村民的地址，搬到了所有地址的中心地带，并且在海报上更新了自己的布道点的位置。</em></p>
+<p><em>牧师每一次移动不可能离所有人都更近，有的人发现A牧师移动以后自己还不如去B牧师处听课更近，于是每个村民又去了离自己最近的布道点……</em></p>
+<p><em>就这样，牧师每个礼拜更新自己的位置，村民根据自己的情况选择布道点，最终稳定了下来。</em></p>
+<p>我们可以看到该牧师的目的是为了让每个村民到其最近中心点的距离和最小。</p>
+<h3 id="算法步骤"><a href="#算法步骤" class="headerlink" title="算法步骤"></a>算法步骤</h3><p>所以 K-means 的算法步骤为：</p>
+<ol>
+<li>选择初始化的$k$个样本作为初始聚类中心 $a=a_1,a_2,…a_k$；</li>
+<li>针对数据集中每个样本$x_i$计算它到$k$个聚类中心的距离并将其分到距离最小的聚类中心所对应的类中；</li>
+<li>针对每个类别$a_j$，重新计算它的聚类中心$a_j=\frac{1}{|c_i|}\displaystyle\sum_{x\in{c_i}}x$（即属于该类的所有样本的质心)；</li>
+<li>重复上面2、3两步操作，直到达到某个中止条件（迭代次数、最小误差变化等）。</li>
+</ol>
+<h3 id="复杂度"><a href="#复杂度" class="headerlink" title="复杂度"></a>复杂度</h3><p>我们先看下伪代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">获取数据 n 个 m 维的数据</span><br><span class="line">随机生成 K 个 m 维的点</span><br><span class="line">while(t)</span><br><span class="line">    for(int i=0;i &lt; n;i++)</span><br><span class="line">        for(int j=0;j &lt; k;j++)</span><br><span class="line">            计算点 i 到类 j 的距离</span><br><span class="line">    for(int i=0;i &lt; k;i++)</span><br><span class="line">        1. 找出所有属于自己这一类的所有数据点</span><br><span class="line">        2. 把自己的坐标修改为这些数据点的中心点坐标</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>时间复杂度：$O(t,k,n,m)$，其中，$t$为迭代次数，$k$为簇的数目，$n$为样本点数，$m$为样本点维度。</p>
+<p>空间复杂度：$O(m(n+k))$，其中，$k$为簇的数目，$m$为样本点维度，$n$为样本点数。</p>
+<h2 id="优缺点"><a href="#优缺点" class="headerlink" title="优缺点"></a>优缺点</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>容易理解，聚类效果不错，虽然是局部最优， 但往往局部最优就够了；</li>
+<li>处理大数据集的时候，该算法可以保证较好的伸缩性；</li>
+<li>当簇近似高斯分布的时候，效果非常不错；</li>
+<li>算法复杂度低。</li>
+</ul>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ul>
+<li>$K$值需要人为设定，不同$K$值得到的结果不一样；</li>
+<li>对初始的簇中心敏感，不同选取方式会得到不同结果；</li>
+<li>对异常值敏感；</li>
+<li>样本只能归为一类，不适合多分类任务；</li>
+<li>不适合太离散的分类、样本类别不平衡的分类、非凸形状的分类。</li>
+</ul>
+<h2 id="算法模拟"><a href="#算法模拟" class="headerlink" title="算法模拟"></a>算法模拟</h2><p>本部分使用HS300股票数据，以夏普比率和最大回撤这两个特征，对HS300股票池股票进行分类。使用的是2019年9月30日的数据。</p>
+<p>以下将简单介绍：</p>
+<h3 id="数据预处理"><a href="#数据预处理" class="headerlink" title="数据预处理"></a>数据预处理</h3><p>K-means的本质是基于欧式距离的数据划分算法，均值和方差大的维度将对数据的聚类产生决定性影响。所以未做归一化处理和统一单位的数据是无法直接参与运算和比较的。常见的数据预处理方式有：数据归一化，数据标准化。</p>
+<p>此外，离群点或者噪声数据会对均值产生较大的影响，导致中心偏移，因此我们还需要对数据进行异常点检测。</p>
+<h3 id="特征设定"><a href="#特征设定" class="headerlink" title="特征设定"></a>特征设定</h3><p>首先导入需要的库：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br></pre></td></tr></table></figure>
+<p>我们使用年夏普比率，计算公式如下：</p>
+<script type="math/tex; mode=display">SR=\frac{E(R)-R_F}{D(R)}\cdot\sqrt{252}</script><p>代码如下：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">sharpe_ratio</span>(<span class="params">price_df,rf=<span class="number">0.025</span></span>):</span></span><br><span class="line">    daily_return_rate = price_df/price_df.shift(<span class="number">1</span>)-<span class="number">1</span></span><br><span class="line">    daily_rf_rate = rf/<span class="number">252</span></span><br><span class="line">    SR = ((daily_return_rate.mean()-daily_rf_rate)/daily_return_rate.std())*np.sqrt(<span class="number">252</span>)</span><br><span class="line">    <span class="keyword">return</span> SR</span><br></pre></td></tr></table></figure>
+<p>最大回撤率是指在选定周期内任一历史时点往后推，股票价格走到最低点时的收益率回撤幅度的最大值。</p>
+<p>代码如下：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">MaxDrawdown</span>(<span class="params">prices_df</span>):</span></span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">round</span>(<span class="built_in">abs</span>(prices_df.sub(prices_df.expanding().<span class="built_in">max</span>(), axis=<span class="number">0</span>).div(prices_df.expanding().<span class="built_in">max</span>(), axis=<span class="number">0</span>).<span class="built_in">min</span>())*<span class="number">100</span>,<span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="算法设定"><a href="#算法设定" class="headerlink" title="算法设定"></a>算法设定</h3><p>K-means算法首先要初始化聚簇中心，取k个随机质心，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">init_Cent</span>(<span class="params">dataSet, k</span>):</span></span><br><span class="line">    n = dataSet.shape[<span class="number">1</span>]</span><br><span class="line">    centcoords = np.mat(np.zeros((k, n)))  <span class="comment"># 每个质心有n个坐标值，总共要k个质心</span></span><br><span class="line">    <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(n):</span><br><span class="line">        minJ = np.<span class="built_in">min</span>(dataSet.iloc[:, j])</span><br><span class="line">        maxJ = np.<span class="built_in">max</span>(dataSet.iloc[:, j])</span><br><span class="line">        rangeJ = <span class="built_in">float</span>(maxJ - minJ)</span><br><span class="line">        centcoords[:, j] = minJ + rangeJ * np.random.rand(k, <span class="number">1</span>)  <span class="comment"># 最小值加上一个随机数</span></span><br><span class="line">    <span class="keyword">return</span> centcoords</span><br></pre></td></tr></table></figure>
+<p>其次，还要计算欧氏距离，代码如下：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">distEuclid</span>(<span class="params">vecA, vecB</span>):</span></span><br><span class="line">    <span class="keyword">return</span> np.sqrt(np.<span class="built_in">sum</span>(np.power(vecA - vecB, <span class="number">2</span>)))  <span class="comment"># 求两个向量之间的距离</span></span><br></pre></td></tr></table></figure>
+<p>k-means聚类算法的收敛标志是所有点的类别不再改变，定义主体代码，如下：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">kMeans</span>(<span class="params">dataSet, k, distEuclid=distEuclid, init_Cent = init_Cent</span>):</span></span><br><span class="line">    m = dataSet.shape[<span class="number">0</span>]</span><br><span class="line">    clusterDist = np.mat(np.zeros((m, <span class="number">2</span>)))  <span class="comment"># 用于存放该样本属于哪类及质心距离</span></span><br><span class="line">    <span class="comment"># clusterDist第一列存放该数据所属的中心点（哪一类），第二列是该数据到中心点的距离</span></span><br><span class="line">    centcoords = init_Cent(dataSet, k)</span><br><span class="line">    clusterChanged = <span class="literal">True</span>  <span class="comment"># 用来判断聚类是否已经收敛</span></span><br><span class="line">    <span class="keyword">while</span> clusterChanged:</span><br><span class="line">        clusterChanged = <span class="literal">False</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(m):  <span class="comment"># 把每一个数据点划分到离它最近的中心点</span></span><br><span class="line">            minDist = np.inf</span><br><span class="line">            label = -<span class="number">1</span></span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(k):</span><br><span class="line">                distJI = distEuclid(centcoords[j, :], np.mat(<span class="built_in">list</span>(dataSet.iloc[i, :])))</span><br><span class="line">                <span class="keyword">if</span> distJI &lt; minDist:</span><br><span class="line">                    minDist = distJI</span><br><span class="line">                    label = j  <span class="comment"># 如果第i个数据点到第j个中心点更近，则将i归属为j</span></span><br><span class="line">            <span class="keyword">if</span> clusterDist[i, <span class="number">0</span>] != label: clusterChanged = <span class="literal">True</span>;  <span class="comment"># 如果分配发生变化，则需要继续迭代</span></span><br><span class="line">            clusterDist[i, :] = label, minDist ** <span class="number">2</span>  <span class="comment"># 并将第i个数据点的分配情况存入字典</span></span><br><span class="line">        <span class="comment"># print(clusterAssment)</span></span><br><span class="line">        <span class="keyword">for</span> cent <span class="keyword">in</span> <span class="built_in">range</span>(k):  <span class="comment"># 重新计算中心点</span></span><br><span class="line">            ptsInClust = dataSet.iloc[np.nonzero(clusterDist[:, <span class="number">0</span>].A == cent)[<span class="number">0</span>],:]  <span class="comment"># 取出每一个类别的所有数据</span></span><br><span class="line">            centcoords[cent, :] = np.mean(ptsInClust, axis=<span class="number">0</span>)  <span class="comment"># 算出这些数据的中心点</span></span><br><span class="line">    <span class="keyword">return</span> centcoords, clusterDist</span><br></pre></td></tr></table></figure>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>在将数据带入程序之前，我们先要将数据预处理，包括缺失值处理，量纲处理等。</p>
+<p>最后的运行的分类图如下：</p>
+<p><img src="/post/b9d2a2fc/k-means.jpg" alt></p>
+<p>本文全部代码详见GitHub：<a href="https://github.com/Curtis-Lau/K-means">~戳我~</a></p>
+]]></content>
+      <tags>
+        <tag>机器学习</tag>
+        <tag>k-means</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2020年研究生数学建模B题第4问</title>
+    <url>/post/6e109dad/</url>
+    <content><![CDATA[<h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a>研究背景</h2><p>辛烷值（RON）并不为大家所熟知，但几乎都知道汽油有90#，93#，97#这几种分类，而汽油的分类依据就是RON，RON越高汽油的纯度则会越高，燃烧的效果就越好。</p>
+<p>现有一石化企业催化裂化汽油精制脱硫装置己运行4年，并且记录了大量的数据，其汽油产品的平均RON损失为1.37个单位，而类似单位的最低RON损失仅为0.6个单位。因此，还有较大的优化空间。</p>
+<p>从该企业的数据中收集325个样本，根据这些样本数据建立预测汽油RON损失的数学模型，得出样本的优化操作条件，在硫含量不大于5ug/g的条件下，至少降低30%的汽油RON损失。</p>
+<h2 id="问题四"><a href="#问题四" class="headerlink" title="问题四"></a>问题四</h2><p>首先确定RON损失降幅最大、操作风险最小的目标函数，根据问题要求给出相应的约束条件，从而建立多目标非线性优化模型。然后将多目标化为单目标，并通过引入新变量去绝对值，将非线性优化变为线性优化。最后通过Python求解，使得325个样本中RON损失降幅大于30%的样本所对应的操作变量的优化操作方案。</p>
+<span id="more"></span>
+<p>通过问题分析可以知道问题四需要建立一个优化模型，目标是损失降幅最大。但考虑到工程问题的实际情况，每操作一次即每修改一次操作变量，都会造成一定的风险，因26此，我们应该同时令风险最小。那么我们要建立的就是对RON降损的多目标规划模型。</p>
+<h3 id="RON降损多目标优化模型的建立"><a href="#RON降损多目标优化模型的建立" class="headerlink" title="RON降损多目标优化模型的建立"></a>RON降损多目标优化模型的建立</h3><p>为了对该石化企业的催化裂化汽油精制脱硫装置的操作方案做出优化调整，使得在保证汽油产品脱硫效果（硫含量不大于5ug/g）的前提下，尽量令汽油RON降损达到30%以上，除考虑RON降损和操作风险最优之外，还要把硫含量、操作的可行性、操作变量的取值范围等其他因素考虑在内，只有将各因素综合衡量后，做出来的决策才会更加合理，这便是典型的多目标优化问题。</p>
+<p>结合问题的实质情况，可以忽略那些影响微小的因素，由此，我们构建了两个规划目标，RON降损最大和操作风险最小。</p>
+<ul>
+<li>规划目标一：</li>
+</ul>
+<p>以RON降损最大为目标，得到其相应的函数关系式。RON降损=原来的RON损失-调整后的RON损失，用$R_0$表示原料RON，$R_1$表示原来的产品RON，$y_1$表示调整后的产品RON，则RON降损可以表示为：</p>
+<script type="math/tex; mode=display">R_0-R_1-（R_0-y_1）=y_1-R_1</script><p>将式（1）带入上式得目标函数：</p>
+<script type="math/tex; mode=display">max a_1x_1+a_2x_2+..+a_{12}x_{12}+b_1-R_1</script><p>将其用连加符号简写为：</p>
+<script type="math/tex; mode=display">max\displaystyle\sum^{12}_{i=1}a_ix_i+b_1-R_1</script><ul>
+<li>规划目标二：</li>
+</ul>
+<p>以操作风险最小为目标，写出其相应的函数关系式。在实际工程操作过程中，不论是人手工调整还是用电脑或机器控制，每操作一次都有可能带来一定的风险，所以操作次数越少越好。用$s_i$表示附件一中$x_i$对应的原来的数据，$\Delta_i$表示操作变量每次的最大改变量，因为$x_1,x_2$不是操作变量，所以在操作次数的函数表达式中$i=3,4,…,12$。另外在操作中需要改变，但达不到$\Delta_i$的整数倍的，应该向上取整，因为不到$\Delta_i$也需要操作一次。则操作次数最小的的目标函数是：</p>
+<script type="math/tex; mode=display">max\displaystyle\sum^{12}_3[\frac{|x_i-s_i|}{\Delta}]</script><p>但是操作次数与变量有关，需要将包含变量的关系式进行向上取整。这在规划求解过程中很难实现，所以需要将取整符号去掉。而去掉取整符号后，该是表达的是相对修改幅度，同样的相对修改幅度越小，操作次数就会越少，操作风险也会越小。因此用相对修改幅度最小替代操作次数最少，从而达到操作风险最小的目标。所以，规划目标二的函数表达式为：</p>
+<script type="math/tex; mode=display">max\displaystyle\sum^{12}_3\frac{|x_i-s_i|}{\Delta}</script><ul>
+<li>约束条件一：</li>
+</ul>
+<p>首先既然进行优化，那么优化操作后的产品RON肯定要比原来的产品RON$R_1$大，否则优化没有意义。另外，产品RON是由原料RON转化而来，不是无中生有的，所以优化操作后的产品RON肯定不能大于原来的产品RON$R_1$，由此，我们得约束条件为：</p>
+<script type="math/tex; mode=display">R_1≤\displaystyle\sum^{12}_{i=1}a_ix_i+b_1≤R_0</script><ul>
+<li>约束条件二：</li>
+</ul>
+<p>题目要求在硫含量小于等于5ug/g的条件下，尽量令汽油RON降损达到30%以上，所以我们需要约束硫含量小于等于5ug/g，第三问中，我们求得硫含量y2的表达式，因此得约束条件二：</p>
+<script type="math/tex; mode=display">c_3x_3+c_{10}x_{10}+c_{14}x_{14}+b_2≤5</script><ul>
+<li>约束条件三：</li>
+</ul>
+<p>为了控制操作风险，我们设置每个操作变量最多可以40个调整幅度值，由此可得约束条件三：</p>
+<script type="math/tex; mode=display">\frac{|x_i-s_i|}{\Delta_i}≤40,i=3,4,.…,12</script><ul>
+<li>约束条件四：</li>
+</ul>
+<p>由于工艺的要求和操作经验的总结，每个操作变量都有其操作范围，记$x_i$对应的操作范围为$[l_i,u_i]$，而$x_1,x_2$不是操作变量，所以$i=3,4,.…,12$。对应的约束条件为：</p>
+<script type="math/tex; mode=display">l_i≤x_i≤u_i,i=3,4,…,12</script><p>另外，$x_1,x_2$等于其原始值，并不会发生变动。为了保持$x_i$的完整，我们依然将其当做变量放在模型中，但会给其约束：</p>
+<script type="math/tex; mode=display">x_i=s_i，i=1,2</script><p>将上述目标函数和约束条件经过整理、化简等，得出RON降损多目标非线性优化模型为：</p>
+<script type="math/tex; mode=display">max\displaystyle\sum^{12}_{i=1}a_ix_i+b_1-R_1</script><script type="math/tex; mode=display">min\displaystyle\sum^{12}_{i=3}\frac{|x_i-s_i|}{\Delta_i}</script><p><img src="/post/6e109dad/1.PNG" alt></p>
+<h3 id="RON降损多目标优化模型的求解"><a href="#RON降损多目标优化模型的求解" class="headerlink" title="RON降损多目标优化模型的求解"></a>RON降损多目标优化模型的求解</h3><p>RON降损多目标优化模型虽然已经建立，但是会发现在求解前有两个问题急需解决，第一个问题是双目标要化成单目标，另一个是要去绝对值，将非线性规划化为线性规划，然后再用Python进行求解。</p>
+<h4 id="多目标非线性优化模型化为单目标线性优化模型"><a href="#多目标非线性优化模型化为单目标线性优化模型" class="headerlink" title="多目标非线性优化模型化为单目标线性优化模型"></a>多目标非线性优化模型化为单目标线性优化模型</h4><p>多目标决策由于考虑的目标多，有些目标之间又彼此有矛盾，这就使得多目标问题比较复杂。但实际问题中，多目标问题应用范围很广，因而出现了许多解决此问题的方法。一般来说，其基本途径是，把求解多目标问题转化为求解单目标问题。其主要步骤是，先转化为单目标问题，然后利用单目标模型的方法，求出单目标模型的最优解，以此作为多目标问题的解。而本题就是采用这种方法来求解。</p>
+<p>多目标问题转化为单目标问题比较常见的方法有优选法、线性加权法、分层序列法等等，当在多个目标中有一个目标是明显重要的，就比较适合用优选法。这样可以在对主要目标进行优化的同时兼顾其余目标，那么问题化为求该主要目标的最优值，其他的目标化为约束条件，限制其在一定的范围内变动。</p>
+<p>这里RON降损是明显重要的主要目标，所以设将风险最小化为约束条件从而将多目标问题化成单目标问题。设操作风险对应的约束范围的最大值为T，则RON降损多目标非线性优化模型转化为以下单目标非线性模型：</p>
+<script type="math/tex; mode=display">max\displaystyle\sum^{12}_{i=1}a_ix_i+b_1-R_1</script><p><img src="/post/6e109dad/3.png" alt></p>
+<p>模型中还有绝对值，所以通过引入新变量去绝对值，将非线性优化变为线性优化。</p>
+<p>引入非负变量$x^1_i,x^2_i$，</p>
+<p><img src="/post/6e109dad/4.png" alt></p>
+<h4 id="RON降损优化的操作方案"><a href="#RON降损优化的操作方案" class="headerlink" title="RON降损优化的操作方案"></a>RON降损优化的操作方案</h4><p>针对RON降损多目标优化模型，用Python进行求解（见附录1），具体结果详见附件2，随机选取5个降损幅度高于30%的样本，列出其主要变量的操作方案，结果见表8：</p>
+<p><img src="/post/6e109dad/8.PNG" alt></p>
+<p>从降损幅度高于30%的样本中随机选取10个，画出其RON损失降幅图如9：</p>
+<p><img src="/post/6e109dad/9.jpg" alt="图9：部分降损幅度高于30%额样本RON损失降幅图"></p>
+<p>通过分析RON降损多目标优化模型的结果，发现这10个样本具有相同的进行调整的操作变量，从中选出变化较明显的两个变量$x_4,x_5$，分别画出这10个样本中他们的改变：</p>
+<p><img src="/post/6e109dad/10.jpg" alt></p>
+<p><img src="/post/6e109dad/11.JPG" alt></p>
+<p><img src="/post/6e109dad/12.JPG" alt></p>
+<p>———————问题3处理结束——————-</p>
+<p>本文全部代码详见GitHub：<a href="https://github.com/Curtis-Lau/2020GMCM">~戳我~</a></p>
+]]></content>
+      <categories>
+        <category>数学建模</category>
+        <category>2020十七届研究生B</category>
+      </categories>
+      <tags>
+        <tag>数学建模</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2020年研究生数学建模B题第3问</title>
+    <url>/post/f074080e/</url>
+    <content><![CDATA[<h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a>研究背景</h2><p>辛烷值（RON）并不为大家所熟知，但几乎都知道汽油有90#，93#，97#这几种分类，而汽油的分类依据就是RON，RON越高汽油的纯度则会越高，燃烧的效果就越好。</p>
+<p>现有一石化企业催化裂化汽油精制脱硫装置己运行4年，并且记录了大量的数据，其汽油产品的平均RON损失为1.37个单位，而类似单位的最低RON损失仅为0.6个单位。因此，还有较大的优化空间。</p>
+<p>从该企业的数据中收集325个样本，根据这些样本数据建立预测汽油RON损失的数学模型，得出样本的优化操作条件，在硫含量不大于5ug/g的条件下，至少降低30%的汽油RON损失。</p>
+<h2 id="问题三"><a href="#问题三" class="headerlink" title="问题三"></a>问题三</h2><p>对于问题三，首先，以问题二筛选出的20个变量作为自变量，分别以产品RON和产品硫含量为因变量，建立多元线性回归模型，并进行t检验和F检验，从而构建出产品RON损失预测模型。然后以剩余变量继续做线性回归，并确保通过验证。为了进一步探索因变量和自变量之间更为精确的关系，建立BP神经网络模型进行拟合，并对其验证。</p>
+<span id="more"></span>
+<h3 id="多元线性回归模型"><a href="#多元线性回归模型" class="headerlink" title="多元线性回归模型"></a>多元线性回归模型</h3><p>在众多的统计模型中，多元回归模型是使用频率较高的模型。如果因变量和自变量的关系可以以线性形式展示出来，就可以建立多元线性回归模型来进行分析。多元线性回归模型利用已知数据集对我们所关心的因变量以及主要影响因素做拟合，然后通过得到的线性表达式可以分析影响变量的作用效果，从而用这些影响因素的变化来解释和预测因变量的变化趋势。</p>
+<p>普通线性回归模型</p>
+<p>预测变量$y$与变量$x_1,x_2,…,x_p$的普通线性回归模型为：</p>
+<script type="math/tex; mode=display">y=\omega_0+\omega_1x_1+...+\omega_px_p+\epsilon</script><p>其中$\omega_0$为回归常数，$\omega_j,j=1,2,…,p$表示回归系数，$y$为预测变量，$x_i,i=1,2,…,p$为解释变量，$\epsilon$为随机误项。并且存在假设$E(\epsilon)=0,Var(\epsilon)=1$，当$p=1$时，上述普通线性回归模型即为一元线性回归模型，当$p&gt;1$时即为多元线性回归模型。</p>
+<p>假设样本数据集$D=(x_1,y_1),(x_2,y_2),…,(x_n,y_n)$，其中$x_i=(x_{i1},x_{i2},…,x_{ip}),i=1,2,…,n$都是$p$维向量。多元回归模型可以记为：</p>
+<p><img src="/post/f074080e/0.png" alt></p>
+<p>则模型可写成$y=X\omega+\epsilon$</p>
+<p>通过最小二乘法求得$w_0,w_1,…,w_p$，即：$\hat{\beta}=(X^TX)^{-1}X^Ty$</p>
+<p>针对325个样本数据，利用问题二中筛选出的20个主要变量，产品辛烷值作为预测变量做最小二乘回归，经过$t$检验剔除表5中8个变量，分别为第3个，第4个，第6个，第9个，第11个，第12个，第14个，第16个，将剩下的12个变量按照在附件一中出现的顺序依次设为$x_1,x_2…,x_{12}$，结果见表6：</p>
+<p><img src="/post/f074080e/表6.png" alt></p>
+<p>由结果可知回归模型如下：</p>
+<p>$y_1=a_1x_1+a_2x_2+…+a_{12}x_{12}+b_1<br>=0.002x_1-0.102x_2+0.003x_3-0.005x_4+0.256x_5-0.003x_6-0.039x_7<br>-0.065x_8-0.168x_9+0.005x_{10}+0.0003x_{11}-0.011x_{12}+93.863$</p>
+<p>同理，上述条件不变，产品硫含量作为预测变量进行最小二乘回归，结果见表7：</p>
+<p><img src="/post/f074080e/表7.png" alt></p>
+<p>以产品硫含量为预测变量，经过$t$检验最终筛选出最优的三个变量，分别对应上述变量$x_2,x_6,x_9$，为了与变量下标相对应，它们的系数分别设为$c_2,c_6,C9$，则回归模型如下：</p>
+<script type="math/tex; mode=display">y_2=c_2x_2+c_6x_6+c_9x_9+b_2=-0.072x_2+0.002x_6+0.190x_9+7.774</script><h3 id="BP基于BP神经网络的RON损失预测模型的建立"><a href="#BP基于BP神经网络的RON损失预测模型的建立" class="headerlink" title="BP基于BP神经网络的RON损失预测模型的建立"></a>BP基于BP神经网络的RON损失预测模型的建立</h3><h4 id="神经网络的特征"><a href="#神经网络的特征" class="headerlink" title="神经网络的特征"></a>神经网络的特征</h4><p>神经网络是由简单自适应单元组成的广泛并行网络，其最基本的组成结构是神经元模型。它可以模拟生物神经系统对现实物体的反应。在生物神经网络中，每个神经元都与其他神经元相连，当某个神经元兴奋时，它就会像相连的神经元发送改变神经元电势的化学物质；如果这个电势超过一个“阈值”，神经元就会被激活，便会向其余神经元传递化学物质。</p>
+<p>神经网络的结构如下：</p>
+<ul>
+<li>结构：神经网络中的结构反映了神经网络中的神经元之间的连接关系。一般而言，BP神经网络一般由输入层、隐藏层、输出层组成，由它们构成的神经网络足以拟合绝大多数的数据模型；</li>
+<li>激励函数：激励函数主要用于引用非线性因素来解决由于线性模型的不足之处，针对本问题，我们在众多的激励函数中选择Relu函数作为我们的激励函数；</li>
+<li>学习规则：输入变量数据，然后经过Relu函数进入隐藏层，通过向后传递最终通过输出层输出结果，通过输出结果和真实值之间的误差来不断调整权重，形成最优的拟合模型。</li>
+</ul>
+<h4 id="神经网络算法"><a href="#神经网络算法" class="headerlink" title="神经网络算法"></a>神经网络算法</h4><p>在利用BP神经网络算法拟合数据时，没有必要知道算法的结构和参数。BP神经网络由两个部分组成：信息的正向传递和误差的反向传播。也就是说通过对样本不断反复的进行正向传递以及误差的反向传递就可以得出输入层与输出层之间的函数关系。<br>具体来说，信号由BP神经网络的输入层经过隐藏层向后传递，直到在输出层得出结果，接下来计算出输出值与真实值之间的拟合误差，根据拟合误差的原则来调整权重，进而得出最优模型。</p>
+<p>BP神经网络学习算法如下：</p>
+<p>（1）BP神经网络的初始化</p>
+<p>$X(x_1,x_2,…,x_n)$和$Y(y_1,y_2,…,y_m)$表示神经网络的输入变量和输出变量，输入层、隐藏层、输出层参数为$n,l,m$；$w_{ij}$为第$i$个输入层和第$j$个中间神经元之间的连接权值；$w_{jk}$表示第$j$个中间层和第$k$个输出层神经元之间的连接权值；$a$为中间层阈值；$b$为输出层阈值，然后为算法设定学习速率以及激励函数；</p>
+<p>（2）计算中间层的输出</p>
+<p>由输入变量，输入层和中间层之间的连接权值和中间层阀值，计算中间层输出$H$：</p>
+<script type="math/tex; mode=display">H_j=f(\displaystyle\sum^n_{i=1}x_i\omega_{ij}-a_j),j=1,2,...,l</script><p>其中，$f$表示中间激励函数。</p>
+<p>（3）计算输出层的输出</p>
+<p>由神经网络中间层的输出$H$，连接权值$w_{jk}$和阈值$b$，计算神经网络的预测值$\omicron$：</p>
+<script type="math/tex; mode=display">\omicron_k=f(\displaystyle\sum^l_{j=1}H_j\omega_{jk}-b_k),k=1,2,…,m</script><p>（4）计算拟合误差<br>比较神经网络的输出结果和训练集中的真实结果，计算拟合误差：</p>
+<script type="math/tex; mode=display">E=\frac{1}{m}\displaystyle\sum^m_{k=1}(y_k-\omicron_k)^2</script><p>将以上误差定义式展开到隐藏层，则有，</p>
+<script type="math/tex; mode=display">E=\frac{1}{m}\displaystyle\sum^m_{k=1}[f(\displaystyle\sum^l_{j-1}H_j\omega_{jk}-\omicron_k)]^2</script><p>然后展开到输入层，得到：</p>
+<script type="math/tex; mode=display">E=\frac{1}{m}\displaystyle\sum^m_{k=1}[f[\displaystyle\sum^l_{j=1}(\displaystyle\sum^n_{i=1}x_i\omega_{ij}-a_j)\omega_{jk}-b_k]-\omicron_k]^2</script><p>由以上式子可以看出，神经网络输入误差是wij，Wik的函数，可以通过降低误差$h$值来调整权重。</p>
+<script type="math/tex; mode=display">\Delta\omega_{jk}=-\eta\frac{\partial E}{\partial\omega_{jk}}</script><script type="math/tex; mode=display">\Delta\omega_{ij}=-\eta\frac{\partial E}{\partial\omega_{ij}}</script><p>上面两个式子中，负号代表梯度下降，常数$\eta\in(0,2)$表示比例系数，在训练中反映了学习速率。</p>
+<h4 id="基于BP神经网络的RON损失预测模型的验证"><a href="#基于BP神经网络的RON损失预测模型的验证" class="headerlink" title="基于BP神经网络的RON损失预测模型的验证"></a>基于BP神经网络的RON损失预测模型的验证</h4><p>为了验证模型的预测效果，将325个数据样本随机分为两部分，其中70%为训练集，30%为验证集，通过软件求解得出效果图如图8：</p>
+<p><img src="/post/f074080e/BP.jpg" alt="图8：BP神经网络效果图"></p>
+<p>从图中看出拟合以及验证的效果R均大于0.7，表明该模型具有一定的合理性。</p>
+<p>———————问题3处理结束——————-</p>
+<p>本文全部代码详见GitHub：<a href="https://github.com/Curtis-Lau/2020GMCM">~戳我~</a></p>
+]]></content>
+      <categories>
+        <category>数学建模</category>
+        <category>2020十七届研究生B</category>
+      </categories>
+      <tags>
+        <tag>数学建模</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2020年研究生数学建模B题第2问</title>
+    <url>/post/87733898/</url>
+    <content><![CDATA[<h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a>研究背景</h2><p>辛烷值（RON）并不为大家所熟知，但几乎都知道汽油有90#，93#，97#这几种分类，而汽油的分类依据就是RON，RON越高汽油的纯度则会越高，燃烧的效果就越好。</p>
+<p>现有一石化企业催化裂化汽油精制脱硫装置己运行4年，并且记录了大量的数据，其汽油产品的平均RON损失为1.37个单位，而类似单位的最低RON损失仅为0.6个单位。因此，还有较大的优化空间。</p>
+<p>从该企业的数据中收集325个样本，根据这些样本数据建立预测汽油RON损失的数学模型，得出样本的优化操作条件，在硫含量不大于5ug/g的条件下，至少降低30%的汽油RON损失。</p>
+<h2 id="问题二"><a href="#问题二" class="headerlink" title="问题二"></a>问题二</h2><p>对于问题二，为了建立汽油RON损失预测模型和汽油RON降损模型，需要先筛选出影响模型的主要变量。为了能够获得更系统、更合理的变量集，借鉴集成学习，使用多种方法相结合构成集成方法，使得因为数据以及方法的单一所产生的问题最小化，从而提高效果。先用随机森林和最大信息系数法各筛选出来一部分变量，合并到一起，再用最优子集回归进行最终的筛选。</p>
+<p>为了建立汽油RON损失预测模型和汽油RON降损模型，需要先筛选出影响模型的主要变量。因此我们采用先降维再建模的思路，这也是工程技术类问题经常使用的。</p>
+<span id="more"></span>
+<h3 id="随机森林"><a href="#随机森林" class="headerlink" title="随机森林"></a>随机森林</h3><p>随机森林算法（Random Forest简称为RF）是由若干个相互独立的决策树集成，决策树是一类常见的机器学习算法。以二分类任务为例，通过给定的训练集通过剪枝过程学得一个决策树模型，然后用这个模型对未见过的新样例进行分类，但是决策树也许依然适用于某些噪声数据，从而导致模型对训练数据集产生过拟合现象。针对此问题，2001年布莱曼将随机子空间算法和Bagging算法相结合并首次提出了随机森林算法。<br>RF是由多棵独立的决策树组成的集成分类器。通过对算法的输出类别由每个决策树的输出类别共同决定，如果把每个决策树看作一个“专家”，则最终输出结果可以看做由这些“专家”打分后，以少数服从多数的方式决定。与单决策树模型相比，RF能更好地解决噪声问题以及数据中的异常值且更适合用来处理大规模数据。在本问题中，我们通过随机森林来得出变量重要分数，它主要用来反映训练样例集中变量对目标变量的影响，从而完成重要指标的筛选，同时达到降维的目的。</p>
+<p><img src="/post/87733898/表1.png" alt></p>
+<h4 id="随机森林的生成"><a href="#随机森林的生成" class="headerlink" title="随机森林的生成"></a>随机森林的生成</h4><p>随机森林在变量重要性判定方面有着独特的优势，使其广泛应用于变量、指标筛选以及影响因素权重确定等方面，因此本文在对影响汽油辛烷值的因素进行筛选时，主要采用随机森林方法对各个影响因素的重要性进行判定。随机森林的生成步骤如下。</p>
+<ol>
+<li>首先通过有放回随机抽样Bootstraping的方式从原始样例集$D$中抽取$N$个样例作13为一个训练集，共进行$k$轮抽取，得到$k$个训练集，记$D_1,D_2…,D_k$；</li>
+<li>根据1生成的$k$个样例集，依据构建决策树的算法及原理构建出$k$个相互独立的决策树；</li>
+<li>对根据2中生成的$k$个决策树进行集成构成随机森林集成分类器。针对分类问题，最终的分类结果是由所有决策树的投票来确定的，对于回归问题，使用所有决策树输出结果的均值来作为最终的输出结果；</li>
+<li>对于选取测试集来对模型进行验证，由于训练集生成过程中，采取的是有放回抽样，所以在$k$次生成训练集的过程中会存在从没有被抽到过的样本，因此用这些样本作为验证集验证模型是合理的。</li>
+</ol>
+<h4 id="基于随机森林的变量影响力测算及筛选"><a href="#基于随机森林的变量影响力测算及筛选" class="headerlink" title="基于随机森林的变量影响力测算及筛选"></a>基于随机森林的变量影响力测算及筛选</h4><p>利用随机森林方法对影响因素重要性进行判定时主要采用的衡量指标是变量重要性分数，随机森林计算变量重要性分数已经被广泛应用于各种数据分析以及数据挖掘任务中，本文在对汽油辛烷值影响因素重要性进行衡量时主要采用基于置换的变量重要性分数。利用该衡量指标对某个指标进行重要性判定的基本步骤为：</p>
+<ol>
+<li>首先依据Bootstraping的方式从原始样例集$D$中抽取$N$个样例作为一个训练集，没有抽取到的样本构成一组袋外数据，这样就构成了$k$个训练集$D_1,D_2,…,D_k$和$k$个袋外数据$D^{‘}_k$。</li>
+<li>用这$k$个训练集构成$k$个独立决策树$T_1,T_2,…,T_k$，对相应的袋外数据进行分类并计算对应分类准确率$R_I$，对每个训练集i的每个变量值j进行变换，并将变量变换之后的袋外数据用$D^{‘}_{ij}$表示，其中$i=1,2,…k,j=1,2,…354$，用决策树$T_i$对变化后的袋外数据$D^{‘}_{ij}$计算分类准确率$R_{ij}$，得出扰动前后的分类正确率。</li>
+<li>最后，计算这两次对袋外数据分类准确率的减少量即为该因素重要性的衡量依据，减少量越大，那么就证明对应变量的重要程度越强，反之则表明该变量不是很重要，可以删去。特征$X_j$的变量重要性分数记为$score_j$，求解公式为：$score_j=\frac{1}{k}\displaystyle\sum^k_{i=1}(R_i-R_{ij})$</li>
+<li>以相同的方式重复构建随机森林，然后求出变量的重要性分数，对变量的若干重要性均值求解得出最终的变量重要性分数，进行排序得出排名靠前的若干个影响因素。</li>
+</ol>
+<h4 id="最大信息系数法"><a href="#最大信息系数法" class="headerlink" title="最大信息系数法"></a>最大信息系数法</h4><p>最大信息系数法适用于在大数据集中探寻潜在的紧密相关的变量对，是一种确定两变量相关性的标准，且具备广泛性和公平性两种属性。因此本文同时用最大信息系数法与随机森林结合来进行因素的初步筛选。</p>
+<h5 id="最大信息系数法相关的信息论理论"><a href="#最大信息系数法相关的信息论理论" class="headerlink" title="最大信息系数法相关的信息论理论"></a>最大信息系数法相关的信息论理论</h5><p>最大信息系数是以信息论中的互信息为基础的，所以我们首先引入信息论中信息熵、条件熵和互信息量的概念及理论。<br>在如今数据驱动的时代，各行各业每天每时每刻都在产生无穷尽的数据，但是并不是数据越多越好或者如此多的数据可能有很多都不会给我们提供有用的信息。信息论作为衡量不确定性的一种方法，在机器学习算法中的特征选择方面，人们常常将不确定性较小的特征作为最优特征，但是问题在于如何将信息进行量化。基于此问题，Shannon于1948年提出信息熵的概念，将特征的不确定性用数值的形式反映出来，随着信息熵的应用的发展，基于信息熵在特征选择算法上也更具有适用性，本文把互信息最大信息系数法作为我们特征筛选的方法之一。</p>
+<ul>
+<li>信息熵</li>
+</ul>
+<p>信息熵将特征的不确定性用数值的形式反映出来，它是由Shannon于1948年提出来的。信息熵越大就表明特征的不确定性越大，反之。由于离散信源的明了和易懂性，以下所介绍的信息熵都是基于离散信源。</p>
+<p>信息熵问题在介绍决策树时已经讲过，这里就不讲了。</p>
+<ul>
+<li>最大信息系数法步骤</li>
+</ul>
+<p>特征选择的最大信息系数法：</p>
+<p>设已知有包含$k$个类别的样本数据集，且这$k$个类别中的每类有$m$个样本，每个样本点包含$N$个特征{$x^{(1)}_1,…,x^{(1)}_m,…,x^{(k)}_1,…,x^{(k)}_m$}，其中$x^{(k)}_i=(x_{i,1},…,x_{i.N})$表示类别$k$的第$i$个样本的特征组成的向量。</p>
+<p>此方法根据单独最优特征组合搜索法的观点，从$N$个特征中搜索出有效性判据值最大的前$n$个特征作为特征子集用于分类。把最大信息系数作为有效性判据，用于单独最优特征组合搜索法中做特征选择，具体步骤如下：</p>
+<p>步骤一：记对照样本为$y^{(1)},…,y^{(k)}$，它们是从每个类中分别随机选取的，其余样本即为训练样本；</p>
+<p>步骤二：将对照样本的第个特征与对应的$m-1$个训练样本的第$j$个特征一一对应，$k$个类别一共构成与特征$j$有关的$k(m-1)$个变量对；</p>
+<p>步骤三：求出步骤二中所得变量对的$MIC$，$N$个特征共得到个$N$个$MIC$；</p>
+<p>步骤四：最后，对全部特征的$MIC$值由大到小进行排序，选择$MIC$最大的前$n$个特征进入特征子集。</p>
+<h3 id="最优子集回归"><a href="#最优子集回归" class="headerlink" title="最优子集回归"></a>最优子集回归</h3><p>最优子集选择的思路很容易理解，就是把所有自变量的组合都拟合一遍，比较一下哪个模型更好，选出最优模型。<br>给定一组观测值$(x_{i1},x_{i2},….,x_{ip},yi(i=1,2,…,n))$，用最小二乘法建立回归方程，我们不清楚哪些自变量和因变量有显著的线性关系，列出全部的回归方程，$p$个因素有$2^p-1$个回归方程，那么这些方程哪个是最优的？根据一些比较标准我们就能得到最优的回归方程。以下有四个常用比较标准：</p>
+<ul>
+<li><p>剩余均方和：</p>
+<script type="math/tex; mode=display">\hat{\sigma}(p^{'})=\frac{SSE(p^{'})}{n-p^{'}-1}</script><p>$\hat{\sigma}(p^{‘})$较小的回归方程最优；</p>
+</li>
+<li><p>校正后的复决定系数：</p>
+<script type="math/tex; mode=display">R_{Adj}=R^2(p^{'})-\frac{p^{'}(1-R^2(p^{'}))}{n-p^{'}-1}</script><p>$R_{Adj}$较大的回归方程较优；</p>
+</li>
+<li><p>Akaike信息量：</p>
+<script type="math/tex; mode=display">AIC=nlnSSE(p^{'})n+2(p^{'}+1)</script><p>$AIC$较小的回归方程最优；</p>
+</li>
+</ul>
+<h3 id="基于随机森林和最大信息系数法的RON最优子集回归模型的建立"><a href="#基于随机森林和最大信息系数法的RON最优子集回归模型的建立" class="headerlink" title="基于随机森林和最大信息系数法的RON最优子集回归模型的建立"></a>基于随机森林和最大信息系数法的RON最优子集回归模型的建立</h3><p>对于筛查因素或特征选择问题，计算量会随着变量数量的增加呈指数增长，我们想要知道哪组变量在能够反映问题特征的同时计算量也最小，所以本质上，它是组合优化题。对于这个优化问题，每个方法只能给出一个近似解，而且因为子集搜索方法和评价标准是不同的，且不同方法解决方案的合理性会受到其本身局限性的影响。为了能够获得更系统、更合理的变量子集，借鉴集成学习，使用多种方法相结合构成集成方法，使得因头数据以及方法的单一所产生的问题最小化，从而提高效果。</p>
+<p>最优子集回归最大的优点在于它能够找出所有特征的最优组合，这也是上述两种法所欠缺的。当然，由于这种方法是从所有特征的任意组合中筛选出主要的变量，因此如果变量的数目非常大时，计算量也会呈指数式增长。因此我们先用随机森林和最大信息系数法各筛选出来一部分变量，合并到一起，此时变量个数已大大缩减，便可以用最优子集回归进行最终的筛选。</p>
+<p>基于随机森林和最大信息系数法的RON最优子集回归模型的技术路线如图5：</p>
+<p><img src="/post/87733898/技术路线图.jpg" alt="图5：技术路线图"></p>
+<h3 id="基于随机森林和最大信息系数法的RON最优子集回归模型的求解"><a href="#基于随机森林和最大信息系数法的RON最优子集回归模型的求解" class="headerlink" title="基于随机森林和最大信息系数法的RON最优子集回归模型的求解"></a>基于随机森林和最大信息系数法的RON最优子集回归模型的求解</h3><p>通过构建基于随机森林的影响因素变量重要性求解模型，用Python求得各个影响因素的重要性分数的均值。给出根据367个变量的重要性分数筛选出的较高的前二十个变量的信息，结果见图6：</p>
+<p><img src="/post/87733898/重要性分值图.jpg" alt="图6：重要性分值图"></p>
+<p>图中，可以看出硫含量的重要性分数最高，说明在影响产品辛烷值的所有因素中，其发挥的作用做大，其次是饱和氢和S-Z0RB.TC-2801，除图中所示的影响因素的重要性分数以外，其余影响因素的重要性分数由于都很小几乎接近于0，因此没有给出。因此为了简化辛烷值损失预测模型输入，本文在进行产品辛烷值影响因素时只选取影响力相对较大的因素，不考虑作用很小几乎可以忽略不计的影响因素。</p>
+<p>同理，用最大信息系数法对367个变量进行筛选排序，用Python求解后，也选出前20个，因此通过随机森林算法和最大信息系数法筛选后的辛烷值影响因素结果见表3：</p>
+<p><img src="/post/87733898/表3.png" alt></p>
+<p>结果发现两种方法算出的前20个变量有8个是重合的，因此合并后共32个变量，见表4:</p>
+<p><img src="/post/87733898/表4.png" alt></p>
+<p>对以上32个变量的数据进行最优子集回归，用R语言求解最优子集回归模型，将4种比较标准都运行过后，发现结果几乎一致，其中以校正后的复决定系数为比较标准的结果更趋于稳定，得到图7：</p>
+<p><img src="/post/87733898/最优子集回归.jpg" alt="图7：最优子集回归拟合图"></p>
+<p>由图可知，当指标个数在20至24时回归效果达到稳定最优，而当指标个数达到25之后回归效果又开始下降，因此我们应该选择20-24个变量，鉴于指标个数越小越好，本文取20个指标。用R语言求出变量个数为20个时的最优子集见表5：</p>
+<p><img src="/post/87733898/表5.png" alt></p>
+<p>为了建立汽油RON损失模型，从而得到相应的汽油RON损失预测模型和汽油 RON降损模型，我们首先需要降维筛选出主要变量。为此，本文用随机森林、互信息法和最优子集回归相结合所构成的集成方法，通过Python和R语言进行求解，最终筛选出20个主要变量，这20个主要变量如表5所示。</p>
+<p>———————问题2处理结束——————-</p>
+<p>本文全部代码详见GitHub：<a href="https://github.com/Curtis-Lau/2020GMCM">~戳我~</a></p>
+]]></content>
+      <categories>
+        <category>数学建模</category>
+        <category>2020十七届研究生B</category>
+      </categories>
+      <tags>
+        <tag>数学建模</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2020年研究生数学建模B题第1问</title>
+    <url>/post/aff86645/</url>
+    <content><![CDATA[<h2 id="研究背景"><a href="#研究背景" class="headerlink" title="研究背景"></a>研究背景</h2><p>辛烷值（RON）并不为大家所熟知，但几乎都知道汽油有90#，93#，97#这几种分类，而汽油的分类依据就是RON，RON越高汽油的纯度则会越高，燃烧的效果就越好。</p>
+<p>现有一石化企业催化裂化汽油精制脱硫装置己运行4年，并且记录了大量的数据，其汽油产品的平均RON损失为1.37个单位，而类似单位的最低RON损失仅为0.6个单位。因此，还有较大的优化空间。</p>
+<p>从该企业的数据中收集325个样本，根据这些样本数据建立预测汽油RON损失的数学模型，得出样本的优化操作条件，在硫含量不大于5ug/g的条件下，至少降低30%的汽油RON损失。</p>
+<h2 id="问题一"><a href="#问题一" class="headerlink" title="问题一"></a>问题一</h2><p>对于问题一，首先对近4年325个样本的工业数据进行分析，清楚其数据特点。为了更有效地进行数据预处理，在原本“样本确定方法”的基础上又加入箱型图法，从而构成新的数据整理方法。接下来对285号和313号数据样本再进行预处理，将处理结果对应其样本号，按操作位点名称相应加到附件一中，以供后续问题使用。</p>
+<span id="more"></span>
+<h3 id="数据采集"><a href="#数据采集" class="headerlink" title="数据采集"></a>数据采集</h3><p>本文采用的是中石化高桥石化从2017年4月至2020年5月近4年的数据，采集了催化裂化汽油精制脱硫装置的354个操作位点，以及7个原料性质、2个待生吸附剂性质、2个再生吸附剂性质、2个产品性质等变量。具体见表1：</p>
+<p><img src="/post/aff86645/图1.png" alt></p>
+<h3 id="数据预处理"><a href="#数据预处理" class="headerlink" title="数据预处理"></a>数据预处理</h3><p>本文的数据比较常见的情况有：只含有部分时间点的时间残缺值、样本数据有空值、需要剔除的异常值。基于这些问题，主要的操作是对于难以弥补、纠正的数据直接删除，空值用其前后两个小时数据的平均值替代，可以弥补的将原数据剔除后其前后两个小时数据的平均值替代。本文选的数据整理方法如图2：</p>
+<p><img src="/post/aff86645/箱型图.jpg" alt="图2：箱型图"></p>
+<p><img src="/post/aff86645/样本确定方法.jpg" alt="图3：样本确定方法"></p>
+<h4 id="箱型图"><a href="#箱型图" class="headerlink" title="箱型图"></a>箱型图</h4><p>其中箱型图又称盒式图，是美国杰出学家John Tukey于1977年发明。原始数据的分布特征不仅可以通过箱线图不仅可以通过箱型图反映出来，而且多组数据的分布特征间的比较也能够通过它反映出来。通过绘制箱型图，不但能够看出数据的离散程度还能直接看出数据点的异常值，如图3：绘制箱型图的具体步骤如下：</p>
+<ol>
+<li>将数据由小到大排序，找出中位数，上四分位数和下四分位数以及数据的上边缘和下边缘；</li>
+<li>然后连接上四分位数和下四分位数构成箱体；</li>
+<li>将上下边缘与箱体相连，中位数位于箱体中间位置。</li>
+</ol>
+<p>在这里我们记上四分位数为Q3，下四分位数Q1，上边缘为Q3+1.51QR，下边缘为Qi-1.5IQR，其中上边缘和下边缘又称为异常值截断点，处于上边缘或下边缘之外的点就为数据的异常点。</p>
+<h4 id="拉依达准则"><a href="#拉依达准则" class="headerlink" title="拉依达准则"></a>拉依达准则</h4><p>在处理数据时，有时为了提高数据的准确性，需要对某些异常值进行剔除，在这种情况下，可以考虑拉依达准则，也称$3\sigma$准则。<br>假设一组测量变量只包含随机误差，设这些变量分别为$x_1,x_2,…,x_n$，对它们求均值记为$x$，计算出剩余误差$v_i=x_i-x,i=1,2…,n$，利用贝塞尔公式算出标准误差$\sigma$，若某个测量值$x_i$的剩余误差$v_i$，满足$|v_i|=|x_i-x|&gt;3\sigma$，就认为此剩余误差属于粗大误差，应该剔除。贝塞尔公式如下：</p>
+<script type="math/tex; mode=display">\sigma=[\frac{1}{n-1}\displaystyle\sum^n_{i=1}V^2_i]^{1/2}=[[\displaystyle\sum^n_{i=1}x^2_i-{(\displaystyle\sum^n_{i=1}x_i)^2}/n]/(n-1)]^{1/2}</script><h3 id="数据整理结果"><a href="#数据整理结果" class="headerlink" title="数据整理结果"></a>数据整理结果</h3><p>利用以上数据整理方法，用Python软件来预处理285号样本数据和313号样本数据，结果显示，285号样本数据不存在残缺值、空值和异常值，而313号样本数据共有42个变量存在异常值。其中部分箱型图如图4：</p>
+<p><img src="/post/aff86645/部分箱型图.png" alt="图4：部分箱型图"></p>
+<p>这42个存在异常值的操作位点名称见表2：<br>对于这些异常值，我们用其前后两个小时数据的平均值进行替代处理。最后将这些处理过的数据，对应其样本号，按操作位点名称相应加到附件一中，以供后续问题使用。</p>
+<p>———————问题1处理结束——————-</p>
+<p>本文全部代码详见GitHub：<a href="https://github.com/Curtis-Lau/2020GMCM">~戳我~</a></p>
+]]></content>
+      <categories>
+        <category>数学建模</category>
+        <category>2020十七届研究生B</category>
+      </categories>
+      <tags>
+        <tag>数学建模</tag>
       </tags>
   </entry>
 </search>

@@ -6,7 +6,7 @@
   <link href="http://curtis-lau.github.io/atom.xml" rel="self"/>
   
   <link href="http://curtis-lau.github.io/"/>
-  <updated>2021-06-29T05:24:07.213Z</updated>
+  <updated>2021-06-29T14:48:54.082Z</updated>
   <id>http://curtis-lau.github.io/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="http://curtis-lau.github.io/post/35221811/"/>
     <id>http://curtis-lau.github.io/post/35221811/</id>
     <published>2021-06-28T07:15:10.000Z</published>
-    <updated>2021-06-29T05:24:07.213Z</updated>
+    <updated>2021-06-29T14:48:54.082Z</updated>
     
     
     <summary type="html">&lt;p&gt;个人信息介绍，求职中，欢迎联系~~~&lt;/p&gt;
@@ -97,6 +97,26 @@
     <category term="机器学习" scheme="http://curtis-lau.github.io/source/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
     
     <category term="遗传算法" scheme="http://curtis-lau.github.io/source/tags/%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>k-means</title>
+    <link href="http://curtis-lau.github.io/post/b9d2a2fc/"/>
+    <id>http://curtis-lau.github.io/post/b9d2a2fc/</id>
+    <published>2020-11-12T08:41:10.000Z</published>
+    <updated>2020-12-10T07:11:24.000Z</updated>
+    
+    
+    <summary type="html">&lt;p&gt;K-means 是我们最常用的基于欧式距离的聚类算法，其认为两个目标的距离越近，相似度越大。&lt;/p&gt;
+&lt;p&gt;本文大致思路为：先介绍经典的牧师-村名模型来引入 K-means 算法，然后介绍算法步骤和时间复杂度，通过介绍其优缺点来引入算法的调优与改进，最后我们利用之前学的 EM 算法，对其进行收敛证明。&lt;/p&gt;</summary>
+    
+    
+    
+    
+    <category term="机器学习" scheme="http://curtis-lau.github.io/source/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+    <category term="k-means" scheme="http://curtis-lau.github.io/source/tags/k-means/"/>
     
   </entry>
   
