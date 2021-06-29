@@ -45,15 +45,28 @@
   </entry>
   
   <entry>
-    <title>LinUCB_based_on_ga</title>
+    <title>LinUCB Based on GA</title>
     <link href="http://curtis-lau.github.io/post/8bec61f5/"/>
     <id>http://curtis-lau.github.io/post/8bec61f5/</id>
     <published>2021-04-28T13:04:51.000Z</published>
     <updated>2021-06-27T07:14:58.000Z</updated>
     
     
+    <summary type="html">&lt;p&gt;前面几篇文章已经讲解了决策树、LinUCB以及决策树和LinUCB算法相结合的股票推荐系统。本文是将决策树替换成遗传算法，目的是为了解决LinUCB算法中的超参数以及岭回归惩罚系数对的设定问题。在LinUCB中，我们知道臂（arm）的选择公式是：&lt;/p&gt;
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;\theta_a=(D^T_aD_a+I)^{-1}D^T_aC_a&lt;/script&gt;&lt;p&gt;这里的$\theta$受到$I$的影响，而$I$是一个对角线元素在$[0,1]$之间的矩阵，具体数值根据经验而定。&lt;/p&gt;
+&lt;script type=&quot;math/tex; mode=display&quot;&gt;arm_i = argmax(x^T_t\theta_t+\alpha\sqrt{x^T_t(D^TD+I)^{-1}x_t})&lt;/script&gt;&lt;p&gt;这里的$\alpha$就是一个超参数，而且$\alpha=1+\sqrt{\frac{ln{2}}{\delta}/2}$，所以$\theta≥1$。&lt;/p&gt;
+&lt;p&gt;所以，基于上述两个原因，本文在LinUCB的基础上加入了遗传算法，对LinUCB参数进行优化。&lt;/p&gt;</summary>
     
     
+    
+    
+    <category term="机器学习" scheme="http://curtis-lau.github.io/source/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+    <category term="强化学习" scheme="http://curtis-lau.github.io/source/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"/>
+    
+    <category term="推荐算法" scheme="http://curtis-lau.github.io/source/tags/%E6%8E%A8%E8%8D%90%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="遗传算法" scheme="http://curtis-lau.github.io/source/tags/%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95/"/>
     
   </entry>
   
@@ -73,6 +86,8 @@
     <category term="算法" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/"/>
     
     <category term="机器学习" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+    <category term="遗传算法" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95/"/>
     
     
     <category term="机器学习" scheme="http://curtis-lau.github.io/source/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
@@ -96,6 +111,8 @@
     
     <category term="机器学习" scheme="http://curtis-lau.github.io/source/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
     
+    <category term="决策树" scheme="http://curtis-lau.github.io/source/tags/%E5%86%B3%E7%AD%96%E6%A0%91/"/>
+    
     <category term="强化学习" scheme="http://curtis-lau.github.io/source/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"/>
     
     <category term="推荐算法" scheme="http://curtis-lau.github.io/source/tags/%E6%8E%A8%E8%8D%90%E7%AE%97%E6%B3%95/"/>
@@ -113,6 +130,8 @@
     <summary type="html">&lt;p&gt;本文爬取的是慧博研投(www.hibor.com.cn)研报栏目的数据，主要包含研报的发布时间、标题、摘要的信息，然后将数据存于本地MongoDB数据库中。&lt;/p&gt;</summary>
     
     
+    
+    <category term="爬虫" scheme="http://curtis-lau.github.io/source/categories/%E7%88%AC%E8%99%AB/"/>
     
     
     <category term="爬虫" scheme="http://curtis-lau.github.io/source/tags/%E7%88%AC%E8%99%AB/"/>
@@ -161,6 +180,8 @@
     <category term="算法" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/"/>
     
     <category term="机器学习" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
+    
+    <category term="决策树" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E5%86%B3%E7%AD%96%E6%A0%91/"/>
     
     
     <category term="机器学习" scheme="http://curtis-lau.github.io/source/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>

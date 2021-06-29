@@ -343,7 +343,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/post/8bec61f5/" class="post-title-link" itemprop="url">LinUCB_based_on_ga</a>
+            <a href="/post/8bec61f5/" class="post-title-link" itemprop="url">LinUCB Based on GA</a>
         </h2>
 
         <div class="post-meta">
@@ -376,7 +376,18 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          
+          <p>前面几篇文章已经讲解了决策树、LinUCB以及决策树和LinUCB算法相结合的股票推荐系统。本文是将决策树替换成遗传算法，目的是为了解决LinUCB算法中的超参数以及岭回归惩罚系数对的设定问题。在LinUCB中，我们知道臂（arm）的选择公式是：</p>
+<script type="math/tex; mode=display">\theta_a=(D^T_aD_a+I)^{-1}D^T_aC_a</script><p>这里的$\theta$受到$I$的影响，而$I$是一个对角线元素在$[0,1]$之间的矩阵，具体数值根据经验而定。</p>
+<script type="math/tex; mode=display">arm_i = argmax(x^T_t\theta_t+\alpha\sqrt{x^T_t(D^TD+I)^{-1}x_t})</script><p>这里的$\alpha$就是一个超参数，而且$\alpha=1+\sqrt{\frac{ln{2}}{\delta}/2}$，所以$\theta≥1$。</p>
+<p>所以，基于上述两个原因，本文在LinUCB的基础上加入了遗传算法，对LinUCB参数进行优化。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/post/8bec61f5/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -441,6 +452,10 @@
                   ，
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
                   <a href="/source/categories/%E7%AE%97%E6%B3%95/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/" itemprop="url" rel="index"><span itemprop="name">机器学习</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/source/categories/%E7%AE%97%E6%B3%95/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/%E9%81%97%E4%BC%A0%E7%AE%97%E6%B3%95/" itemprop="url" rel="index"><span itemprop="name">遗传算法</span></a>
                 </span>
             </span>
 
@@ -631,7 +646,7 @@
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">分类</span></a>
       </div>
       <div class="site-state-item site-state-tags">
