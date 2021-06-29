@@ -6,7 +6,7 @@
   <link href="http://curtis-lau.github.io/atom.xml" rel="self"/>
   
   <link href="http://curtis-lau.github.io/"/>
-  <updated>2021-06-28T07:39:12.667Z</updated>
+  <updated>2021-06-29T05:24:07.213Z</updated>
   <id>http://curtis-lau.github.io/</id>
   
   <author>
@@ -17,29 +17,27 @@
   <generator uri="https://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>2020年研究生数学建模B题</title>
-    <link href="http://curtis-lau.github.io/post/aff86645/"/>
-    <id>http://curtis-lau.github.io/post/aff86645/</id>
-    <published>2021-06-28T07:35:27.000Z</published>
-    <updated>2021-06-28T07:39:12.667Z</updated>
-    
-    
-    
-    
-    
-  </entry>
-  
-  <entry>
     <title>个人简介</title>
     <link href="http://curtis-lau.github.io/post/35221811/"/>
     <id>http://curtis-lau.github.io/post/35221811/</id>
     <published>2021-06-28T07:15:10.000Z</published>
-    <updated>2021-06-28T07:49:52.139Z</updated>
+    <updated>2021-06-29T05:24:07.213Z</updated>
     
     
-    <summary type="html">&lt;p&gt;个人信息介绍，欢迎联系~&lt;/p&gt;</summary>
+    <summary type="html">&lt;p&gt;个人信息介绍，求职中，欢迎联系~~~&lt;/p&gt;
+&lt;h3 id=&quot;个人信息&quot;&gt;&lt;a href=&quot;#个人信息&quot; class=&quot;headerlink&quot; title=&quot;个人信息&quot;&gt;&lt;/a&gt;个人信息&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;姓名：刘义来&lt;/li&gt;
+&lt;li&gt;性别：男&lt;/li&gt;
+&lt;li&gt;出生年月：1997 年02月&lt;/li&gt;
+&lt;li&gt;现居地址：浙江杭州&lt;/li&gt;
+&lt;li&gt;专业方向：金融学——资本市场（量化）&lt;/li&gt;
+&lt;li&gt;学历：硕士研究生（在读中，2022年01月毕业）&lt;/li&gt;
+&lt;li&gt;微信号：Curtis_L（可别忘了备注唷(＾Ｕ＾)ノ~ＹＯ）&lt;/li&gt;
+&lt;/ul&gt;</summary>
     
     
+    
+    <category term="个人简介" scheme="http://curtis-lau.github.io/source/categories/%E4%B8%AA%E4%BA%BA%E7%AE%80%E4%BB%8B/"/>
     
     
   </entry>
@@ -58,6 +56,12 @@
 &lt;p&gt;所以，基于上述两个原因，本文在LinUCB的基础上加入了遗传算法，对LinUCB参数进行优化。&lt;/p&gt;</summary>
     
     
+    
+    <category term="算法" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="强化学习" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"/>
+    
+    <category term="推荐算法" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E6%8E%A8%E8%8D%90%E7%AE%97%E6%B3%95/"/>
     
     
     <category term="机器学习" scheme="http://curtis-lau.github.io/source/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
@@ -97,6 +101,82 @@
   </entry>
   
   <entry>
+    <title>2020年研究生数学建模B题第4问</title>
+    <link href="http://curtis-lau.github.io/post/6e109dad/"/>
+    <id>http://curtis-lau.github.io/post/6e109dad/</id>
+    <published>2020-09-30T07:00:14.000Z</published>
+    <updated>2020-10-04T01:54:11.000Z</updated>
+    
+    
+    
+    
+    <category term="数学建模" scheme="http://curtis-lau.github.io/source/categories/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/"/>
+    
+    <category term="2020十七届研究生B" scheme="http://curtis-lau.github.io/source/categories/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/2020%E5%8D%81%E4%B8%83%E5%B1%8A%E7%A0%94%E7%A9%B6%E7%94%9FB/"/>
+    
+    
+    <category term="数学建模" scheme="http://curtis-lau.github.io/source/tags/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>2020年研究生数学建模B题第3问</title>
+    <link href="http://curtis-lau.github.io/post/f074080e/"/>
+    <id>http://curtis-lau.github.io/post/f074080e/</id>
+    <published>2020-09-30T03:25:51.000Z</published>
+    <updated>2020-10-03T08:11:54.000Z</updated>
+    
+    
+    
+    
+    <category term="数学建模" scheme="http://curtis-lau.github.io/source/categories/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/"/>
+    
+    <category term="2020十七届研究生B" scheme="http://curtis-lau.github.io/source/categories/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/2020%E5%8D%81%E4%B8%83%E5%B1%8A%E7%A0%94%E7%A9%B6%E7%94%9FB/"/>
+    
+    
+    <category term="数学建模" scheme="http://curtis-lau.github.io/source/tags/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>2020年研究生数学建模B题第2问</title>
+    <link href="http://curtis-lau.github.io/post/87733898/"/>
+    <id>http://curtis-lau.github.io/post/87733898/</id>
+    <published>2020-09-29T05:06:07.000Z</published>
+    <updated>2020-09-30T01:36:21.000Z</updated>
+    
+    
+    
+    
+    <category term="数学建模" scheme="http://curtis-lau.github.io/source/categories/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/"/>
+    
+    <category term="2020十七届研究生B" scheme="http://curtis-lau.github.io/source/categories/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/2020%E5%8D%81%E4%B8%83%E5%B1%8A%E7%A0%94%E7%A9%B6%E7%94%9FB/"/>
+    
+    
+    <category term="数学建模" scheme="http://curtis-lau.github.io/source/tags/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>2020年研究生数学建模B题第1问</title>
+    <link href="http://curtis-lau.github.io/post/aff86645/"/>
+    <id>http://curtis-lau.github.io/post/aff86645/</id>
+    <published>2020-09-28T07:35:27.000Z</published>
+    <updated>2020-09-29T03:01:25.000Z</updated>
+    
+    
+    
+    
+    <category term="数学建模" scheme="http://curtis-lau.github.io/source/categories/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/"/>
+    
+    <category term="2020十七届研究生B" scheme="http://curtis-lau.github.io/source/categories/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/2020%E5%8D%81%E4%B8%83%E5%B1%8A%E7%A0%94%E7%A9%B6%E7%94%9FB/"/>
+    
+    
+    <category term="数学建模" scheme="http://curtis-lau.github.io/source/tags/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/"/>
+    
+  </entry>
+  
+  <entry>
     <title>LinUCB Based on Decision Tree</title>
     <link href="http://curtis-lau.github.io/post/40deb9b1/"/>
     <id>http://curtis-lau.github.io/post/40deb9b1/</id>
@@ -107,6 +187,12 @@
     <summary type="html">&lt;p&gt;本部分将前面写的LinUCB算法和决策树算法结合起来，以HS300成分股为股票池，首先定义一些因子，放入决策树将股票分组，每一组可以看成是一个portfolio，在时间$t$，将改时间所有的portfolio放入推荐系统，根据投资者的偏好、效用等特征选取投资组合推荐给投资者。&lt;/p&gt;</summary>
     
     
+    
+    <category term="算法" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/"/>
+    
+    <category term="强化学习" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/"/>
+    
+    <category term="推荐算法" scheme="http://curtis-lau.github.io/source/categories/%E7%AE%97%E6%B3%95/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/%E6%8E%A8%E8%8D%90%E7%AE%97%E6%B3%95/"/>
     
     
     <category term="机器学习" scheme="http://curtis-lau.github.io/source/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>

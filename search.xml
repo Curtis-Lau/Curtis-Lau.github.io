@@ -3,15 +3,17 @@
   <entry>
     <title>个人简介</title>
     <url>/post/35221811/</url>
-    <content><![CDATA[<p>个人信息介绍，欢迎联系~</p>
-<span id="more"></span>
+    <content><![CDATA[<p>个人信息介绍，求职中，欢迎联系~~~</p>
 <h3 id="个人信息"><a href="#个人信息" class="headerlink" title="个人信息"></a>个人信息</h3><ul>
 <li>姓名：刘义来</li>
 <li>性别：男</li>
 <li>出生年月：1997 年02月</li>
 <li>现居地址：浙江杭州</li>
-<li>微信号：Curtis_L(添加记得备注哦~)</li>
+<li>专业方向：金融学——资本市场（量化）</li>
+<li>学历：硕士研究生（在读中，2022年01月毕业）</li>
+<li>微信号：Curtis_L（可别忘了备注唷(＾Ｕ＾)ノ~ＹＯ）</li>
 </ul>
+<span id="more"></span>
 <h3 id="教育经历"><a href="#教育经历" class="headerlink" title="教育经历"></a>教育经历</h3><ul>
 <li><p>硕士，浙江工商大学，金融学专业，2019.09~至今.</p>
 </li>
@@ -49,12 +51,14 @@
 <li>详见：<a href="https://github.com/Curtis-Lau/crawl-hibor">https://github.com/Curtis-Lau/crawl-hibor</a></li>
 </ul>
 </li>
-<li><p><strong>项目三</strong>：2020年十七届中国研究生数学建模竞赛B题</p>
-<ul>
+<li><strong>项目三</strong>：2020年十七届中国研究生数学建模竞赛B题<ul>
 <li>介绍：该题目是“汽油辛烷值优化建模”，题1是数据处理，题2是筛选变量，题3是建立预测模型，题4是主要变量的优化方案，题5是模型的可视化。</li>
 <li>详见：<a href="https://github.com/Curtis-Lau/2020GMCM">https://github.com/Curtis-Lau/2020GMCM</a></li>
 </ul>
-<h3 id="职场技能"><a href="#职场技能" class="headerlink" title="职场技能"></a>职场技能</h3></li>
+</li>
+</ul>
+<p><strong>……更多详见GitHub……</strong></p>
+<h3 id="职场技能"><a href="#职场技能" class="headerlink" title="职场技能"></a>职场技能</h3><ul>
 <li><p>熟悉</p>
 <ul>
 <li>Python/R：机器学习、强化学习、数据挖掘、大数据处理、网络爬虫</li>
@@ -77,11 +81,9 @@
 <li>善于沟通，具备活动策划和组织协调能力。良好的心态和责任感，吃苦耐劳，擅于管理时间，勇于面对变化和挑战。良好的学习能力，习惯制定切实可行的学习计划，勤于学习能不断提高。</li>
 </ul>
 ]]></content>
-  </entry>
-  <entry>
-    <title>2020年研究生数学建模B题</title>
-    <url>/post/aff86645/</url>
-    <content><![CDATA[]]></content>
+      <categories>
+        <category>个人简介</category>
+      </categories>
   </entry>
   <entry>
     <title>LinUCB Based on GA</title>
@@ -111,6 +113,11 @@
 <p>对LinUCB这一部分有兴趣或者有疑问的读者可以通过首页微信或邮箱联系我。</p>
 <p>下面附上文章全部代码地址：<a href="https://github.com/Curtis-Lau/LinUCB-Based-on-GAS">~点我~</a></p>
 ]]></content>
+      <categories>
+        <category>算法</category>
+        <category>强化学习</category>
+        <category>推荐算法</category>
+      </categories>
       <tags>
         <tag>机器学习</tag>
         <tag>强化学习</tag>
@@ -253,6 +260,54 @@
       </tags>
   </entry>
   <entry>
+    <title>2020年研究生数学建模B题第4问</title>
+    <url>/post/6e109dad/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>数学建模</category>
+        <category>2020十七届研究生B</category>
+      </categories>
+      <tags>
+        <tag>数学建模</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2020年研究生数学建模B题第3问</title>
+    <url>/post/f074080e/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>数学建模</category>
+        <category>2020十七届研究生B</category>
+      </categories>
+      <tags>
+        <tag>数学建模</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2020年研究生数学建模B题第2问</title>
+    <url>/post/87733898/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>数学建模</category>
+        <category>2020十七届研究生B</category>
+      </categories>
+      <tags>
+        <tag>数学建模</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>2020年研究生数学建模B题第1问</title>
+    <url>/post/aff86645/</url>
+    <content><![CDATA[]]></content>
+      <categories>
+        <category>数学建模</category>
+        <category>2020十七届研究生B</category>
+      </categories>
+      <tags>
+        <tag>数学建模</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>LinUCB Based on Decision Tree</title>
     <url>/post/40deb9b1/</url>
     <content><![CDATA[<p>本部分将前面写的LinUCB算法和决策树算法结合起来，以HS300成分股为股票池，首先定义一些因子，放入决策树将股票分组，每一组可以看成是一个portfolio，在时间$t$，将改时间所有的portfolio放入推荐系统，根据投资者的偏好、效用等特征选取投资组合推荐给投资者。</p>
@@ -287,6 +342,11 @@
 <p>这张图表现的是我们的组合算法与它投资同时间段内最优的组合的差距，我们可以看出在绝大多数时间内，我们的组合算法表现出来的结果与最优组合的结果相差不是特别大，这是因为我们的组合算法在考虑exploit的同时，也考虑了explore。</p>
 <p>本文具体代码详见Github主页：<a href="https://github.com/Curtis-Lau/LinUCB-Based-on-Decision-Tree">点击这里跳转</a></p>
 ]]></content>
+      <categories>
+        <category>算法</category>
+        <category>强化学习</category>
+        <category>推荐算法</category>
+      </categories>
       <tags>
         <tag>机器学习</tag>
         <tag>决策树</tag>
